@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="9.10.001">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="9.10.001" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="read_csv" compatibility="9.10.001" expanded="true" height="68" name="CSV utilização diária" width="90" x="112" y="34">
+        <parameter key="csv_file" value="D:/GitRepository/Bolsa/Python/ConsumosDuranteODia.csv"/>
+        <parameter key="column_separators" value=";"/>
+        <parameter key="trim_lines" value="false"/>
+        <parameter key="use_quotes" value="false"/>
+        <parameter key="quotes_character" value="&quot;"/>
+        <parameter key="escape_character" value="\"/>
+        <parameter key="skip_comments" value="false"/>
+        <parameter key="comment_characters" value="#"/>
+        <parameter key="starting_row" value="1"/>
+        <parameter key="parse_numbers" value="true"/>
+        <parameter key="decimal_character" value=","/>
+        <parameter key="grouped_digits" value="false"/>
+        <parameter key="grouping_character" value=","/>
+        <parameter key="infinity_representation" value=""/>
+        <parameter key="date_format" value=""/>
+        <parameter key="first_row_as_names" value="true"/>
+        <list key="annotations"/>
+        <parameter key="time_zone" value="SYSTEM"/>
+        <parameter key="locale" value="English (United States)"/>
+        <parameter key="encoding" value="SYSTEM"/>
+        <parameter key="read_all_values_as_polynominal" value="false"/>
+        <list key="data_set_meta_data_information">
+          <parameter key="0" value="Hora.true.polynominal.attribute"/>
+          <parameter key="1" value="Potencia.true.numeric.attribute"/>
+          <parameter key="2" value="id.true.nominal.attribute"/>
+          <parameter key="3" value="Dia.true.text.attribute"/>
+        </list>
+        <parameter key="read_not_matching_values_as_missings" value="true"/>
+      </operator>
+      <operator activated="true" class="read_csv" compatibility="9.10.001" expanded="true" height="68" name="CSV Equipamentos" width="90" x="112" y="187">
+        <parameter key="csv_file" value="D:/GitRepository/Bolsa/Python/valoresEquipamentos.csv"/>
+        <parameter key="column_separators" value=";"/>
+        <parameter key="trim_lines" value="false"/>
+        <parameter key="use_quotes" value="true"/>
+        <parameter key="quotes_character" value="&quot;"/>
+        <parameter key="escape_character" value="\"/>
+        <parameter key="skip_comments" value="false"/>
+        <parameter key="comment_characters" value="#"/>
+        <parameter key="starting_row" value="1"/>
+        <parameter key="parse_numbers" value="true"/>
+        <parameter key="decimal_character" value=","/>
+        <parameter key="grouped_digits" value="false"/>
+        <parameter key="grouping_character" value=","/>
+        <parameter key="infinity_representation" value=""/>
+        <parameter key="date_format" value=""/>
+        <parameter key="first_row_as_names" value="true"/>
+        <list key="annotations"/>
+        <parameter key="time_zone" value="SYSTEM"/>
+        <parameter key="locale" value="English (United States)"/>
+        <parameter key="encoding" value="windows-1252"/>
+        <parameter key="read_all_values_as_polynominal" value="false"/>
+        <list key="data_set_meta_data_information">
+          <parameter key="0" value="id.true.integer.attribute"/>
+          <parameter key="1" value="Dispositivo.true.polynominal.attribute"/>
+          <parameter key="2" value="Watts.true.real.attribute"/>
+          <parameter key="3" value="Divisão.true.polynominal.attribute"/>
+          <parameter key="5" value="Manuseamento.true.nominal.attribute"/>
+          <parameter key="6" value="Watts standby .true.real.attribute"/>
+        </list>
+        <parameter key="read_not_matching_values_as_missings" value="false"/>
+      </operator>
+      <operator activated="true" class="utility:create_exampleset" compatibility="9.10.001" expanded="true" height="68" name="(ExampleSet) Utilização Diária" width="90" x="514" y="187">
+        <parameter key="generator_type" value="attribute functions"/>
+        <parameter key="number_of_examples" value="100"/>
+        <parameter key="use_stepsize" value="false"/>
+        <list key="function_descriptions">
+          <parameter key="Utilização diária (min)" value="0"/>
+          <parameter key="Dispositivo" value="&quot;&quot;"/>
+          <parameter key="Dia" value="&quot;&quot;"/>
+          <parameter key="Média watts" value="&quot;&quot;"/>
+          <parameter key="Gasto mensal expectável" value="&quot;&quot;"/>
+        </list>
+        <parameter key="add_id_attribute" value="true"/>
+        <list key="numeric_series_configuration"/>
+        <list key="date_series_configuration"/>
+        <list key="date_series_configuration (interval)"/>
+        <parameter key="date_format" value="yyyy-MM-dd HH:mm:ss"/>
+        <parameter key="time_zone" value="SYSTEM"/>
+        <parameter key="column_separator" value=","/>
+        <parameter key="parse_all_as_nominal" value="false"/>
+        <parameter key="decimal_point_character" value="."/>
+        <parameter key="trim_attribute_names" value="true"/>
+      </operator>
+      <operator activated="true" class="utility:create_exampleset" compatibility="9.10.001" expanded="true" height="68" name="(ExampleSet) Auxiliar" width="90" x="45" y="493">
+        <parameter key="generator_type" value="attribute functions"/>
+        <parameter key="number_of_examples" value="100"/>
+        <parameter key="use_stepsize" value="false"/>
+        <list key="function_descriptions">
+          <parameter key="Total Watts" value="0"/>
+          <parameter key="Contador" value="0"/>
+          <parameter key="Dia" value="&quot;&quot;"/>
+        </list>
+        <parameter key="add_id_attribute" value="true"/>
+        <list key="numeric_series_configuration"/>
+        <list key="date_series_configuration"/>
+        <list key="date_series_configuration (interval)"/>
+        <parameter key="date_format" value="yyyy-MM-dd HH:mm:ss"/>
+        <parameter key="time_zone" value="SYSTEM"/>
+        <parameter key="column_separator" value=","/>
+        <parameter key="parse_all_as_nominal" value="false"/>
+        <parameter key="decimal_point_character" value="."/>
+        <parameter key="trim_attribute_names" value="true"/>
+      </operator>
+      <operator activated="true" class="multiply" compatibility="9.10.001" expanded="true" height="103" name="Multiply (7)" width="90" x="179" y="493"/>
+      <operator activated="true" class="delete_file" compatibility="9.10.001" expanded="true" height="82" name="Delete File" width="90" x="313" y="34">
+        <parameter key="file" value="D:/GitRepository/Bolsa/Python/dispositivos.csv"/>
+        <parameter key="fail_if_missing" value="false"/>
+      </operator>
+      <operator activated="true" class="concurrency:loop_values" compatibility="9.10.001" expanded="true" height="145" name="Loop Values" width="90" x="648" y="34">
+        <parameter key="attribute" value="id"/>
+        <parameter key="iteration_macro" value="loop_value"/>
+        <parameter key="reuse_results" value="false"/>
+        <parameter key="enable_parallel_execution" value="false"/>
+        <process expanded="true">
+          <operator activated="true" class="utility:create_exampleset" compatibility="9.10.001" expanded="true" height="68" name="ExampleSet Consumos" width="90" x="246" y="136">
+            <parameter key="generator_type" value="attribute functions"/>
+            <parameter key="number_of_examples" value="100"/>
+            <parameter key="use_stepsize" value="false"/>
+            <list key="function_descriptions">
+              <parameter key="Consumo" value="&quot;-1&quot;"/>
+              <parameter key="Dispositivo" value="&quot;&quot;"/>
+              <parameter key="Consumo Alcançado" value="&quot;&quot;"/>
+              <parameter key="Consumo expectável" value="&quot;&quot;"/>
+              <parameter key="Divisão Expectável" value="&quot;&quot;"/>
+              <parameter key="Hora" value="&quot;&quot;"/>
+              <parameter key="Dia" value="&quot;&quot;"/>
+              <parameter key="debug" value="0"/>
+              <parameter key="Standby" value="&quot;-------&quot;"/>
+              <parameter key="Standby alcançado" value="&quot;&quot;"/>
+              <parameter key="Standby expectável" value="&quot;&quot;"/>
+              <parameter key="Consumo Total" value="&quot;&quot;"/>
+            </list>
+            <parameter key="add_id_attribute" value="false"/>
+            <list key="numeric_series_configuration"/>
+            <list key="date_series_configuration"/>
+            <list key="date_series_configuration (interval)"/>
+            <parameter key="date_format" value="yyyy-MM-dd HH:mm:ss"/>
+            <parameter key="time_zone" value="SYSTEM"/>
+            <parameter key="column_separator" value=","/>
+            <parameter key="parse_all_as_nominal" value="false"/>
+            <parameter key="decimal_point_character" value="."/>
+            <parameter key="trim_attribute_names" value="true"/>
+          </operator>
+          <operator activated="true" class="generate_id" compatibility="9.10.001" expanded="true" height="82" name="Generate ID" width="90" x="380" y="136">
+            <parameter key="create_nominal_ids" value="false"/>
+            <parameter key="offset" value="0"/>
+          </operator>
+          <operator activated="true" class="multiply" compatibility="9.10.001" expanded="true" height="82" name="Multiply (2)" width="90" x="380" y="544"/>
+          <operator activated="true" class="multiply" compatibility="9.10.001" expanded="true" height="82" name="Multiply (3)" width="90" x="1117" y="544"/>
+          <operator activated="true" class="multiply" compatibility="9.10.001" expanded="true" height="103" name="Multiply (6)" width="90" x="447" y="391"/>
+          <operator activated="true" class="execute_script" compatibility="9.10.001" expanded="true" height="145" name="Consumos" width="90" x="782" y="34">
+            <parameter key="script" value="import java.util.*;&#10;&#10;//INPUTS&#10;consumos = input[0];&#10;es = input[1];&#10;esNew = input[2];&#10;esAux = input[3];&#10;&#10;&#10;//LISTAS&#10;divisaoAtualPorManuseamento = new ArrayList&lt;&gt;();&#10;dispositivos = new ArrayList&lt;&gt;();&#10;bests = new ArrayList&lt;&gt;();&#10;listaDeUsados = new ArrayList&lt;&gt;();&#10;equipamentosASeremUsados = new ArrayList&lt;&gt;();&#10;//VARIÁVEIS&#10;wattsTotal =(double)consumos.getExample(%{loop_value}-1)[&quot;Potencia&quot;] //-es.getExample(0)['Média Standby']; //Assumindo que gastamos sempre um x watts para equipamnentos em standby (valor introduzido no excel dos equipamentos da habitação)&#10;esNew.getExample(0)['Hora'] = consumos.getExample(%{loop_value}-1)[&quot;Hora&quot;];&#10;divisions = new int[8];&#10;consumoMaisProximo = 0;&#10;//Auxiliar para fazer ultimo script&#10;esAux.getExample(0)[&quot;Total Watts&quot;]+= wattsTotal;&#10;esAux.getExample(0)[&quot;Dia&quot;] = consumos.getExample(0)[&quot;Dia&quot;];&#10;&#10;&#10;//preencher lista com valores de potência de cada equipamento&#10;for(int i = 0; i &lt;  es.size(); i++){&#10;&#9;dispositivos.add(es.getExample(i)['Watts']);&#10;}&#10;&#10;&#10;//Funcão para fazer previsões de quais os equipamentos que estão ligados&#10;bests = somaWatts(dispositivos, wattsTotal);&#10;&#10;&#10;//Adicionar a potencia de cada equipamento ao novo example set devolvido&#10;for(int i = 0; i &lt; bests.size(); i++){&#10;&#9;esNew.getExample(i)['Consumo'] = bests.get(i);&#10;&#10;&#9;//Guardar outras informações para além da potência sobre os equipamentos em uso&#10;&#9;for(int j = 0; j &lt; es.size(); j++){&#10;&#9;&#9;if(es.getExample(j)['Watts'] == bests.get(i) &amp;&amp; !listaDeUsados.contains(es.getExample(j)['id'])){&#10;&#9;&#9;&#9;listaDeUsados.add(es.getExample(j)['id']);&#10;&#9;&#9;&#9;esNew.getExample(i)['id'] = es.getExample(j)['id'];&#10;&#9;&#9;&#9;esNew.getExample(i)['Dispositivo'] = es.getExample(j)['Dispositivo'];&#10;&#9;&#9;&#9;&#10;&#9;&#9;&#9;if(es.getExample(j)['Manuseamento'] == &quot;Humano&quot;){&#10;&#9;&#9;&#9;&#9;divisaoAtualPorManuseamento.add(es.getExample(j)['Divisão']);&#10;&#9;&#9;&#9;}&#10;&#9;&#9;&#9;else{&#10;&#9;&#9;&#9;&#9;switch(es.getExample(j)['Divisão']){&#10;&#9;&#9;&#9;&#9;&#9;case &quot;Living room&quot;:&#10;&#9;&#9;&#9;&#9;&#9;&#9;divisions[0]++;&#9;&#10;&#9;&#9;&#9;&#9;&#9;&#9;break;&#10;&#9;&#9;&#9;&#9;&#9;case &quot;Kitchen&quot;:&#10;&#9;&#9;&#9;&#9;&#9;&#9;divisions[1]++;&#10;&#9;&#9;&#9;&#9;&#9;&#9;break;&#10;&#9;&#9;&#9;&#9;&#9;case &quot;Bedroom&quot;:&#10;&#9;&#9;&#9;&#9;&#9;&#9;divisions[2]++;&#10;&#9;&#9;&#9;&#9;&#9;&#9;break;&#10;&#9;&#9;&#9;&#9;&#9;case &quot;Toilet&quot;:&#10;&#9;&#9;&#9;&#9;&#9;&#9;divisions[3]++;&#10;&#9;&#9;&#9;&#9;&#9;&#9;break;&#9;&#10;&#9;&#9;&#9;&#9;&#9;case &quot;Laundry&quot;:&#10;&#9;&#9;&#9;&#9;&#9;&#9;divisions[4]++;&#10;&#9;&#9;&#9;&#9;&#9;&#9;break;&#9;&#10;&#9;&#9;&#9;&#9;&#9;case &quot;Office&quot;:&#10;&#9;&#9;&#9;&#9;&#9;&#9;divisions[5]++;&#10;&#9;&#9;&#9;&#9;&#9;&#9;break;&#9;&#10;&#9;&#9;&#9;&#9;&#9;case &quot;Outside&quot;:&#10;&#9;&#9;&#9;&#9;&#9;&#9;divisions[6]++;&#10;&#9;&#9;&#9;&#9;&#9;&#9;break;&#9;&#10;&#9;&#9;&#9;&#9;&#9;default:&#10;&#9;&#9;&#9;&#9;&#9;&#9;divisions[7]++;&#10;&#9;&#9;&#9;&#9;}&#10;&#9;&#9;&#9;}&#10;&#9;&#9;&#9;break; //depois de encontrar a correspondência do equipamento nao precisa de percorrer o resto da lista&#10;&#9;&#9;}&#9;&#10;&#9;&#9;esNew.getExample(0)['debug'] = i;&#10;&#9;}&#10;&#9;&#10;}&#10;&#10;&#10;//Se existir algum equipamento que necessite de manuseamento humano nos dispositivos ligados&#10;if(divisaoAtualPorManuseamento.size() != 0){&#10;&#9;for(int i=0; i&lt; divisaoAtualPorManuseamento.size(); i++){&#10;&#9;&#9;//Apenas adiciona os valores que nao estão na lista de divisões&#10;&#9;&#9;if(!(esNew.getExample(0)['Divisão Expectável'].contains(divisaoAtualPorManuseamento.get(i))))&#10;&#9;&#9;&#9;esNew.getExample(0)['Divisão Expectável'] += divisaoAtualPorManuseamento.get(i) + &quot; | &quot;;&#10;&#9;}&#10;}&#10;else{&#10;&#9;maximo = 0;&#10;&#9;&#10;&#9;for(int i=0; i&lt;divisions.length;i++){&#10;&#9;&#9;&#10;&#9;&#9;//saber divisão com mais dispositivos ligados utilizando o vetor criado anteriormente&#10;&#9;&#9;if(divisions[maximo]&lt;=divisions[i]){&#10;&#9;&#9;&#9;maximo= i;//Obter a divisão (posicao i do vetor)&#10;&#9;&#9;}&#10;&#9;&#9;&#10;&#9;}&#10;&#10;&#9;&#9;&#10;&#9;//Saber divisão mais provavel que o utilizador esteja&#10;&#9;for(int i=0; i&lt;divisions.length;i++){&#10;&#9;&#9;&#10;&#9;&#9;if(divisions[i]==divisions[maximo]){&#10;&#9;&#9;&#9;&#10;&#9;&#9;&#9;switch(i){&#10;&#9;&#9;&#9;&#9;case '0':&#10;&#9;&#9;&#9;&#9;&#9;esNew.getExample(0)['Divisão Expectável'] += &quot;Living room | &quot;;&#10;&#9;&#9;&#9;&#9;&#9;break;&#10;&#9;&#9;&#9;&#9;case '1':&#10;&#9;&#9;&#9;&#9;&#9;esNew.getExample(0)['Divisão Expectável'] += &quot;Kitchen | &quot;;&#10;&#9;&#9;&#9;&#9;&#9;break;&#10;&#9;&#9;&#9;&#9;case '2':&#10;&#9;&#9;&#9;&#9;&#9;esNew.getExample(0)['Divisão Expectável'] += &quot;Bedroom | &quot;;&#10;&#9;&#9;&#9;&#9;&#9;break;&#10;&#9;&#9;&#9;&#9;case '3':&#10;&#9;&#9;&#9;&#9;&#9;esNew.getExample(0)['Divisão Expectável'] += &quot;Toilet | &quot;;&#10;&#9;&#9;&#9;&#9;&#9;break;&#10;&#9;&#9;&#9;&#9;case '4':&#10;&#9;&#9;&#9;&#9;&#9;esNew.getExample(0)['Divisão Expectável'] += &quot;Laundry | &quot;;&#10;&#9;&#9;&#9;&#9;&#9;break;&#10;&#9;&#9;&#9;&#9;case '5':&#10;&#9;&#9;&#9;&#9;&#9;esNew.getExample(0)['Divisão Expectável'] += &quot;Office | &quot;;&#10;&#9;&#9;&#9;&#9;&#9;break;&#10;&#9;&#9;&#9;&#9;case '6':&#10;&#9;&#9;&#9;&#9;&#9;esNew.getExample(0)['Divisão Expectável'] += &quot;Outside | &quot;;&#10;&#9;&#9;&#9;&#9;&#9;break;&#10;&#9;&#9;&#9;&#9;default:&#10;&#9;&#9;&#9;&#9;&#9;esNew.getExample(0)['Divisão Expectável'] += &quot;Outro | &quot;;&#10;&#9;&#9;&#9;}&#10;&#9;&#9;}&#10;&#9;}&#10;}&#10;&#10;&#10;//FUNCÕES----------------------------------------------------------------------------------------------------&#10;void somaWattsRecursiva(ArrayList&lt;Double&gt; dispositivos, double target, ArrayList&lt;Double&gt; partial){&#10;&#9;double soma = 0.0;&#10;&#9;for (double x : partial) {&#10;&#9;&#9;soma += x;&#10;&#9;  &#9;if (soma &gt; consumoMaisProximo &amp;&amp; soma &lt;= target) {&#10;&#9;     &#9;consumoMaisProximo = soma;&#10;&#9;      &#9;equipamentosASeremUsados = new ArrayList&lt;&gt;(partial);&#10;&#9;  &#9;}&#10;&#9;}&#10;&#9;if (soma &gt;= target)&#10;&#9;&#9;return;&#10;&#9;&#10;&#9;for (int i = 0; i &lt; dispositivos.size(); i++) {&#10;&#9;&#9;ArrayList&lt;Double&gt; remaining = new ArrayList&lt;&gt;();&#10;&#9;  &#9;double n = dispositivos.get(i);&#10;&#9;  &#9;for (int j = i + 1; j &lt; dispositivos.size(); j++) {&#10;&#9;     &#9;remaining.add(dispositivos.get(j));&#10;&#9;  &#9;}&#10;&#9;&#10;&#9;  &#9;ArrayList&lt;Double&gt; partial_rec = new ArrayList&lt;&gt;(partial);&#10;&#9;  &#9;partial_rec.add(n);&#10;&#9;  &#9;somaWattsRecursiva(remaining, target, partial_rec);&#10;&#9;}&#10;}&#10;&#10;ArrayList&lt;Double&gt; somaWatts(ArrayList&lt;Double&gt; dispositivos, double consumoTotal){&#10;&#9;somaWattsRecursiva(dispositivos, consumoTotal, new ArrayList&lt;&gt;());&#10;&#9;return equipamentosASeremUsados;&#10;}&#10;//-----------------------------------------------------------------------------------------------------------&#10;&#10;esNew.getExample(0)['Consumo Alcançado'] = consumoMaisProximo;&#10;esNew.getExample(0)['Consumo expectável'] = wattsTotal;&#10;esNew.getExample(0)['Dia'] = consumos.getExample(0)[&quot;Dia&quot;];&#10;esNew.getExample(0)['Consumo Total'] =(double)consumos.getExample(%{loop_value}-1)[&quot;Potencia&quot;];&#10;&#10;return esNew;&#10;&#9;&#10;&#10;&#10;&#10;&#10;&#10;&#10;&#10;&#10;"/>
+            <parameter key="standard_imports" value="true"/>
+          </operator>
+          <operator activated="true" class="multiply" compatibility="9.10.001" expanded="true" height="103" name="Multiply" width="90" x="1184" y="238"/>
+          <operator activated="true" class="filter_examples" compatibility="9.10.001" expanded="true" height="103" name="Filter Examples (2)" width="90" x="1385" y="238">
+            <parameter key="parameter_expression" value=""/>
+            <parameter key="condition_class" value="custom_filters"/>
+            <parameter key="invert_filter" value="false"/>
+            <list key="filters_list">
+              <parameter key="filters_entry_key" value="Consumo.does_not_equal.-1"/>
+            </list>
+            <parameter key="filters_logic_and" value="false"/>
+            <parameter key="filters_check_metadata" value="true"/>
+          </operator>
+          <operator activated="true" class="read_csv" compatibility="9.10.001" expanded="true" height="68" name="CSV Equipamentos (2)" width="90" x="1117" y="34">
+            <parameter key="csv_file" value="D:/GitRepository/Bolsa/Python/valoresEquipamentos.csv"/>
+            <parameter key="column_separators" value=";"/>
+            <parameter key="trim_lines" value="false"/>
+            <parameter key="use_quotes" value="true"/>
+            <parameter key="quotes_character" value="&quot;"/>
+            <parameter key="escape_character" value="\"/>
+            <parameter key="skip_comments" value="false"/>
+            <parameter key="comment_characters" value="#"/>
+            <parameter key="starting_row" value="1"/>
+            <parameter key="parse_numbers" value="true"/>
+            <parameter key="decimal_character" value=","/>
+            <parameter key="grouped_digits" value="false"/>
+            <parameter key="grouping_character" value=","/>
+            <parameter key="infinity_representation" value=""/>
+            <parameter key="date_format" value=""/>
+            <parameter key="first_row_as_names" value="true"/>
+            <list key="annotations"/>
+            <parameter key="time_zone" value="SYSTEM"/>
+            <parameter key="locale" value="English (United States)"/>
+            <parameter key="encoding" value="windows-1252"/>
+            <parameter key="read_all_values_as_polynominal" value="false"/>
+            <list key="data_set_meta_data_information">
+              <parameter key="0" value="id.true.integer.attribute"/>
+              <parameter key="1" value="Dispositivo.true.polynominal.attribute"/>
+              <parameter key="2" value="Watts.true.real.attribute"/>
+              <parameter key="3" value="Divisão.true.polynominal.attribute"/>
+              <parameter key="5" value="Manuseamento.true.nominal.attribute"/>
+              <parameter key="6" value="Watts standby .true.real.attribute"/>
+            </list>
+            <parameter key="read_not_matching_values_as_missings" value="false"/>
+          </operator>
+          <operator activated="true" class="read_csv" compatibility="9.10.001" expanded="true" height="68" name="CSV utilização diária (2)" width="90" x="1117" y="136">
+            <parameter key="csv_file" value="C:/Users/fabio/OneDrive/Documentos/RapidMiner/Local Repository/data/ConsumosDuranteODia.csv"/>
+            <parameter key="column_separators" value=";"/>
+            <parameter key="trim_lines" value="false"/>
+            <parameter key="use_quotes" value="true"/>
+            <parameter key="quotes_character" value="&quot;"/>
+            <parameter key="escape_character" value="\"/>
+            <parameter key="skip_comments" value="false"/>
+            <parameter key="comment_characters" value="#"/>
+            <parameter key="starting_row" value="1"/>
+            <parameter key="parse_numbers" value="true"/>
+            <parameter key="decimal_character" value=","/>
+            <parameter key="grouped_digits" value="false"/>
+            <parameter key="grouping_character" value=","/>
+            <parameter key="infinity_representation" value=""/>
+            <parameter key="date_format" value=""/>
+            <parameter key="first_row_as_names" value="true"/>
+            <list key="annotations"/>
+            <parameter key="time_zone" value="SYSTEM"/>
+            <parameter key="locale" value="English (United States)"/>
+            <parameter key="encoding" value="SYSTEM"/>
+            <parameter key="read_all_values_as_polynominal" value="false"/>
+            <list key="data_set_meta_data_information">
+              <parameter key="0" value="Hora.true.polynominal.attribute"/>
+              <parameter key="1" value="Potencia.true.numeric.attribute"/>
+              <parameter key="2" value="id.true.nominal.attribute"/>
+              <parameter key="3" value="Dia.true.text.attribute"/>
+            </list>
+            <parameter key="read_not_matching_values_as_missings" value="true"/>
+          </operator>
+          <operator activated="true" class="execute_script" compatibility="9.10.001" expanded="true" height="124" name="Standby" width="90" x="1385" y="34">
+            <parameter key="script" value="equipamentos = input[0];&#10;consumosDiarios = input[1];&#10;dadosTratados = input[2];&#10;&#10;consumoMaisProximo = 0;&#10;dispositivos = new ArrayList&lt;&gt;();&#10;equipamentosASeremUsados = new ArrayList&lt;&gt;();&#10;bests = new ArrayList&lt;&gt;();&#10;listaDeUsados = new ArrayList&lt;&gt;();&#10;listaEquipamentosLigados = new ArrayList&lt;&gt;();&#10;wattsTotal = (double)0;&#10;menorConsumo=9999999;&#10;&#10;for(int i = 0; i &lt; dadosTratados.size(); i++){&#10;&#9;if(dadosTratados.getExample(i)['Consumo'] != &quot;-1&quot;)&#10;&#9;&#9;listaEquipamentosLigados.add(dadosTratados.getExample(i)['id']); &#10;}&#10;&#10;//preencher lista com valores de potência standby dos equipamentos&#10;for(int i = 0; i &lt; equipamentos.size(); i++){&#10;&#9;if(equipamentos.getExample(i)['Watts standby'] != 0 &amp;&amp; !listaEquipamentosLigados.contains(equipamentos.getExample(i)['id'])){&#10;&#9;&#9;//Equipamentos que poderam estar em standby&#10;&#9;&#9;dispositivos.add(equipamentos.getExample(i)['Watts standby']);&#10;&#9;&#9;//wattsTotal += (double)equipamentos.getExample(i)['Watts standby'];&#10;&#9;&#9;if(equipamentos.getExample(i)['Watts standby']&lt;menorConsumo){&#10;&#9;&#9;&#9;menorConsumo = (double)equipamentos.getExample(i)['Watts standby'];&#10;&#9;&#9;}&#10;&#9;}&#10;}&#10;wattsTotal = Double.parseDouble(dadosTratados.getExample(0)['Consumo expectável']) - Double.parseDouble(dadosTratados.getExample(0)['Consumo Alcançado']);&#10;//wattsTotal+=equipamentos.getExample(0)['Média Standby'];&#10;pos = dadosTratados.getExample(0)['debug']+1;&#10;&#10;//wattsTotal =(double)consumosDiarios.getExample(%{loop_value}-1)[&quot;Potencia Standby&quot;];&#10; &#10;if(menorConsumo&lt;=wattsTotal)&#10;&#9;bests = somaWatts(dispositivos, wattsTotal);&#10;&#9;&#10;&#10;for(int i = 0; i &lt; bests.size(); i++){&#10;&#9;dadosTratados.getExample(pos)['Consumo'] = bests.get(i);&#10;&#9;&#10;&#9;for(int j = 0; j &lt; equipamentos.size(); j++){&#10;&#9;&#9;if(equipamentos.getExample(j)['Watts standby'] == bests.get(i) &amp;&amp; !listaDeUsados.contains(equipamentos.getExample(j)['id'])){&#9;&#9;&#10;&#9;&#9;&#9;listaDeUsados.add(equipamentos.getExample(j)['id']);&#10;&#9;&#9;&#9;dadosTratados.getExample(pos)['id'] = equipamentos.getExample(j)['id'];&#10;&#9;&#9;&#9;dadosTratados.getExample(pos)['Dispositivo'] = equipamentos.getExample(j)['Dispositivo'];&#10;&#9;&#9;&#9;dadosTratados.getExample(pos)['Standby'] = &quot;Sim&quot;;&#10;&#9;&#9;&#9;pos++;&#10;&#9;&#9;&#9;break;&#10;&#9;&#9;}&#10;&#9;}&#10;}&#10;&#10;&#10;&#10;&#9;&#9;&#10;&#9;&#9;&#9;&#10;//Funcões------------------------------------------------------------------&#10;void somaWattsRecursiva(ArrayList&lt;Double&gt; dispositivos, double target, ArrayList&lt;Double&gt; partial){&#10;&#9;double soma = 0.0;&#10;&#9;for (double x : partial) {&#10;&#9;&#9;soma += x;&#10;&#9;  &#9;if (soma &gt; consumoMaisProximo &amp;&amp; soma &lt;= target) {&#10;&#9;     &#9;consumoMaisProximo = soma;&#10;&#9;      &#9;equipamentosASeremUsados = new ArrayList&lt;&gt;(partial);&#10;&#9;  &#9;}&#10;&#9;}&#10;&#9;if (soma &gt;= target)&#10;&#9;&#9;return;&#10;&#9;&#10;&#9;for (int i = 0; i &lt; dispositivos.size(); i++) {&#10;&#9;&#9;ArrayList&lt;Double&gt; remaining = new ArrayList&lt;&gt;();&#10;&#9;  &#9;double n = dispositivos.get(i);&#10;&#9;  &#9;for (int j = i + 1; j &lt; dispositivos.size(); j++) {&#10;&#9;     &#9;remaining.add(dispositivos.get(j));&#10;&#9;  &#9;}&#10;&#9;&#10;&#9;  &#9;ArrayList&lt;Double&gt; partial_rec = new ArrayList&lt;&gt;(partial);&#10;&#9;  &#9;partial_rec.add(n);&#10;&#9;  &#9;somaWattsRecursiva(remaining, target, partial_rec);&#10;&#9;}&#10;}&#10;&#10;ArrayList&lt;Double&gt; somaWatts(ArrayList&lt;Double&gt; dispositivos, double consumoTotal){&#10;&#9;somaWattsRecursiva(dispositivos, consumoTotal, new ArrayList&lt;&gt;());&#10;&#9;return equipamentosASeremUsados;&#10;}&#10;&#10;&#10;dadosTratados.getExample(0)['Standby alcançado'] = Math.round(consumoMaisProximo * 100) / 100;&#10;dadosTratados.getExample(0)['Standby expectável'] = Math.round(wattsTotal * 100) / 100;&#10;&#10;&#10;&#10;return dadosTratados;"/>
+            <parameter key="standard_imports" value="true"/>
+          </operator>
+          <operator activated="true" class="filter_examples" compatibility="9.10.001" expanded="true" height="103" name="Filter Examples" width="90" x="1519" y="34">
+            <parameter key="parameter_expression" value=""/>
+            <parameter key="condition_class" value="custom_filters"/>
+            <parameter key="invert_filter" value="false"/>
+            <list key="filters_list">
+              <parameter key="filters_entry_key" value="Consumo.does_not_equal.-1"/>
+            </list>
+            <parameter key="filters_logic_and" value="false"/>
+            <parameter key="filters_check_metadata" value="true"/>
+          </operator>
+          <operator activated="true" class="select_attributes" compatibility="9.10.001" expanded="true" height="82" name="Select Attributes (2)" width="90" x="1653" y="34">
+            <parameter key="attribute_filter_type" value="subset"/>
+            <parameter key="attribute" value=""/>
+            <parameter key="attributes" value="Consumo Total|Consumo expectável|Consumo Alcançado|Standby expectável|Standby alcançado|Standby|Divisão Expectável|Hora|Dia|Consumo|Dispositivo"/>
+            <parameter key="use_except_expression" value="false"/>
+            <parameter key="value_type" value="attribute_value"/>
+            <parameter key="use_value_type_exception" value="false"/>
+            <parameter key="except_value_type" value="time"/>
+            <parameter key="block_type" value="attribute_block"/>
+            <parameter key="use_block_type_exception" value="false"/>
+            <parameter key="except_block_type" value="value_matrix_row_start"/>
+            <parameter key="invert_selection" value="false"/>
+            <parameter key="include_special_attributes" value="false"/>
+          </operator>
+          <operator activated="true" class="multiply" compatibility="9.10.001" expanded="true" height="82" name="Multiply (8)" width="90" x="1050" y="391"/>
+          <operator activated="true" class="execute_script" compatibility="9.10.001" expanded="true" height="124" name="Script tempo por equipamento" width="90" x="1921" y="238">
+            <parameter key="script" value="dadosTratados = input[0];&#10;esAux = input[1];&#10;esMedia = input[2];&#10;&#10;for(int i = 0; i &lt; dadosTratados.size(); i++){&#10;&#9;&#9;esMedia.getExample(dadosTratados.getExample(i)['id']-1)[&quot;Utilização diária (min)&quot;] += 10;&#10;&#9;&#9;esMedia.getExample(dadosTratados.getExample(i)['id']-1)[&quot;Dispositivo&quot;] = dadosTratados.getExample(i)['Dispositivo'];&#10;}&#10;&#10;esAux.getExample(0)[&quot;Contador&quot;]++;&#10;esAux.getExample(0)[&quot;Dia&quot;]=dadosTratados.getExample(0)['Dia'];&#10;&#10;return esMedia;&#10;&#10;&#10;&#10;&#9;"/>
+            <parameter key="standard_imports" value="true"/>
+          </operator>
+          <operator activated="true" class="multiply" compatibility="9.10.001" expanded="true" height="103" name="Multiply (9)" width="90" x="1787" y="34"/>
+          <operator activated="true" class="write_csv" compatibility="9.10.001" expanded="true" height="82" name="Write CSV (2)" origin="GENERATED_TUTORIAL" width="90" x="1921" y="85">
+            <parameter key="csv_file" value="D:/GitRepository/Bolsa/Python/dispositivos.csv"/>
+            <parameter key="column_separator" value=";"/>
+            <parameter key="write_attribute_names" value="true"/>
+            <parameter key="quote_nominal_values" value="false"/>
+            <parameter key="format_date_attributes" value="true"/>
+            <parameter key="date_format" value="yyyy-MM-dd HH:mm:ss"/>
+            <parameter key="append_to_file" value="true"/>
+            <parameter key="encoding" value="SYSTEM"/>
+          </operator>
+          <connect from_port="input 1" to_op="Consumos" to_port="input 1"/>
+          <connect from_port="input 2" to_op="Consumos" to_port="input 2"/>
+          <connect from_port="input 3" to_op="Multiply (6)" to_port="input"/>
+          <connect from_port="input 4" to_op="Multiply (2)" to_port="input"/>
+          <connect from_op="ExampleSet Consumos" from_port="output" to_op="Generate ID" to_port="example set input"/>
+          <connect from_op="Generate ID" from_port="example set output" to_op="Consumos" to_port="input 3"/>
+          <connect from_op="Multiply (2)" from_port="output 1" to_op="Multiply (3)" to_port="input"/>
+          <connect from_op="Multiply (3)" from_port="output 1" to_op="Script tempo por equipamento" to_port="input 3"/>
+          <connect from_op="Multiply (6)" from_port="output 1" to_op="Consumos" to_port="input 4"/>
+          <connect from_op="Multiply (6)" from_port="output 2" to_op="Multiply (8)" to_port="input"/>
+          <connect from_op="Consumos" from_port="output 1" to_op="Multiply" to_port="input"/>
+          <connect from_op="Multiply" from_port="output 1" to_op="Standby" to_port="input 3"/>
+          <connect from_op="Multiply" from_port="output 2" to_op="Filter Examples (2)" to_port="example set input"/>
+          <connect from_op="Filter Examples (2)" from_port="example set output" to_op="Script tempo por equipamento" to_port="input 1"/>
+          <connect from_op="CSV Equipamentos (2)" from_port="output" to_op="Standby" to_port="input 1"/>
+          <connect from_op="CSV utilização diária (2)" from_port="output" to_op="Standby" to_port="input 2"/>
+          <connect from_op="Standby" from_port="output 1" to_op="Filter Examples" to_port="example set input"/>
+          <connect from_op="Filter Examples" from_port="example set output" to_op="Select Attributes (2)" to_port="example set input"/>
+          <connect from_op="Select Attributes (2)" from_port="example set output" to_op="Multiply (9)" to_port="input"/>
+          <connect from_op="Multiply (8)" from_port="output 1" to_op="Script tempo por equipamento" to_port="input 2"/>
+          <connect from_op="Script tempo por equipamento" from_port="output 1" to_port="output 2"/>
+          <connect from_op="Multiply (9)" from_port="output 1" to_port="output 1"/>
+          <connect from_op="Multiply (9)" from_port="output 2" to_op="Write CSV (2)" to_port="input"/>
+          <portSpacing port="source_input 1" spacing="0"/>
+          <portSpacing port="source_input 2" spacing="0"/>
+          <portSpacing port="source_input 3" spacing="0"/>
+          <portSpacing port="source_input 4" spacing="0"/>
+          <portSpacing port="source_input 5" spacing="0"/>
+          <portSpacing port="sink_output 1" spacing="0"/>
+          <portSpacing port="sink_output 2" spacing="0"/>
+          <portSpacing port="sink_output 3" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="multiply" compatibility="9.10.001" expanded="true" height="82" name="Multiply (4)" width="90" x="782" y="85"/>
+      <operator activated="true" class="rmx_toolkit:extract_macro_from_collection" compatibility="2.6.006" expanded="true" height="68" name="Extract Macro from Collection" width="90" x="916" y="85">
+        <parameter key="macro" value="size"/>
+        <parameter key="macro_type" value="collection_size"/>
+      </operator>
+      <operator activated="true" class="select" compatibility="9.10.001" expanded="true" height="68" name="Select" width="90" x="1050" y="85">
+        <parameter key="index" value="%{size}"/>
+        <parameter key="unfold" value="false"/>
+      </operator>
+      <operator activated="true" class="filter_examples" compatibility="9.10.001" expanded="true" height="103" name="Filter Examples (3)" width="90" x="1184" y="85">
+        <parameter key="parameter_expression" value=""/>
+        <parameter key="condition_class" value="custom_filters"/>
+        <parameter key="invert_filter" value="false"/>
+        <list key="filters_list">
+          <parameter key="filters_entry_key" value="Utilização diária (min).ne.0"/>
+        </list>
+        <parameter key="filters_logic_and" value="true"/>
+        <parameter key="filters_check_metadata" value="true"/>
+      </operator>
+      <operator activated="true" class="execute_script" compatibility="9.10.001" expanded="true" height="103" name="Execute Script" width="90" x="1385" y="238">
+        <parameter key="script" value="import java.util.*;&#10;import java.time.YearMonth;&#10;&#10;ExampleSet esMedia = input[0];&#10;ExampleSet esAux = input[1];&#10;mediaWatts = esAux.getExample(0)[&quot;Total Watts&quot;] / esAux.getExample(0)[&quot;Contador&quot;];&#10;esMedia.getExample(0)[&quot;Média watts&quot;]= Math.round(mediaWatts * 100) / 100;&#10;data = esAux.getExample(0)[&quot;Dia&quot;].toString();&#10;mes = data.tokenize(&quot;|&quot;);&#10;&#10;&#10;YearMonth yearMonthObject = YearMonth.of(mes[2].toInteger(),mes[1].toInteger()); //ano, mes&#10;int daysInMonth = yearMonthObject.lengthOfMonth();   &#10;&#10;// wattsTotal/1000 = conversão para KW&#10;// *24 -&gt; 24 horas&#10;// *daysInMonth -&gt; numero de dias ligado por mês&#10;// *0.14450 -&gt; preco de energia KWh (conforme a potência contratada)&#10;// +36.56 -&gt; tarifa de eletricidade&#10;gasto = (mediaWatts/1000 * 24 * daysInMonth * 0.14450 + 36.56);&#10;&#10;esMedia.getExample(0)['Gasto mensal expectável'] =Math.round(gasto* 100) / 100&#10;esMedia.getExample(0)['Dia'] =esAux.getExample(0)[&quot;Dia&quot;];&#10;return esMedia;"/>
+        <parameter key="standard_imports" value="true"/>
+      </operator>
+      <operator activated="true" class="select_attributes" compatibility="9.10.001" expanded="true" height="82" name="Select Attributes" width="90" x="1519" y="238">
+        <parameter key="attribute_filter_type" value="subset"/>
+        <parameter key="attribute" value=""/>
+        <parameter key="attributes" value="|Contador|debug|Dia|Dispositivo|Gasto mensal expectável|Média Cálculo|Utilização diária (min)|Média watts"/>
+        <parameter key="use_except_expression" value="false"/>
+        <parameter key="value_type" value="attribute_value"/>
+        <parameter key="use_value_type_exception" value="false"/>
+        <parameter key="except_value_type" value="time"/>
+        <parameter key="block_type" value="attribute_block"/>
+        <parameter key="use_block_type_exception" value="false"/>
+        <parameter key="except_block_type" value="value_matrix_row_start"/>
+        <parameter key="invert_selection" value="false"/>
+        <parameter key="include_special_attributes" value="false"/>
+      </operator>
+      <operator activated="true" class="multiply" compatibility="9.10.001" expanded="true" height="103" name="Multiply (5)" width="90" x="1653" y="238"/>
+      <operator activated="true" class="write_csv" compatibility="9.10.001" expanded="true" height="82" name="Write CSV" origin="GENERATED_TUTORIAL" width="90" x="1787" y="289">
+        <parameter key="csv_file" value="D:/GitRepository/Bolsa/Python/deviceUsage.csv"/>
+        <parameter key="column_separator" value=";"/>
+        <parameter key="write_attribute_names" value="true"/>
+        <parameter key="quote_nominal_values" value="false"/>
+        <parameter key="format_date_attributes" value="true"/>
+        <parameter key="date_format" value="yyyy-MM-dd HH:mm:ss"/>
+        <parameter key="append_to_file" value="false"/>
+        <parameter key="encoding" value="SYSTEM"/>
+      </operator>
+      <connect from_op="CSV utilização diária" from_port="output" to_op="Delete File" to_port="through 1"/>
+      <connect from_op="CSV Equipamentos" from_port="output" to_op="Loop Values" to_port="input 2"/>
+      <connect from_op="(ExampleSet) Utilização Diária" from_port="output" to_op="Loop Values" to_port="input 4"/>
+      <connect from_op="(ExampleSet) Auxiliar" from_port="output" to_op="Multiply (7)" to_port="input"/>
+      <connect from_op="Multiply (7)" from_port="output 1" to_op="Loop Values" to_port="input 3"/>
+      <connect from_op="Multiply (7)" from_port="output 2" to_op="Execute Script" to_port="input 2"/>
+      <connect from_op="Delete File" from_port="through 1" to_op="Loop Values" to_port="input 1"/>
+      <connect from_op="Loop Values" from_port="output 1" to_port="result 1"/>
+      <connect from_op="Loop Values" from_port="output 2" to_op="Multiply (4)" to_port="input"/>
+      <connect from_op="Multiply (4)" from_port="output 1" to_op="Extract Macro from Collection" to_port="collection"/>
+      <connect from_op="Extract Macro from Collection" from_port="collection" to_op="Select" to_port="collection"/>
+      <connect from_op="Select" from_port="selected" to_op="Filter Examples (3)" to_port="example set input"/>
+      <connect from_op="Filter Examples (3)" from_port="example set output" to_op="Execute Script" to_port="input 1"/>
+      <connect from_op="Execute Script" from_port="output 1" to_op="Select Attributes" to_port="example set input"/>
+      <connect from_op="Select Attributes" from_port="example set output" to_op="Multiply (5)" to_port="input"/>
+      <connect from_op="Multiply (5)" from_port="output 1" to_port="result 2"/>
+      <connect from_op="Multiply (5)" from_port="output 2" to_op="Write CSV" to_port="input"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <portSpacing port="sink_result 3" spacing="0"/>
+      <description align="center" color="yellow" colored="true" height="74" resized="true" width="100" x="914" y="164">Extens&amp;#227;o Jackhammer extension</description>
+    </process>
+  </operator>
+</process>
