@@ -24,9 +24,9 @@ class TrainingExamplePost extends FormRequest
     public function rules()
     {
         return [
-            'consumptions' => 'nullable|array',
-            'consumption_start' => 'nullable|integer',
-            'consumption_end' => 'nullable|integer',
+            'start' => 'required|integer',
+            'end' => 'required|integer',
+            'individual' => 'nullable|boolean',
             'equipments_on' => 'nullable|array'
         ];
     }

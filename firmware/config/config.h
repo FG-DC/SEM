@@ -10,7 +10,7 @@
 
 const String API_ENDPOINT = "http://192.168.1.66:8000/api";
 
-const char MQTT_HOST[] = "192.168.1.66";
+const char MQTT_HOST[] = "192.168.1.98";
 int MQTT_HOST_PORT = 1883;
 
 #endif

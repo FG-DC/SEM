@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use DateTime;
+use Exception;
+use DateTimeZone;
 use App\Models\User;
 use App\Models\Consumption;
 use App\Models\TrainingExample;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TrainingExamplePost;
 use App\Http\Resources\TrainingExampleResource;
-use Exception;
 
 class TrainingExampleController extends Controller
 {
@@ -19,32 +21,17 @@ class TrainingExampleController extends Controller
 
     public function postUserTrainingExample(TrainingExamplePost $request, User $user)
     {
-        $request->validated();
         $equipmentsON = !is_array($request->equipments_on) ? [] : $request->equipments_on;
         $count = 0;
 
-        if (!is_null($request->consumptions)) {
-            foreach ($request->consumptions as $consumption_id) {
+        $consumptions = Consumption::where('user_id', $user->id)
+            ->whereRaw('created_at >= FROM_UNIXTIME(' . $request->start . ')')
+            ->whereRaw('created_at <= FROM_UNIXTIME(' . $request->end . ')')
+            ->get();
 
-                $consumption = Consumption::where('user_id', $user->id)->find($consumption_id);
-                if ($consumption == null) {
-                    return response(['error' => 'Consumption ' . $consumption_id . ' does not exist'], 404);
-                }
-
-                $this->storeExamplesFor($user, $consumption, $equipmentsON);
-                $count++;
-            }
-        }
-
-        if (!is_null($request->consumption_start) && !is_null($request->consumption_end)) {
-            $start = $request->consumption_start;
-            $end = $request->consumption_end;
-            $consumptions = Consumption::where('user_id', $user->id)->whereBetween('id', [$start, $end])->get();
-
-            foreach ($consumptions as $consumption) {
-                $this->storeExamplesFor($user, $consumption, $equipmentsON);
-                $count++;
-            }
+        foreach ($consumptions as $consumption) {
+            $this->storeExamplesFor($user, $consumption, $equipmentsON, $request->individual);
+            $count++;
         }
 
         return response([$count . ' examples created with success'], 201);
@@ -59,7 +46,7 @@ class TrainingExampleController extends Controller
         return 'Winter';
     }
 
-    private function storeExamplesFor($user, $consumption, $equipmentsON)
+    private function storeExamplesFor($user, $consumption, $equipmentsON, $individual = false)
     {
         try {
             foreach ($user->equipments as $equipment) {
@@ -76,7 +63,7 @@ class TrainingExampleController extends Controller
                 $trainingExample->day_week = $this->getDayWeekByInteger(intval($consumption->created_at->format("w")));
                 $trainingExample->season = $this->getSeasonFrom(intval($consumption->created_at->format("z")) + 1);
                 $trainingExample->equipment_id = $equipment->id;
-                $trainingExample->equipment_consumption = $equipmentStatusON ? $equipment->consumption : 0;
+                $trainingExample->equipment_consumption = $equipmentStatusON ? ($individual ? $consumption->value : $equipment->consumption) : 0;
                 $trainingExample->equipment_division = $equipment->division->name;
                 $trainingExample->equipment_type = $equipment->type->name;
                 $trainingExample->equipment_activity = $equipment->activity;
