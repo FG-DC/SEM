@@ -51,13 +51,13 @@
         <parameter key="attribute_name" value=""/>
         <list key="additional_macros"/>
       </operator>
-      <operator activated="true" class="branch" compatibility="9.10.007" expanded="true" height="145" name="IF ROWS &gt; 0" width="90" x="849" y="85">
+      <operator activated="true" class="branch" compatibility="9.10.007" expanded="true" height="166" name="IF ROWS &gt; 0" width="90" x="849" y="85">
         <parameter key="condition_type" value="expression"/>
         <parameter key="expression" value="eval(%{i}) &gt; 0"/>
         <parameter key="io_object" value="ANOVAMatrix"/>
         <parameter key="return_inner_output" value="true"/>
         <process expanded="true">
-          <operator activated="true" class="subprocess" compatibility="9.10.007" expanded="true" height="82" name="Authentication" width="90" x="246" y="289">
+          <operator activated="true" class="subprocess" compatibility="9.10.007" expanded="true" height="82" name="Authentication" width="90" x="246" y="238">
             <process expanded="true">
               <operator activated="true" class="utility:create_exampleset" compatibility="9.10.007" expanded="true" height="68" name="Credentials" width="90" x="112" y="34">
                 <parameter key="generator_type" value="attribute functions"/>
@@ -502,7 +502,7 @@
                 <parameter key="connection_entry" value="/Connections/DB"/>
                 <parameter key="database_system" value="MySQL"/>
                 <parameter key="define_query" value="query"/>
-                <parameter key="query" value="SELECT UNIX_TIMESTAMP(time) AS &quot;timestamp&quot;, `consumption` AS &quot;power&quot;, equipment_id as &quot;id&quot;, equipment_consumption as &quot;app_power&quot;&#10;FROM `training_examples`&#10;WHERE user_id = %{id}"/>
+                <parameter key="query" value="SELECT UNIX_TIMESTAMP(t.time) AS &quot;timestamp&quot;, t.consumption AS &quot;power&quot;, t.equipment_id as &quot;id&quot;, t.equipment_consumption as &quot;app_power&quot;, e.name as &quot;name&quot;&#10;FROM `training_examples` t JOIN equipments e ON t.equipment_id = e.id &#10;WHERE e.user_id = %{id};"/>
                 <parameter key="use_default_schema" value="true"/>
                 <parameter key="prepare_statement" value="false"/>
                 <enumeration key="parameters"/>
@@ -514,7 +514,7 @@
                 <parameter key="connection_entry" value="/Connections/DB"/>
                 <parameter key="database_system" value="MySQL"/>
                 <parameter key="define_query" value="query"/>
-                <parameter key="query" value="SELECT id&#10;FROM equipments&#10;WHERE user_id = %{id}"/>
+                <parameter key="query" value="SELECT DISTINCT e.name,e.id FROM equipments e JOIN training_examples t ON t.equipment_id = e.id WHERE e.user_id = %{id};"/>
                 <parameter key="use_default_schema" value="true"/>
                 <parameter key="prepare_statement" value="false"/>
                 <enumeration key="parameters"/>
@@ -522,7 +522,7 @@
                 <parameter key="data_management" value="auto"/>
               </operator>
               <operator activated="true" class="execute_script" compatibility="9.10.007" expanded="true" height="103" name="Execute Script" width="90" x="447" y="136">
-                <parameter key="script" value="import com.rapidminer.tools.Ontology;&#10;import com.rapidminer.tools.LogService;&#10;import java.util.logging.Level;&#10;import java.text.DecimalFormat;&#10;&#10;def df = new DecimalFormat(&quot;#0.00&quot;)&#10;&#10;ExampleSet dataset = input[0];&#10;ExampleSet equipments = input[1];&#10;&#10;//Map Appliance ID =&gt; Attribute ID&#10;def map = [:];&#10;&#10;Attribute[] attributes = new Attribute[equipments.size() + 2];&#10;attributes[0] = AttributeFactory.createAttribute(&quot;timestamp&quot;, Ontology.NOMINAL);&#10;attributes[1] = AttributeFactory.createAttribute(&quot;power&quot;, Ontology.NOMINAL);&#10;for (int i = 2; i &lt; attributes.size(); i++) {&#10;&#9;int applianceID = equipments.getExample(i - 2)[&quot;id&quot;];&#10;&#9;attributes[i] = AttributeFactory.createAttribute(&quot;appliance&quot;+ applianceID, Ontology.NOMINAL);&#10;&#9;def imap = [(applianceID as int): i];&#10;&#9;map.putAll(imap);&#10;}&#10;&#10;//Create ExampleTable&#10;MemoryExampleTable dataTable = new MemoryExampleTable(attributes);&#10;DataRowFactory ROW_FACTORY = new DataRowFactory(0);&#10;&#10;//Add rows&#10;long lastTimestamp = dataset.size() &gt; 0 ? dataset.getExample(0)[&quot;timestamp&quot;] as long: 0;&#10;&#10;for (int i = 0; i &lt; dataset.size(); i++) {&#10;&#9;currRow = dataset.getExample(i);&#10;&#9;&#10;&#9;String[] dataArray = new String[attributes.size()];&#10;&#10;&#9;//Initialize Array&#10;&#9;&#10;&#9;for (int k = 0; k &lt; dataArray.size(); k++) {&#10;&#9;&#9;dataArray[k] = &quot;0&quot;;&#10;&#9;}&#10;&#9;&#10;&#10;&#9;dataArray[0] = String.format(&quot;%.0f&quot;, currRow[&quot;timestamp&quot;]); //timestamp&#10;&#9;dataArray[1] = currRow[&quot;power&quot;].toString();                 //power&#10;&#9;&#10;&#9;for (int j = i; j &lt; dataset.size(); j++) {&#10;&#9;&#9;if(j == dataset.size()-1){&#10;&#9;&#9;&#9;i = j;&#9;&#10;&#9;&#9;}&#10;&#9;&#9;&#10;&#9;&#9;targetRow = dataset.getExample(j);&#10;&#9;&#9;if (targetRow[&quot;timestamp&quot;] != lastTimestamp) {&#10;&#9;&#9;&#9;lastTimestamp = targetRow[&quot;timestamp&quot;];&#10;&#9;&#9;&#9;i = j-1;&#10;&#9;&#9;&#9;break;&#10;&#9;&#9;}&#10;&#9;&#9;int pos = map[targetRow[&quot;id&quot;] as int];&#10;&#9;&#9;if(targetRow[&quot;app_power&quot;] != 0){&#10;&#9;&#9;&#9;dataArray[pos] = targetRow[&quot;app_power&quot;].toString();    //appliance_power&#10;&#9;&#9;}&#10;&#9;}&#10;&#9;&#10;&#9;DataRow row = ROW_FACTORY.create(dataArray, attributes);&#10;&#9;dataTable.addDataRow(row);&#10;}&#10;&#10;return dataTable.createExampleSet();"/>
+                <parameter key="script" value="import com.rapidminer.tools.Ontology;&#10;import com.rapidminer.tools.LogService;&#10;import java.util.logging.Level;&#10;import java.text.DecimalFormat;&#10;&#10;&#10;&#10;def df = new DecimalFormat(&quot;#0.00&quot;)&#10;&#10;ExampleSet dataset = input[0];&#10;ExampleSet equipments = input[1];&#10;&#10;//Map Appliance ID =&gt; Attribute ID&#10;def map = [:];&#10;Attribute[] attributes = new Attribute[equipments.size() + 2];&#10;attributes[0] = AttributeFactory.createAttribute(&quot;timestamp&quot;, Ontology.NOMINAL);&#10;attributes[1] = AttributeFactory.createAttribute(&quot;power&quot;, Ontology.NOMINAL);&#10;for (int i = 2; i &lt; attributes.size(); i++) {&#10;&#9;int applianceID = equipments.getExample(i - 2)[&quot;id&quot;];&#10;&#9;//String applianceName = equipments.getExample(i - 2)[&quot;name&quot;];&#10;&#10;&#9;attributes[i] = AttributeFactory.createAttribute(&quot;appliance&quot; + applianceID, Ontology.NOMINAL);&#10;&#9;def imap = [(applianceID as int): i];&#10;&#9;map.putAll(imap);&#10;}&#10;&#10;//Create ExampleTable&#10;MemoryExampleTable dataTable = new MemoryExampleTable(attributes);&#10;DataRowFactory ROW_FACTORY = new DataRowFactory(0);&#10;&#10;//Add rows&#10;long lastTimestamp = dataset.size() &gt; 0 ? dataset.getExample(0)[&quot;timestamp&quot;] as long: 0;&#10;&#10;for (int i = 0; i &lt; dataset.size(); i++) {&#10;&#9;currRow = dataset.getExample(i);&#10;&#9;&#10;&#9;String[] dataArray = new String[attributes.size()];&#10;&#10;&#9;//Initialize Array&#10;&#9;&#10;&#9;for (int k = 0; k &lt; dataArray.size(); k++) {&#10;&#9;&#9;dataArray[k] = &quot;0&quot;;&#10;&#9;}&#10;&#9;&#10;&#10;&#9;dataArray[0] = String.format(&quot;%.0f&quot;, currRow[&quot;timestamp&quot;]); //timestamp&#10;&#9;dataArray[1] = currRow[&quot;power&quot;].toString();                 //power&#10;&#9;&#10;&#9;for (int j = i; j &lt; dataset.size(); j++) {&#10;&#9;&#9;if(j == dataset.size()-1){&#10;&#9;&#9;&#9;i = j;&#9;&#10;&#9;&#9;}&#10;&#9;&#9;&#10;&#9;&#9;targetRow = dataset.getExample(j);&#10;&#9;&#9;if (targetRow[&quot;timestamp&quot;] != lastTimestamp) {&#10;&#9;&#9;&#9;lastTimestamp = targetRow[&quot;timestamp&quot;];&#10;&#9;&#9;&#9;i = j-1;&#10;&#9;&#9;&#9;break;&#10;&#9;&#9;}&#10;&#9;&#9;int pos = map[targetRow[&quot;id&quot;] as int];&#10;&#9;&#9;if(targetRow[&quot;app_power&quot;] != 0){&#10;&#9;&#9;&#9;dataArray[pos] = targetRow[&quot;app_power&quot;].toString();    //appliance_power&#10;&#9;&#9;}&#10;&#9;}&#10;&#9;&#10;&#9;DataRow row = ROW_FACTORY.create(dataArray, attributes);&#10;&#9;dataTable.addDataRow(row);&#10;}&#10;&#10;return dataTable.createExampleSet();"/>
                 <parameter key="standard_imports" value="true"/>
               </operator>
               <operator activated="true" class="parse_numbers" compatibility="9.10.007" expanded="true" height="82" name="Parse Numbers" width="90" x="581" y="136">
@@ -556,32 +556,7 @@
                 <parameter key="datamanagement" value="double_array"/>
                 <parameter key="data_management" value="auto"/>
               </operator>
-              <operator activated="false" class="read_csv" compatibility="9.10.007" expanded="true" height="68" name="Read CSV" width="90" x="782" y="136">
-                <parameter key="csv_file" value="C:/test/dataset.csv"/>
-                <parameter key="column_separators" value=","/>
-                <parameter key="trim_lines" value="false"/>
-                <parameter key="use_quotes" value="true"/>
-                <parameter key="quotes_character" value="&quot;"/>
-                <parameter key="escape_character" value="\"/>
-                <parameter key="skip_comments" value="false"/>
-                <parameter key="comment_characters" value="#"/>
-                <parameter key="starting_row" value="1"/>
-                <parameter key="parse_numbers" value="true"/>
-                <parameter key="decimal_character" value="."/>
-                <parameter key="grouped_digits" value="false"/>
-                <parameter key="grouping_character" value=","/>
-                <parameter key="infinity_representation" value=""/>
-                <parameter key="date_format" value=""/>
-                <parameter key="first_row_as_names" value="true"/>
-                <list key="annotations"/>
-                <parameter key="time_zone" value="SYSTEM"/>
-                <parameter key="locale" value="English (United States)"/>
-                <parameter key="encoding" value="SYSTEM"/>
-                <parameter key="read_all_values_as_polynominal" value="false"/>
-                <list key="data_set_meta_data_information"/>
-                <parameter key="read_not_matching_values_as_missings" value="true"/>
-              </operator>
-              <operator activated="true" class="python_scripting:execute_python" compatibility="9.10.002" expanded="true" height="124" name="Execute Python" width="90" x="782" y="238">
+              <operator activated="true" class="python_scripting:execute_python" compatibility="9.10.002" expanded="true" height="124" name="Execute Python" width="90" x="782" y="187">
                 <parameter key="script" value="import pandas&#10;&#10;# rm_main is a mandatory function, &#10;# the number of arguments has to be the number of input ports (can be none),&#10;#     or the number of input ports plus one if &quot;use macros&quot; parameter is set&#10;# if you want to use macros, use this instead and check &quot;use macros&quot; parameter:&#10;#def rm_main(data,macros):&#10;def rm_main(data):&#10;    print('Hello, world!')&#10;    # output can be found in Log View&#10;    print(type(data))&#10;&#10;    #your code goes here&#10;&#10;    #for example:&#10;    data2 = pandas.DataFrame([3,5,77,8])&#10;&#10;    # connect 2 output ports to see the results&#10;    return data, data2"/>
                 <parameter key="script_file" value="D:/GitRepository/SEM/Rapidminer/Local Repository/processes/project/SLD/sld_rp.py"/>
                 <parameter key="notebook_cell_tag_filter" value=""/>
@@ -597,14 +572,15 @@
               <connect from_op="Dataset B" from_port="output" to_op="Transform B" to_port="in 1"/>
               <connect from_op="Transform B" from_port="out 1" to_op="Count Training Rows B" to_port="example set"/>
               <connect from_op="Count Training Rows B" from_port="example set" to_op="IF TRANING_ROWS &gt; 0" to_port="input 1"/>
-              <connect from_op="IF TRANING_ROWS &gt; 0" from_port="input 1" to_port="output 1"/>
-              <connect from_op="IF TRANING_ROWS &gt; 0" from_port="input 2" to_port="output 2"/>
-              <connect from_op="IF TRANING_ROWS &gt; 0" from_port="input 3" to_port="output 3"/>
+              <connect from_op="IF TRANING_ROWS &gt; 0" from_port="input 1" to_port="output 2"/>
+              <connect from_op="IF TRANING_ROWS &gt; 0" from_port="input 2" to_port="output 3"/>
+              <connect from_op="IF TRANING_ROWS &gt; 0" from_port="input 3" to_port="output 4"/>
               <connect from_op="Custom examples" from_port="output" to_op="Execute Script" to_port="input 1"/>
               <connect from_op="Equipments" from_port="output" to_op="Execute Script" to_port="input 2"/>
               <connect from_op="Execute Script" from_port="output 1" to_op="Parse Numbers" to_port="example set input"/>
               <connect from_op="Parse Numbers" from_port="example set output" to_op="Execute Python" to_port="input 1"/>
               <connect from_op="Dataset A" from_port="output" to_op="Execute Python" to_port="input 2"/>
+              <connect from_op="Execute Python" from_port="output 1" to_port="output 1"/>
               <portSpacing port="source_input 1" spacing="0"/>
               <portSpacing port="source_input 2" spacing="0"/>
               <portSpacing port="sink_output 1" spacing="0"/>
@@ -612,20 +588,23 @@
               <portSpacing port="sink_output 3" spacing="0"/>
               <portSpacing port="sink_output 4" spacing="0"/>
               <portSpacing port="sink_output 5" spacing="0"/>
-              <description align="center" color="gray" colored="true" height="50" resized="true" width="828" x="224" y="48">Equipment Status Prediction (A)</description>
-              <description align="center" color="yellow" colored="false" height="284" resized="true" width="291" x="396" y="99">Create dataset</description>
+              <description align="center" color="gray" colored="true" height="50" resized="true" width="718" x="224" y="48">Equipment Status Prediction (A)</description>
+              <description align="center" color="yellow" colored="false" height="290" resized="true" width="306" x="397" y="99">Create dataset</description>
               <description align="center" color="green" colored="true" height="141" resized="true" width="167" x="225" y="100">Train Data</description>
               <description align="center" color="gray" colored="true" height="50" resized="true" width="827" x="226" y="396">Consumption Prediction (B)</description>
-              <description align="center" color="yellow" colored="false" height="134" resized="false" width="542" x="226" y="454">Train Data</description>
-              <description align="center" color="green" colored="true" height="136" resized="true" width="333" x="227" y="613">Test Data</description>
+              <description align="center" color="yellow" colored="false" height="147" resized="true" width="540" x="226" y="454">Train Data</description>
+              <description align="center" color="green" colored="true" height="144" resized="true" width="356" x="227" y="605">Test Data</description>
               <description align="center" color="green" colored="true" height="145" resized="true" width="168" x="226" y="243">User Equipments&lt;br&gt;</description>
-              <description align="center" color="yellow" colored="false" height="283" resized="true" width="231" x="691" y="101">SLD&lt;br/&gt;</description>
+              <description align="center" color="yellow" colored="false" height="287" resized="true" width="235" x="707" y="102">SLD&lt;br/&gt;</description>
+              <description align="center" color="purple" colored="true" height="305" resized="true" width="231" x="828" y="450"/>
             </process>
           </operator>
           <connect from_port="input 1" to_op="Process Consumptions" to_port="input 1"/>
-          <connect from_op="Authentication" from_port="out 1" to_port="input 2"/>
-          <connect from_op="Process Consumptions" from_port="output 2" to_port="input 1"/>
-          <connect from_op="Process Consumptions" from_port="output 4" to_port="input 3"/>
+          <connect from_op="Authentication" from_port="out 1" to_port="input 5"/>
+          <connect from_op="Process Consumptions" from_port="output 1" to_port="input 1"/>
+          <connect from_op="Process Consumptions" from_port="output 2" to_port="input 2"/>
+          <connect from_op="Process Consumptions" from_port="output 3" to_port="input 3"/>
+          <connect from_op="Process Consumptions" from_port="output 4" to_port="input 4"/>
           <portSpacing port="source_condition" spacing="0"/>
           <portSpacing port="source_input 1" spacing="0"/>
           <portSpacing port="source_input 2" spacing="0"/>
@@ -634,6 +613,7 @@
           <portSpacing port="sink_input 3" spacing="0"/>
           <portSpacing port="sink_input 4" spacing="0"/>
           <portSpacing port="sink_input 5" spacing="0"/>
+          <portSpacing port="sink_input 6" spacing="0"/>
         </process>
         <process expanded="true">
           <portSpacing port="source_condition" spacing="0"/>
@@ -644,6 +624,7 @@
           <portSpacing port="sink_input 3" spacing="0"/>
           <portSpacing port="sink_input 4" spacing="0"/>
           <portSpacing port="sink_input 5" spacing="0"/>
+          <portSpacing port="sink_input 6" spacing="0"/>
         </process>
       </operator>
       <connect from_op="Consumptions" from_port="output" to_op="Date to Nominal" to_port="example set input"/>
@@ -651,11 +632,15 @@
       <connect from_op="Generate Attributes" from_port="example set output" to_op="Count Consumptions" to_port="example set"/>
       <connect from_op="Count Consumptions" from_port="example set" to_op="IF ROWS &gt; 0" to_port="input 1"/>
       <connect from_op="IF ROWS &gt; 0" from_port="input 1" to_port="result 1"/>
-      <connect from_op="IF ROWS &gt; 0" from_port="input 4" to_port="result 2"/>
+      <connect from_op="IF ROWS &gt; 0" from_port="input 2" to_port="result 2"/>
+      <connect from_op="IF ROWS &gt; 0" from_port="input 3" to_port="result 3"/>
+      <connect from_op="IF ROWS &gt; 0" from_port="input 4" to_port="result 4"/>
       <portSpacing port="source_input 1" spacing="0"/>
       <portSpacing port="sink_result 1" spacing="0"/>
       <portSpacing port="sink_result 2" spacing="0"/>
       <portSpacing port="sink_result 3" spacing="0"/>
+      <portSpacing port="sink_result 4" spacing="0"/>
+      <portSpacing port="sink_result 5" spacing="0"/>
       <description align="center" color="red" colored="true" height="142" resized="true" width="396" x="96" y="95">Consumptions without Observation</description>
       <description align="center" color="red" colored="true" height="141" resized="true" width="247" x="499" y="96">Count Number of Rows</description>
     </process>

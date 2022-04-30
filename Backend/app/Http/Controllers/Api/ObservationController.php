@@ -68,14 +68,15 @@ class ObservationController extends Controller
         }
 
         $isActive = false;
-        foreach ($request->equipments as $value) {
+
+        foreach ($request->equipments as $key=>$value) {
             $equipment = Equipment::find($value);
+
             if ($equipment == null) {
                 return response(['error' => 'Equipment ' . $value . ' does not exist'], 404);
             }
 
-            $observation->equipments()->attach($value);
-
+            $observation->equipments()->attach($equipment->id,['consumptions'=>$request->consumptions[$key]]);
             $isActive = $isActive || $equipment->activity == "Yes";
         }
 

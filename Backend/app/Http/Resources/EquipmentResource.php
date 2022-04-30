@@ -34,7 +34,6 @@ class EquipmentResource extends JsonResource
                 "id" => $this->id,
                 "name" => $this->name,
                 "consumption" => $this->consumption,
-                "division" => $this->division ? $this->division->name : null,
                 "type" => $this->type->name,
                 "activity" => $this->activity,
                 "frequency" => $this->frequency

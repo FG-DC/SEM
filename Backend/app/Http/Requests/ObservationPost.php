@@ -27,7 +27,8 @@ class ObservationPost extends FormRequest
             'consumption_id' => 'required|integer',
             'expected_division' => 'nullable|string|max:255',
             'activity' => 'nullable|string|max:3',
-            'equipments' => 'nullable|array'
+            'equipments' => 'nullable|array',
+            'consumptions' => 'nullable|array'
         ];
     }
 

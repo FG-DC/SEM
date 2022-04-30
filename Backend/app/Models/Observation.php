@@ -33,8 +33,9 @@ class Observation extends Model
 
     public function equipments()
     {
-        return $this->belongsToMany(Equipment::class, 'equipments_observations', 'observation_id', 'equipment_id');
+        return $this->belongsToMany(Equipment::class, 'equipments_observations', 'observation_id', 'equipment_id')->withPivot('consumptions');
     }
+
 
     public function alerts()
     {

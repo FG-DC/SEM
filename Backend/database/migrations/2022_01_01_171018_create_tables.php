@@ -88,6 +88,7 @@ class CreateTables extends Migration
 
         Schema::create('equipments_observations', function (Blueprint $table) {
             $table->id();
+            $table->decimal('consumptions', 6, 2);
             $table->unsignedBigInteger('observation_id');
             $table->foreign('observation_id')->references('id')->on('observations');
             $table->unsignedBigInteger('equipment_id');
