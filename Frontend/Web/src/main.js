@@ -13,7 +13,6 @@ import 'chartkick/chart.js'
 import VueApexCharts from "vue3-apexcharts";
 import { Quasar } from 'quasar'
 import quasarUserOptions from './quasar-user-options'
-axios.defaults.baseURL = 'http://userconsumptionapi.test/api/'
-
+axios.defaults.baseURL = 'http://backend.test/api'
 
 const app = createApp(App).use(Quasar, quasarUserOptions).use(store).use(router).use(ElementPlus).use(VueChartkick).use(VueApexCharts).mount('#app')

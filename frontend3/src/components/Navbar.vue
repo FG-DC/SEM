@@ -1,9 +1,12 @@
 <template>
-
-<div class="navbar fixed-top">
-  <div class="d-flex">
+  <div class="navbar d-flex justify-content-center">
+    <font-awesome-icon class="space" :class="{selected: this.$route.name == 'dashboard'}" icon="fa-solid fa-house" size="2x"/>
+    <font-awesome-icon class="space" icon="fa-solid fa-magnifying-glass-chart" size="2x" />
+    <font-awesome-icon class="space" icon="fa-solid fa-bolt" size="2x" />
+    <font-awesome-icon class="space" icon="fa-solid fa-gear" size="2x" />
+    <font-awesome-icon class="space" icon="fa-solid fa-user-group" size="2x" />
+    <font-awesome-icon class="align-content-end" icon="fa-solid fa-circle-chevron-down" size="2x" />
   </div>
-</div>
 <!--
   <el-menu
     :default-active="activeIndex2"
@@ -157,7 +160,16 @@ export default {
 .navbar {
   width: 100%;
   color: white;
-  /*background-color: #191645;*/
+  background-color: #191645;
   height: 5%;
+}
+
+.space{
+  margin-right:3%;
+}
+
+.selected{
+  color: #44c6ac;
+  display: inline-block;
 }
 </style>

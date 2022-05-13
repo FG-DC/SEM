@@ -1,174 +1,182 @@
 <template>
-  <div class="container mt-5">
-    <el-steps :active="active" finish-status="success" align-center>
-      <el-step title="Divisions"></el-step>
-      <el-step title="Equipment"></el-step>
-      <el-step title="Routines"></el-step>
-      <el-step title="Ready"></el-step>
-    </el-steps>
-    <div class="text-center">
-      <h3 class="mt-5">{{ this.getStarted[active].question }}</h3>
-
+  <div class="container mt-5 text-center">
+    <b-tabs content-class="mt-3" fill>
       <!----------------------------------------------------------- Question 1 ------------------------------------------------------>
-
-      <div v-if="active == 0">
-        <input
-          required
-          type="text"
-          class="form-control"
-          :class="{
-            'is-valid': !step1DivisionError,
-            'is-invalid': step1DivisionError,
-          }"
-          v-model="division"
-          placeholder="Ex: Kitchen"
-        />
-        <div class="invalid">{{ step1DivisionError }}</div>
-        <button class="btn btn-success mt-2" @click="pushDivision()">
-          Add division
-        </button>
-        <div
-          v-if="getStarted[active].answer.length > 0"
-          class="card w-100 mt-5"
-        >
-          <div class="card-body">
-            <button
-              v-for="(division, index) in getStarted[active].answer"
-              :key="division.id"
-              class="btn btn-primary"
-              style="margin-right: 10px"
-            >
-              {{ division.name }}
-              <i
-                @click="deleteDivision(division.id, index)"
-                class="bi bi-x-circle"
-              ></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!----------------------------------------------------------- Question 2 -------------------------------------------------------->
-      <div v-if="active == 1">
-        <div class="row">
-          <div class="col-sm mb-3">
-            <select
-              class="form-select selectpicker"
-              required
-              v-model="equipment.selectedName"
-            >
-              <option disabled selected value="-1">Choose a equipment</option>
-              <option v-for="(equipment, index) in equipments" :key="index">
-                {{ equipment }}
-              </option>
-            </select>
-
-            <span class="invalid">{{ step2EquipmentNameError }}</span>
-          </div>
-          <div class="col-sm mb-3">
-            <input
-              required
-              min="0.01"
-              type="number"
-              class="form-control"
-              :class="{
-                'is-valid': !step2EquipmentConsumptionError,
-              }"
-              placeholder="Consumption"
-              v-model.number="equipment.consumption"
-            />
-            <span class="invalid">{{ step2EquipmentConsumptionError }}</span>
-          </div>
-        </div>
-        <div class="align-center d-flex align-items-center">
+      <b-tab title="First" active>
+        <div v-if="active == 0">
+      <h3 class="mt-5">{{ this.getStarted[active].question }}</h3>
           <input
-            type="text"
-            class="form-control mb-3"
-            :class="{
-              'is-valid': !step2EquipmentNameError && equipment.name != '',
-            }"
-            v-model="equipment.name"
-            placeholder="Equipment"
-            v-if="equipment.selectedName == 'Other...'"
             required
+            type="text"
+            class="form-control"
+            :class="{
+              'is-valid': !step1DivisionError,
+              'is-invalid': step1DivisionError,
+            }"
+            v-model="division"
+            placeholder="Ex: Kitchen"
           />
-        </div>
-        <div class="row">
-          <div class="col-sm mb-3">
-            <select class="form-select" required v-model="equipment.category">
-              <option disabled selected value="-1">Choose a category</option>
-              <option v-for="category in categories" :key="category.id">
-                {{ category.name }}
-              </option>
-            </select>
-            <span class="invalid">{{ step2EquipmentCategoryError }}</span>
-          </div>
-          <div class="col-sm mb-3">
-            <select class="form-select" v-model="equipment.division" required>
-              <option disabled selected value="-1">Choose a division</option>
-              <option v-for="division in getStarted[0].answer" :key="division">
+          <div class="invalid">{{ step1DivisionError }}</div>
+          <button class="btn btn-success mt-2" @click="pushDivision()">
+            Add division
+          </button>
+          <div
+            v-if="getStarted[active].answer.length > 0"
+            class="card w-100 mt-5"
+          >
+            <div class="card-body">
+              <button
+                v-for="(division, index) in getStarted[active].answer"
+                :key="division.id"
+                class="btn btn-primary"
+                style="margin-right: 10px"
+              >
                 {{ division.name }}
-              </option>
-            </select>
-            <span class="invalid">{{ step2EquipmentDivisionError }}</span>
+                <i
+                  @click="deleteDivision(division.id, index)"
+                  class="bi bi-x-circle"
+                ></i>
+              </button>
+            </div>
           </div>
         </div>
-        <button type="button" class="btn btn-success" @click="pushEquipment()">
-          Add equipment
-        </button>
+      </b-tab>
+      <b-tab title="Second">
+        <!----------------------------------------------------------- Question 2 -------------------------------------------------------->
+        <div v-if="active == 1">
+          <div class="row">
+            <div class="col-sm mb-3">
+              <select
+                class="form-select selectpicker"
+                required
+                v-model="equipment.selectedName"
+              >
+                <option disabled selected value="-1">Choose a equipment</option>
+                <option v-for="(equipment, index) in equipments" :key="index">
+                  {{ equipment }}
+                </option>
+              </select>
 
-        <EquipmentList :data="getStarted[active].answer" />
-      </div>
+              <span class="invalid">{{ step2EquipmentNameError }}</span>
+            </div>
+            <div class="col-sm mb-3">
+              <input
+                required
+                min="0.01"
+                type="number"
+                class="form-control"
+                :class="{
+                  'is-valid': !step2EquipmentConsumptionError,
+                }"
+                placeholder="Consumption"
+                v-model.number="equipment.consumption"
+              />
+              <span class="invalid">{{ step2EquipmentConsumptionError }}</span>
+            </div>
+          </div>
+          <div class="align-center d-flex align-items-center">
+            <input
+              type="text"
+              class="form-control mb-3"
+              :class="{
+                'is-valid': !step2EquipmentNameError && equipment.name != '',
+              }"
+              v-model="equipment.name"
+              placeholder="Equipment"
+              v-if="equipment.selectedName == 'Other...'"
+              required
+            />
+          </div>
+          <div class="row">
+            <div class="col-sm mb-3">
+              <select class="form-select" required v-model="equipment.category">
+                <option disabled selected value="-1">Choose a category</option>
+                <option v-for="category in categories" :key="category.id">
+                  {{ category.name }}
+                </option>
+              </select>
+              <span class="invalid">{{ step2EquipmentCategoryError }}</span>
+            </div>
+            <div class="col-sm mb-3">
+              <select class="form-select" v-model="equipment.division" required>
+                <option disabled selected value="-1">Choose a division</option>
+                <option
+                  v-for="division in getStarted[0].answer"
+                  :key="division"
+                >
+                  {{ division.name }}
+                </option>
+              </select>
+              <span class="invalid">{{ step2EquipmentDivisionError }}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="btn btn-success"
+            @click="pushEquipment()"
+          >
+            Add equipment
+          </button>
 
-      <!----------------------------------------------------------- Question 3 ---------------------------------------------------------->
-      
-      <div class="mt-5" v-if="active == 2">
-        <h4 class="mt-3">On Work Days:</h4>
-        <div class="d-flex flex-wrap justify-content-around">
-          <div class="col-5">
-            <span>Get up hour</span>
-            <input
-              class="form-control mb-3"
-              type="time"
-              v-model="getStarted[active].answer.work.start"
-            />
-          </div>
-          <div class="col-5">
-            <span>Bedtime hour</span>
-            <input
-              class="form-control"
-              type="time"
-              v-model="getStarted[active].answer.work.end"
-            />  
-          </div>
+          <EquipmentList :data="getStarted[active].answer" />
         </div>
-        <span class="invalid">{{ step3WeekendDatesError }}</span>
-        <h4 class="mt-3">On Weekends:</h4>
-        <div class="d-flex flex-wrap justify-content-around">
-          <div class="col-5">
-            <span>Get up hour</span>
-            <input
-              class="form-control mb-3"
-              type="time"
-              v-model="getStarted[active].answer.weekend.start"
-            />
+      </b-tab>
+      <b-tab title="Very, very long title">
+        <!----------------------------------------------------------- Question 3 ---------------------------------------------------------->
+
+        <div class="mt-5" v-if="active == 2">
+          <h4 class="mt-3">On Work Days:</h4>
+          <div class="d-flex flex-wrap justify-content-around">
+            <div class="col-5">
+              <span>Get up hour</span>
+              <input
+                class="form-control mb-3"
+                type="time"
+                v-model="getStarted[active].answer.work.start"
+              />
+            </div>
+            <div class="col-5">
+              <span>Bedtime hour</span>
+              <input
+                class="form-control"
+                type="time"
+                v-model="getStarted[active].answer.work.end"
+              />
+            </div>
           </div>
-          <div class="col-5">
-            <span>Bedtime hour</span>
-            <input
-              class="form-control"
-              type="time"
-              v-model="getStarted[active].answer.weekend.end"
-            />
+          <span class="invalid">{{ step3WeekendDatesError }}</span>
+          <h4 class="mt-3">On Weekends:</h4>
+          <div class="d-flex flex-wrap justify-content-around">
+            <div class="col-5">
+              <span>Get up hour</span>
+              <input
+                class="form-control mb-3"
+                type="time"
+                v-model="getStarted[active].answer.weekend.start"
+              />
+            </div>
+            <div class="col-5">
+              <span>Bedtime hour</span>
+              <input
+                class="form-control"
+                type="time"
+                v-model="getStarted[active].answer.weekend.end"
+              />
+            </div>
           </div>
+          <span class="invalid">{{ step3WeekendDatesError }}</span>
         </div>
-        <span class="invalid">{{ step3WeekendDatesError }}</span>
-      </div>
+      </b-tab>
+      <b-tab title="Disabled" disabled>
+        <div v-if="active == 3">
+          <h1 style="font-size: 80px">All ready to begin!</h1>
+        </div></b-tab
+      >
+    </b-tabs>
+
+  
+
       <!----------------------------------------------------------- All ready to begin  ---------------------------------------------------------->
-
-      <div v-if="active == 3">
-        <h1 style="font-size: 80px">All ready to begin!</h1>
-      </div>
 
       <!----------------------------------------------------------- Buttons ---------------------------------------------------------->
       <div class="fixed-bottom mb-4">
@@ -198,22 +206,15 @@
         </button>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
 import axios from "axios";
 import EquipmentList from "../components/EquipmentList.vue";
-import { ref } from 'vue'
 
 export default {
   components: {
     EquipmentList,
-  },
-   setup () {
-    return {
-      time: ref('19:42')
-    }
   },
   data() {
     return {
@@ -231,7 +232,7 @@ export default {
           question: "What is your get up and bedtime hour?",
           answer: {
             work: {
-              start: '00:00',
+              start: "00:00",
               end: null,
             },
             weekend: {
