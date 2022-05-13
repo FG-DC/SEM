@@ -1,9 +1,10 @@
 <template>
   <div class="container mt-5 text-center">
+    <Mqtt :topics="this.topics"  @updValue="updValue"></Mqtt>
     <div class="d-flex">
       <v-card elevation="6" class="flex-grow-1" style="border-radius: 10px; margin-right: 3%">
         <div class="text-card">
-          <span>632</span>
+          <span>{{consumption}}</span>
           <span style="font-size:7vh">W</span>
         </div>
         <div class="text-footer">1 minute ago</div>
@@ -100,11 +101,14 @@
 <script>
 import axios from "axios";
 import Chart from "../components/Chart.vue";
+import Mqtt from "../components/Mqtt.vue"
 
 export default {
-  components: { Chart },
+  components: { Chart,Mqtt },
   data() {
     return {
+      topics: ["1/power"],
+      consumption: "---",
       numEquipments: null,
       graphConfig: {},
       loaded: false,
@@ -143,6 +147,8 @@ export default {
     },
   },
   created() {
+
+
     this.$store.dispatch("fillStore");
     axios
       .get(`/users/${this.userId}/statistics/consumption`)
@@ -176,10 +182,20 @@ export default {
       .catch((error) => {
         console.log(error);
       });
+
+
+ 
+
+
   },
   methods: {
+    updValue(topic, message){
+      switch(topic){
+        case(this.topics[0]): this.consumption = message
+        break;
+      }
+    },
     loadChart(url, collection, type, label, isBoolean) {
-      console.log(collection);
       this.loaded = false;
 
       this.graphConfig.xAxis = [];
@@ -234,9 +250,8 @@ export default {
 
 <style scoped>
 .text-card {
-  color: #191645;
-  font-size: 7vw;
-  font-weight: bold;
+  font-size: 6vw;
+  color:#191645
 }
 
 .text-footer {

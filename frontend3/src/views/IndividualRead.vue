@@ -1,23 +1,24 @@
 <template>
   <div class="container mt-5">
-    <div class="d-flex w-100 mb-4">
+    <div data-app class="d-flex w-100 mb-4">
       <div class="flex-grow-1">
-        <select
-          class="form-select selectpicker"
-          required
-          v-model="this.selected"
-        >
-          <option disabled selected value="-1">Choose a equipment</option>
-          <option
-            v-for="(equipment, index) in equipments"
-            :key="index"
-            :value="equipment"
-          >
-            {{ equipment.name }}
-          </option>
-        </select>
+        <v-select
+          data-app
+          v-model="select"
+          :items="this.equipments"
+          item-text="name"
+          label="Select"
+          return-object
+          solo
+        ></v-select>
       </div>
-      <q-btn color="primary" label="Record" type="button" class="btn btn-danger" @click="doSubscribe()" />
+      <b-btn
+        color="primary"
+        label="Record"
+        type="button"
+        class="btn btn-danger"
+        @click="doSubscribe()"
+      />
     </div>
     <Chart v-if="loaded" :config="graphConfig" :isBoolean="false" />
   </div>
@@ -33,6 +34,14 @@ export default {
   components: { Chart },
   data() {
     return {
+      items: [
+        { state: "Florida", abbr: "FL" },
+        { state: "Georgia", abbr: "GA" },
+        { state: "Nebraska", abbr: "NE" },
+        { state: "California", abbr: "CA" },
+        { state: "New York", abbr: "NY" },
+      ],
+      select: null,
       currentdate: null,
       consumptions: [],
       graphConfig: {
@@ -115,6 +124,7 @@ export default {
         this.receiveNews = this.receiveNews.concat(message);
         var current = new Date();
         //console.log(current.toLocaleTimeString())
+        console.log(message);
 
         this.collection.push([
           current.toLocaleTimeString(),
@@ -127,18 +137,14 @@ export default {
     doSubscribe() {
       const { topic, qos } = this.subscription;
       console.log(this.userId + "/power");
-      this.client.subscribe(
-        this.userId+ "/power",
-        { qos },
-        (error, res) => {
-          if (error) {
-            console.log("Subscribe to topics error", error);
-            return;
-          }
-          this.subscribeSuccess = true;
-          console.log("Subscribe to topics res", res);
+      this.client.subscribe(this.userId + "/power", { qos }, (error, res) => {
+        if (error) {
+          console.log("Subscribe to topics error", error);
+          return;
         }
-      );
+        this.subscribeSuccess = true;
+        console.log("Subscribe to topics res", res);
+      });
     },
     doUnSubscribe() {
       const { topic } = this.subscription;
@@ -162,8 +168,8 @@ export default {
       this.graphConfig.label = label;
       this.graphConfig.type = type;
 
-        this.graphConfig.xAxis.push(collection[collection.length-1][0]);
-        this.graphConfig.yAxis.push(collection[collection.length-1][1]);
+      this.graphConfig.xAxis.push(collection[collection.length - 1][0]);
+      this.graphConfig.yAxis.push(collection[collection.length - 1][1]);
       console.log(this.graphConfig);
       this.loaded = true;
     },

@@ -15,15 +15,22 @@
           label="Password"
           @click:append="showPassw = !showPassw"
         ></v-text-field>
-       
+
         <v-text-field type="date" v-model="birthdate" solo></v-text-field>
 
-        <v-btn color="#44c6ac" class="w-100 mb-2 button" large @click.prevent="signup">
+        <v-btn
+          color="#44c6ac"
+          class="w-100 mb-2 button"
+          large
+          @click.prevent="signup"
+        >
           Sign up
         </v-btn>
-        <v-btn color="#DD2929" class="w-100 mb-5 button"  large>
-         <router-link  style="text-decoration:none; color:white" to="/">Back to Sign in</router-link>
-        </v-btn>
+        <router-link style="text-decoration: none; color: white" to="/">
+          <v-btn color="#DD2929" class="w-100 mb-5 button" large>
+            Back to Sign in
+          </v-btn></router-link
+        >
         <br />
       </div>
     </v-card>
@@ -89,19 +96,20 @@ img {
 }
 
 .card {
+  font-weight: bold;
   width: 40vw;
   min-width: 44vmax;
   border-radius: 10px;
-  color: white;
   font-size: 2rem;
   color: black;
-  }
+  background-color: #191645;
+}
 
 .top {
   margin-top: 12vh;
 }
 
-.button{
-  color: white
+.button {
+  color: white;
 }
 </style>

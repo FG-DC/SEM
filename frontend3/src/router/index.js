@@ -6,6 +6,8 @@ import SignUp from '../views/auth/SignUp.vue'
 import Profile from '../views/Profile.vue'
 import GetStarted from '../views/GetStarted.vue'
 import IndividualRead from '../views/IndividualRead.vue'
+import Settings from '../views/Settings.vue'
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -38,6 +40,11 @@ const routes = [
     path: '/read',
     name: 'read',
     component: IndividualRead
+  },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: Settings
   },
 ]
 
