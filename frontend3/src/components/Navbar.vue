@@ -1,11 +1,22 @@
 <template>
-  <div class="navbar d-flex justify-content-center">
-    <router-link to="/dashboard" class="space"><font-awesome-icon @click="this.$router.push({name: 'dashboard'})" :class="{selected: this.$route.name == 'dashboard'}" icon="fa-solid fa-house" size="2x"/></router-link>
-     <router-link to="/read" class="space"><font-awesome-icon class="space" :class="{selected: this.$route.name == 'read'}" icon="fa-solid fa-magnifying-glass-chart" size="2x" /></router-link>
-     <router-link to="/dashboard" class="space"><font-awesome-icon class="space" icon="fa-solid fa-bolt" size="2x" /></router-link>
-     <router-link to="/settings" class="space"><font-awesome-icon @click="this.$router.push({name:'settings'})" class="space" :class="{selected: this.$route.name == 'settings'}" icon="fa-solid fa-gear" size="2x" /></router-link>
-     <router-link to="/dashboard" class="space"><font-awesome-icon class="space" icon="fa-solid fa-user-group" size="2x" /></router-link>
-     <router-link to="/dashboard" class="space"><font-awesome-icon class="align-content-end" icon="fa-solid fa-circle-chevron-down" size="2x" /></router-link>
+  <div class="navbar d-flex">
+    <div class="flex-grow-1">
+      <div class="d-flex justify-content-center">
+        <router-link to="/dashboard" class="space"><font-awesome-icon @click="$router.push({name: 'dashboard'})" :class="{selected: $route.name == 'dashboard'}" icon="fa-solid fa-house" size="2x"/></router-link>
+        <router-link to="/read" class="space"><font-awesome-icon class="space" :class="{selected: $route.name == 'read'}" icon="fa-solid fa-magnifying-glass-chart" size="2x" /></router-link>
+        <router-link to="/dashboard" class="space"><font-awesome-icon class="space" icon="fa-solid fa-bolt" size="2x" /></router-link>
+        <router-link to="/settings" class="space"><font-awesome-icon @click="$router.push({name:'settings'})" class="space" :class="{selected: $route.name == 'settings'}" icon="fa-solid fa-gear" size="2x" /></router-link>
+        <router-link to="/dashboard" class="space"><font-awesome-icon class="space" icon="fa-solid fa-user-group" size="2x" /></router-link>
+      </div>
+    </div>
+    <b-dropdown variant="link" right no-caret>
+      <template #button-content>
+        <font-awesome-icon class="align-content-end" icon="fa-solid fa-circle-chevron-down" size="2x" style="color:white !important" />
+      </template>
+      <b-dropdown-item>Profile</b-dropdown-item>
+      <b-dropdown-divider></b-dropdown-divider>
+      <b-dropdown-item @click="logout()">Log Out</b-dropdown-item>
+    </b-dropdown>
   </div>
 <!--
   <el-menu
@@ -103,7 +114,7 @@ export default {
         .then((response) => {
           this.$store.dispatch("logout");
           this.$router.push({
-            name: "signin",
+            name: "login",
           });
         })
         .catch((error) => {

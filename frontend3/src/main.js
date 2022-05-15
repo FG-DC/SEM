@@ -4,7 +4,7 @@ import router from './router'
 import store from './store'
 
 import axios from 'axios'
-axios.defaults.baseURL = 'http://backend.test/api'
+axios.defaults.baseURL = 'http://35.181.55.55/api'
 
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
@@ -14,10 +14,10 @@ import VueApexCharts from 'vue-apexcharts'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faHouse } from '@fortawesome/free-solid-svg-icons'
-import {  faMagnifyingGlassChart } from '@fortawesome/free-solid-svg-icons'
-import {  faUserGroup } from '@fortawesome/free-solid-svg-icons'
-import {  faGear } from '@fortawesome/free-solid-svg-icons'
-import {  faBolt } from '@fortawesome/free-solid-svg-icons'
+import { faMagnifyingGlassChart } from '@fortawesome/free-solid-svg-icons'
+import { faUserGroup } from '@fortawesome/free-solid-svg-icons'
+import { faGear } from '@fortawesome/free-solid-svg-icons'
+import { faBolt } from '@fortawesome/free-solid-svg-icons'
 import { faWindowMinimize } from '@fortawesome/free-solid-svg-icons'
 import { faCircleChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { faPlugCircleBolt } from '@fortawesome/free-solid-svg-icons'
@@ -29,7 +29,7 @@ import { faHouseChimneyWindow } from '@fortawesome/free-solid-svg-icons'
 import vuetify from './plugins/vuetify'
 
 
-library.add(faHouse,faMagnifyingGlassChart,faUserGroup,faGear,faBolt,faWindowMinimize,faCircleChevronDown,faPlugCircleBolt,faLocationDot,faCalendar,faPlug,faHouseChimneyWindow)
+library.add(faHouse, faMagnifyingGlassChart, faUserGroup, faGear, faBolt, faWindowMinimize, faCircleChevronDown, faPlugCircleBolt, faLocationDot, faCalendar, faPlug, faHouseChimneyWindow)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 Vue.use(BootstrapVue)

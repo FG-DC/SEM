@@ -1,14 +1,11 @@
 <template>
   <div>
-
-    <Navbar v-if="currentRouteName != 'signup' && currentRouteName != 'signin'">
-    </Navbar>
-    <div class="w-100" :class="{'col-md-9 ms-sm-auto col-lg-10 px-md-4':currentRouteName != 'signup' && currentRouteName != 'signin'}"></div>
-    
+    <Navbar v-if="currentRouteName != 'login' && currentRouteName != 'register'" />
+   
+    <div class="w-100" :class="{'col-md-9 ms-sm-auto col-lg-10 px-md-4': currentRouteName != 'login' && currentRouteName != 'register'}"></div>
     <router-view />
   </div>
 </template>
-
 
 <script>
 import axios from "axios";
@@ -32,8 +29,3 @@ export default {
   },
 };
 </script>
-
-
-
-<style>
-</style>

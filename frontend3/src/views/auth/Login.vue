@@ -13,11 +13,11 @@
           label="Password"
           @click:append="showPassw = !showPassw"
         ></v-text-field>
-        <v-btn color="#44c6ac" class="w-100" large  @click.prevent="signin"> Login </v-btn>
+        <v-btn color="#44c6ac" class="w-100" large  @click.prevent="signin"> Log In </v-btn>
         <br>
       <v-card-subtitle class="mt-1">
         Don't have an account? Click to
-        <router-link to="signup">Sign Up</router-link>
+        <router-link to="signup">Register</router-link>
       </v-card-subtitle>
       </div>
     </v-card>

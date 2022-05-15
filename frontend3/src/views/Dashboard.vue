@@ -1,31 +1,33 @@
 <template>
   <div class="container mt-5 text-center">
-    <Mqtt :topics="this.topics"  @updValue="updValue"></Mqtt>
-    <div class="d-flex">
-      <v-card elevation="6" class="flex-grow-1" style="border-radius: 10px; margin-right: 3%">
+    <div class="d-flex flex-wrap">
+      <v-card elevation="6" class="flex-grow-1" style="border-radius: 10px;">
         <div class="text-card">
-          <span>{{consumption}}</span>
-          <span style="font-size:7vh">W</span>
+          <span>{{consumptionValue}}</span>
+          <span style="font-size:3vw">W</span>
         </div>
-        <div class="text-footer">1 minute ago</div>
+        <div class="text-footer">{{consumptionTime}}</div>
       </v-card>
+      <!--
       <v-card elevation="6" class="flex-grow-1" style="border-radius: 10px">
         <div class="text-card">
           <span>15,53</span>
-          <span style="font-size:7vh">€</span>
+          <span style="font-size:3vw">€</span>
         </div>
         <div class="text-footer">April</div>
       </v-card>
+      -->
     </div>
     <v-card class="mt-5" elevation="6" style="border-radius: 10px">
       <div class="text-card">
-        <font-awesome-icon icon="fa-solid fa-location-dot" />
-        <span>Living Room</span></div>
+        <font-awesome-icon icon="fa-solid fa-location-dot" style="margin-right: 2vw;" />
+        <span>Living Room</span>
+      </div>
       <div class="text-footer">1 minute ago</div>
     </v-card>
     <v-card class="mt-5" elevation="6" style="border-radius: 10px">
       <div class="text-card">
-        <font-awesome-icon icon="fa-solid fa-plug-circle-bolt" />
+        <font-awesome-icon icon="fa-solid fa-plug-circle-bolt" style="margin-right: 2vw;" />
         <span>4</span>
       </div>
       <div class="text-footer">1 minute ago</div>
@@ -101,14 +103,17 @@
 <script>
 import axios from "axios";
 import Chart from "../components/Chart.vue";
-import Mqtt from "../components/Mqtt.vue"
+import mqtt from "../MyMqtt"
 
 export default {
-  components: { Chart,Mqtt },
+  components: { Chart },
   data() {
     return {
-      topics: ["1/power"],
-      consumption: "---",
+      topics: [],
+      consumption: {
+        value: "---",
+        timestamp: ""
+      },
       numEquipments: null,
       graphConfig: {},
       loaded: false,
@@ -121,6 +126,19 @@ export default {
   computed: {
     userId() {
       return this.$store.getters.user_id;
+    },
+    consumptionValue() {
+      return this.consumption.value;
+    },
+    consumptionTime() {
+      if (!this.consumption.timestamp) return "";
+
+      const timestamp = new Date(this.consumption.timestamp);
+
+      const hours = timestamp.getHours();
+      const minutes = timestamp.getMinutes();
+
+      return timestamp.toLocaleDateString('pt') + " " + timestamp.toLocaleTimeString('pt-PT');
     },
     currentWatts() {
       return this.consumptions.length == 0
@@ -147,7 +165,13 @@ export default {
     },
   },
   created() {
-
+    //MQTT
+    //-> Add topics to subscribe
+    this.topics.push(this.userId + "/power");
+    //-> Connect to MQTT Broker
+    mqtt.connect(this.onMessage);
+    //-> Subscribe to topics
+    mqtt.subscribe(this.topics);
 
     this.$store.dispatch("fillStore");
     axios
@@ -182,17 +206,16 @@ export default {
       .catch((error) => {
         console.log(error);
       });
-
-
- 
-
-
   },
   methods: {
-    updValue(topic, message){
+    onMessage(topic, message){
       switch(topic){
-        case(this.topics[0]): this.consumption = message
-        break;
+        case(this.userId + "/power"):
+          this.consumption = {
+            value: message,
+            timestamp: new Date()
+          }
+          break;
       }
     },
     loadChart(url, collection, type, label, isBoolean) {
@@ -210,6 +233,7 @@ export default {
           isBoolean ? (item[1] == "Yes" ? 1 : 0) : item[1]
         );
       });
+
       if (url == "consumptions") {
         this.currentChart = 3;
       } else if (url == "activities") {
@@ -217,6 +241,7 @@ export default {
       } else {
         this.currentChart = 3;
       }
+
       this.loaded = true;
     },
     formatDate(dateStr, withFullDate) {
@@ -250,7 +275,7 @@ export default {
 
 <style scoped>
 .text-card {
-  font-size: 6vw;
+  font-size: 5.5vw;
   color:#191645
 }
 
@@ -259,7 +284,7 @@ export default {
   text-align: left;
   margin-left: 2vw;
   padding-bottom: 1vh; 
-  font-size: 1.2vw;
+  font-size: 1.9vh;
 }
 
 h3 {

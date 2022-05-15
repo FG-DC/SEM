@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Dashboard from '../views/Dashboard.vue'
-import SignIn from '../views/auth/SignIn.vue'
-import SignUp from '../views/auth/SignUp.vue'
+import LogIn from '../views/auth/Login.vue'
+import Register from '../views/auth/Register.vue'
 import Profile from '../views/Profile.vue'
 import GetStarted from '../views/GetStarted.vue'
 import IndividualRead from '../views/IndividualRead.vue'
@@ -13,13 +13,13 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'signin',
-    component: SignIn
+    name: 'login',
+    component: LogIn
   },
   {
-    path: '/signup',
-    name: 'signup',
-    component: SignUp
+    path: '/register',
+    name: 'register',
+    component: Register
   },
   {
     path: '/dashboard',
