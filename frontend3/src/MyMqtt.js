@@ -2,6 +2,7 @@ import mqtt from "mqtt";
 
 export default {
   client: null,
+  topics: [],
   connection: {
     host: "broker.hivemq.com",
     port: 8000,
@@ -24,6 +25,7 @@ export default {
       console.log("mqtt.connect error", error);
     }
     this.client.on("connect", () => {
+      this.subscribe(this.topics);
       console.log("Connection succeeded!");
     });
     this.client.on("error", (error) => {
@@ -34,6 +36,20 @@ export default {
     });
   },
   subscribe(topics) {
+    for (let i = 0; i < topics.length; i++) {
+      let found = false;
+
+      for (let j = 0; j < this.topics.length; j++) {
+        if (topics[i] === this.topics[j]) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        this.topics.push(topics[i]);
+      }
+    }
+
     topics.forEach((topic) => {
       this.client.subscribe(topic, 0, (error, res) => {
         if (error) {

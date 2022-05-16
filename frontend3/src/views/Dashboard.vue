@@ -1,7 +1,7 @@
 <template>
   <div class="container mt-5 text-center">
     <div class="d-flex flex-wrap">
-      <v-card elevation="6" class="flex-grow-1" style="border-radius: 10px;">
+      <v-card elevation="6" class="flex-grow-1 card-selectable" style="border-radius: 10px;" @click="showModal(0)">
         <div class="text-card">
           <span>{{consumptionValue}}</span>
           <span style="font-size:3vw">W</span>
@@ -18,109 +18,71 @@
       </v-card>
       -->
     </div>
-    <v-card class="mt-5" elevation="6" style="border-radius: 10px">
+    <v-card class="mt-5 card-selectable" elevation="6" style="border-radius: 10px;" @click="">
       <div class="text-card">
         <font-awesome-icon icon="fa-solid fa-location-dot" style="margin-right: 2vw;" />
-        <span>Living Room</span>
+        <span>{{divisionValue}}</span>
       </div>
-      <div class="text-footer">1 minute ago</div>
+      <div class="text-footer">{{divisionTime}}</div>
     </v-card>
-    <v-card class="mt-5" elevation="6" style="border-radius: 10px">
+    <v-card class="mt-5 card-selectable" elevation="6" style="border-radius: 10px" @click="showModal(2)">
       <div class="text-card">
         <font-awesome-icon icon="fa-solid fa-plug-circle-bolt" style="margin-right: 2vw;" />
-        <span>4</span>
+        <span>{{equipmentValue}}</span>
       </div>
-      <div class="text-footer">1 minute ago</div>
-    </v-card> 
+      <div class="text-footer">{{equipmentTime}}</div>
+    </v-card>
 
-    <!--
-    <div class="mb-4 card-timestamp">
-      <span> Last read at {{ currentDate }}</span>
-    </div>
-    <div class="d-flex flex-wrap">
-      <div :class="{ selected: currentChart == 1 }">
-        <div
-          @click="
-            loadChart(
-              'consumptions',
-              consumptions,
-              'area',
-              'Consumption (W)',
-              false
-            )
-          "
-          style="cursor: pointer; min-width: fit-content"
-          shadow="hover"
-        >
-          <span class="card-text" style="color: red">Consumption</span>
-          <h3 class="mt-2">{{ currentWatts }}</h3>
-        </div>
-      </div>
-      <div :class="{ selected: currentChart == 2 }">
-        <div
-          @click="loadChart('activities', activities, 'area', 'Activity', true)"
-          style="cursor: pointer; min-width: fit-content"
-          shadow="hover"
-        >
-          <span class="card-text" style="color: orange">Activity</span>
-          <h3 class="mt-2">{{ currentActivity }}</h3>
-        </div>
-      </div>
-      <div :class="{ selected: currentChart == 3 }">
-        <div
-          @click="
-            loadChart('equipments', equipments, 'area', 'Equipments', false)
-          "
-          style="cursor: pointer; min-width: fit-content"
-          shadow="hover"
-        >
-          <span class="card-text" style="color: rgb(60, 60, 233)"
-            >Equipments</span
-          >
-          <h3 class="mt-2">{{ currentEquipments }}</h3>
-        </div>
-      </div>
-    </div>
-    <hr class="mt-5" />
-    <Chart
-      v-if="loaded && currentChart == 1"
-      :config="graphConfig"
-      :isBoolean="false"
-    ></Chart>
-    <Chart
-      v-if="loaded && currentChart == 2"
-      :config="graphConfig"
-      :isBoolean="true"
-    ></Chart>
-    <Chart
-      v-if="loaded && currentChart == 3"
-      :config="graphConfig"
-      :isBoolean="false"
-    ></Chart>
-  --></div>
+    <!-- MODAL -->
+    <b-modal ref="graph-modal" hide-footer centered size="xl">
+      <template #modal-title>
+        {{modalTitle}}
+      </template>
+
+      <!-- CHART -->
+      <apexchart
+        v-if="cardClicked != null"
+        width="100%"
+        height="auto"
+        type="line"
+        :options="chartOptions"
+        :series="chartSeries"
+      />
+
+    </b-modal>
+  </div>
 </template>
 
 <script>
 import axios from "axios";
-import Chart from "../components/Chart.vue";
-import mqtt from "../MyMqtt"
+import mqtt from "../MyMqtt";
 
 export default {
-  components: { Chart },
   data() {
     return {
-      topics: [],
+      //FULL DATA
+      consumptions: [],
+      divisions: [],
+      equipments: [],
+
+      //LAST DATA
       consumption: {
-        value: "---",
+        value: 0,
         timestamp: ""
       },
-      numEquipments: null,
-      graphConfig: {},
-      loaded: false,
-      activities: [],
-      consumptions: [],
-      equipments: [],
-      currentChart: null,
+      division: {
+        value: "",
+        timestamp: ""
+      },
+      equipment: {
+        value: {},
+        timestamp: "" 
+      },
+
+      chartOptions: {},
+      chartSeries: [],
+
+      cardClicked: null, //0 = Consumption, 1 = Expected Division, 2 = Equipments ON
     };
   },
   computed: {
@@ -140,109 +102,135 @@ export default {
 
       return timestamp.toLocaleDateString('pt') + " " + timestamp.toLocaleTimeString('pt-PT');
     },
-    currentWatts() {
-      return this.consumptions.length == 0
-        ? "-"
-        : parseInt(this.consumptions[this.consumptions.length - 1][1]) + " W";
+    divisionValue() {
+      return this.division.value;
     },
-    currentDate() {
-      if (this.consumptions.length == 0) return "";
+    divisionTime() {
+      if (!this.division.timestamp) return "";
 
-      return this.formatDate(
-        this.consumptions[this.consumptions.length - 1][0],
-        false
-      );
+      const timestamp = new Date(this.division.timestamp);
+
+      const hours = timestamp.getHours();
+      const minutes = timestamp.getMinutes();
+
+      return timestamp.toLocaleDateString('pt') + " " + timestamp.toLocaleTimeString('pt-PT');
     },
-    currentEquipments() {
-      return this.equipments.length == 0
-        ? "-"
-        : this.equipments[this.equipments.length - 1][1];
+    equipmentValue() {
+      return this.equipment.value.length;
     },
-    currentActivity() {
-      return this.activities.length == 0
-        ? "-"
-        : this.activities[this.activities.length - 1][1];
+    equipmentTime() {
+      if (!this.equipment.timestamp) return "";
+
+      const timestamp = new Date(this.equipment.timestamp);
+
+      const hours = timestamp.getHours();
+      const minutes = timestamp.getMinutes();
+
+      return timestamp.toLocaleDateString('pt') + " " + timestamp.toLocaleTimeString('pt-PT');
     },
+    modalTitle() {
+      if (this.cardClicked == null) return "";
+      if (this.cardClicked === 0) return "Consumption";
+      if (this.cardClicked === 1) return "Expected Division";
+      if (this.cardClicked === 2) return "Equipments Activity";
+    }
   },
   created() {
     //MQTT
-    //-> Add topics to subscribe
-    this.topics.push(this.userId + "/power");
-    //-> Connect to MQTT Broker
+    //-> Connect to the MQTT Broker
     mqtt.connect(this.onMessage);
     //-> Subscribe to topics
-    mqtt.subscribe(this.topics);
+    mqtt.subscribe([this.userId + "/power", this.userId + "/observation"]);
 
     this.$store.dispatch("fillStore");
-    axios
-      .get(`/users/${this.userId}/statistics/consumption`)
-      .then((response) => {
-        this.consumptions = response.data;
-        this.loadChart(
-          "consumptions",
-          this.consumptions,
-          "line",
-          "Consumption (W)"
-        );
-      })
-      .catch((error) => {
-        console.log(error);
-      });
 
-    axios
-      .get(`/users/${this.userId}/statistics/activity`)
-      .then((response) => {
-        this.activities = response.data;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-    axios
-      .get(`/users/${this.userId}/statistics/equipments`)
-      .then((response) => {
-        this.equipments = response.data;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    this.getLatestObservation();
   },
   methods: {
-    onMessage(topic, message){
-      switch(topic){
+    onMessage(topic, message) {
+      switch(topic) {
+        //TOPIC: #/POWER
         case(this.userId + "/power"):
           this.consumption = {
             value: message,
             timestamp: new Date()
           }
+          this.addToArray(this.consumptions, this.consumption);
+          break;
+
+        //TOPIC: #/OBSERVATION
+        case(this.userId + "/observation"):
+          this.getLatestObservation();
           break;
       }
+
+      this.loadChart(this.cardClicked == 0 ? this.consumptions : this.equipments);
     },
-    loadChart(url, collection, type, label, isBoolean) {
-      this.loaded = false;
+    initChart() {
+      this.chartOptions = {
+        chart: {
+          id: "chart",
+        },
+        dataLabels: {
+          enabled: false
+        },
+        xaxis: {
+          categories: [], // TIMESTAMP VALUES
+          labels: {
+            show: false
+          },
+        },
+      }
+      this.chartSeries = [];
+    },
+    loadChart(collection) {
+      this.initChart();
 
-      this.graphConfig.xAxis = [];
-      this.graphConfig.yAxis = [];
-
-      this.graphConfig.label = label;
-      this.graphConfig.type = type;
-
-      collection.forEach((item) => {
-        this.graphConfig.xAxis.push(this.formatDate(item[0], true));
-        this.graphConfig.yAxis.push(
-          isBoolean ? (item[1] == "Yes" ? 1 : 0) : item[1]
-        );
+      //LOAD TIMESTAMPS
+      this.chartOptions.xaxis.categories = collection.map((item) => {
+        return this.formatDate(item.timestamp, true);
       });
 
-      if (url == "consumptions") {
-        this.currentChart = 3;
-      } else if (url == "activities") {
-        this.currentChart = 2;
-      } else {
-        this.currentChart = 3;
+      //LOAD SERIES
+      //-> 1 Serie
+      let array = collection.map((item) => {
+        return item.value;
+      })
+
+      if (!Array.isArray(collection[0].value)) {
+        this.chartSeries.push({
+          name: "",
+          data: array
+        });
+        return;
       }
 
-      this.loaded = true;
+      //-> N Series
+      const mapIdToName = this.getEquipmentsHashMap();
+      const mapIdToSerie = new Map();
+      mapIdToName.forEach((value, key) => {
+        const serie = {
+          name: value,
+          data: []
+        };
+        this.chartSeries.push(serie);
+        mapIdToSerie.set(key, serie);
+      });
+      collection.forEach((item) => {
+        const visited = []
+        item.value.forEach((equipment) => {
+          const serie = mapIdToSerie.get(equipment.id);
+          serie.data.push(equipment.value);
+
+          visited.push(equipment.id);
+        })
+        for (let key in mapIdToSerie.keys()) {
+          if (!visited.includes(key)) {
+            const serie = mapIdToSerie.get(key);
+            serie.data.push(0);
+          }
+        }
+      });
     },
     formatDate(dateStr, withFullDate) {
       if (dateStr == null || dateStr == "") return "";
@@ -269,6 +257,72 @@ export default {
 
       return formatedDate;
     },
+    addToArray(array, obj) {
+      const MAX_ITEMS_ON_ARRAY = 50;
+
+      if (array.length >= MAX_ITEMS_ON_ARRAY) {
+        array.shift();
+      }
+      array.push(obj);
+    },
+    getLatestObservation() {
+      axios
+      .get(`/users/${this.userId}/observations/last`)
+      .then((response) => {
+        let data = response.data;
+        let obs = data.observation;
+
+        let timestamp = new Date(obs.created_at);
+
+        this.division = {
+          value: obs.expected_division,
+          timestamp: timestamp
+        }
+        this.addToArray(this.divisions, this.division);
+
+        this.equipment = {
+          value: [],
+          timestamp: timestamp
+        };
+
+        obs.equipments.forEach((item) => {
+          this.equipment.value.push({
+            id: item.id,
+            name: item.name,
+            value: item.consumption
+          });
+        });
+
+        this.addToArray(this.equipments, this.equipment);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    },
+    showModal(cardNumber) {
+      this.cardClicked = cardNumber;
+
+      switch (cardNumber) {
+        case 0:
+          this.loadChart(this.consumptions)
+          break;
+        case 2:
+          this.loadChart(this.equipments)
+          break;
+      }
+      this.$refs['graph-modal'].show();
+    },
+    getEquipmentsHashMap() {
+      const map = new Map();
+
+      this.equipments.forEach((list) => {
+        list.value.forEach((item) => {
+          map.set(item.id, item.name);
+        });
+      });
+
+      return map;
+    }
   },
 };
 </script>
@@ -284,7 +338,7 @@ export default {
   text-align: left;
   margin-left: 2vw;
   padding-bottom: 1vh; 
-  font-size: 1.9vh;
+  font-size: 16px;
 }
 
 h3 {
@@ -312,5 +366,14 @@ h3 {
 .selected {
   border: 2px solid #409eff;
   border-radius: 5px;
+}
+
+.card-selectable {
+  cursor: pointer;
+  transition: transform 200ms;
+}
+
+.card-selectable:hover {
+  transform: scale(1.02);
 }
 </style>
