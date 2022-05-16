@@ -22,7 +22,7 @@ void login(WiFiClient client, String endpoint, const char* username, const char*
 void refresh(WiFiClient client, String endpoint, const char* token);
 
 // @POST /users/{id}/consumptions
-void postConsumption(WiFiClient client, String endpoint, float value, float variance);
+void postConsumptions(WiFiClient client, String endpoint, float *values, float *variances, long *timestamps, const int size);
 
 // @GET /user
 int getId(WiFiClient client, String endpoint);

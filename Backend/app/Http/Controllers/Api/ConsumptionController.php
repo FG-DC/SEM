@@ -15,7 +15,7 @@ class ConsumptionController extends Controller
 {
     public function getUserConsumptions(User $user)
     {
-        return  ConsumptionResource::collection($user->consumptions);
+        return ConsumptionResource::collection($user->consumptions);
     }
 
     public function getUserConsumption(User $user, Consumption $observation)
@@ -25,17 +25,28 @@ class ConsumptionController extends Controller
 
     public function postUserConsumption(ConsumptionPost $request, User $user)
     {
-        $consumption = new Consumption();
-        $consumption->fill($request->validated());
-        $consumption->user_id = $user->id;
 
-        try {
-            $consumption->save();
-        } catch (Exception $e) {
-            return response(['error' => 'Something went wrong when creating the consumption'], 500);
+        $consumptions = $request->consumptions;
+        $count = 0;
+
+        foreach ($consumptions as $consumption) {
+            $new_consumption = new Consumption();
+            $new_consumption->fill($consumption);
+            $new_consumption->timestamp = date("Y-m-d H:i:s", $consumption["timestamp"]);
+
+            $new_consumption->user_id = $user->id;
+
+            try {
+                $new_consumption->save();
+            } catch (Exception $e) {
+
+                return response(['error' => 'Something went wrong when creating the consumption'], 500);
+            }
+
+            $count += 1;
         }
 
-        return new ConsumptionResource($consumption);
+        return response(['msg' => $count . ' consumptions created with success'], 201);
     }
 
     public function putUserConsumption(Request $request, User $user, Consumption $consumption)

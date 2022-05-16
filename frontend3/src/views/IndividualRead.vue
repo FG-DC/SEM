@@ -1,32 +1,114 @@
 <template>
-  <div class="container mt-5">
-    <div data-app class="d-flex w-100 mb-4">
-      <div class="flex-grow-1">
-        <v-select
-          data-app
-          v-model="select"
-          :items="this.equipments"
-          item-text="name"
-          label="Select"
-          return-object
-          solo
-        ></v-select>
+  <b-container class="container mt-5 text-center">
+    <v-snackbar
+      v-model="toast.state"
+    >{{toast.message}}</v-snackbar>
+    <div data-app></div>
+    <v-select
+      :disabled="state"
+      data-app
+      v-model="selected"
+      :items="equipments"
+      item-text="name"
+      label="Select"
+      return-object
+      solo
+    ></v-select>
+
+    <b-button
+      v-b-modal.modalAnalyse
+      variant="primary"
+      :disabled="selected == -1 || state"
+      >Analyse Equipment</b-button
+    >
+    <br />
+    <span class="timer mt-2" v-if="crono.time != 0">{{ crono.time }}</span>
+    <Chart class="mt-5" :config="graphConfig" :isBoolean="false" />
+
+    <b-modal
+      ref="modalAnalyse"
+      id="modalAnalyse"
+      hide-header-close
+      no-close-on-backdrop
+      no-close-on-esc
+      centered
+      size="lg"
+      title="Analyze"
+    >
+      <div class="text-center">
+        <v-stepper v-model="step" value="1">
+          <v-stepper-header>
+            <v-stepper-step step="1" :complete="step > 1">
+              Information
+            </v-stepper-step>
+            <v-divider></v-divider>
+            <v-stepper-step step="2" :complete="step > 2"
+              >Ready?
+            </v-stepper-step>
+            <v-divider></v-divider>
+            <v-stepper-step step="3" :complete="step > 3">
+              Analysing
+            </v-stepper-step>
+          </v-stepper-header>
+          <v-stepper-content class="mt-3" step="1"
+            ><span
+              >This type of tool should be used to improve the accuracy of the
+              system. The user must use this tool by following all the steps in
+              the order they are presented, otherwise the monitoring system's
+              conclusions will yield false results.
+              <b
+                >The process must be carried out from start to finish (about 30
+                seconds per device or stopped by the user)</b
+              >. In case of any doubt, do not hesitate to contact us.</span
+            >
+          </v-stepper-content>
+          <v-stepper-content class="mt-3" step="2"
+            ><span
+              ><b
+                >Please be sure that the equipment that you are analysing is
+                turned OFF before starting the process.</b
+              >
+              <br />
+              To carry out the consumption analysis process, please click on the
+              button below.</span
+            >
+            <br />
+            <b-button variant="danger" @click="startAnalyse()" class="mt-5 mb-2"
+              >Start analyse</b-button
+            >
+          </v-stepper-content>
+          <v-stepper-content class="mt-3" step="3"
+            ><span
+              ><b
+                >Please turn on the equipment and only then press the button
+                below!</b
+              >
+            </span>
+            <br />
+            <b-button variant="danger" class="mt-5 mb-2" @click="analyse()"
+              >The equipment is turned on</b-button
+            >
+          </v-stepper-content>
+        </v-stepper>
       </div>
-      <b-btn
-        color="primary"
-        label="Record"
-        type="button"
-        class="btn btn-danger"
-        @click="doSubscribe()"
-      />
-    </div>
-    <Chart v-if="loaded" :config="graphConfig" :isBoolean="false" />
-  </div>
+      <template #modal-footer class="d-flex">
+        <b-button @click="step--" v-if="step != 1 && step != 3"
+          >Previous</b-button
+        >
+        <b-button variant="primary" v-if="step == 1" @click="step++"
+          >Next</b-button
+        >
+        <b-button variant="danger" class="mr-2" @click="hideModal()"
+          >Close</b-button
+        >
+      </template>
+    </b-modal>
+  </b-container>
 </template>
 
 
 <script>
-import mqtt from "mqtt";
+import mqtt from "../MyMqtt";
 import axios from "axios";
 import Chart from "../components/Chart.vue";
 
@@ -34,13 +116,14 @@ export default {
   components: { Chart },
   data() {
     return {
-      items: [
-        { state: "Florida", abbr: "FL" },
-        { state: "Georgia", abbr: "GA" },
-        { state: "Nebraska", abbr: "NE" },
-        { state: "California", abbr: "CA" },
-        { state: "New York", abbr: "NY" },
-      ],
+      step: 1,
+      state: false,
+      topics: [],
+      consumption: {
+        value: "---",
+        timestamp: "",
+      },
+      equipments: null,
       select: null,
       currentdate: null,
       consumptions: [],
@@ -50,50 +133,56 @@ export default {
       },
       loaded: false,
       collection: [],
-      equipments: [],
       selected: -1,
-      connection: {
-        host: "e977e80565fb4a00ad2023273addb4b3.s1.eu.hivemq.cloud",
-        port: 8884,
-        endpoint: "/mqtt",
-        clean: true, // Reserved session
-        connectTimeout: 1000000, // Time out
-        reconnectPeriod: 1000000, // Reconnection interval
-        // Certification Information
-        clientId: "clientId-wVkoTQLmp3",
-        username: "SmartEnergyMonitoring",
-        password: "Sem_12345678",
+
+      crono:{
+        timer:0,
+        interval:0,
+        time:0
       },
-      subscription: {
-        topic: "ola",
-        qos: 0,
+      toast:{
+        message:null,
+        state:false
       },
-      publish: {
-        topic: "ola",
-        qos: 0,
-        payload: '{ "msg": "Hello, I am browser." }',
-      },
-      receiveNews: "",
-      qosList: [
-        { label: 0, value: 0 },
-        { label: 1, value: 1 },
-        { label: 2, value: 2 },
-      ],
-      client: {
-        connected: false,
-      },
-      subscribeSuccess: false,
+      analysis:{
+        start:null,
+        end:null,
+        equipment_id:null
+      }
     };
   },
   computed: {
     userId() {
       return this.$store.getters.user_id;
     },
+    consumptionValue() {
+      return this.consumption.value;
+    },
+    consumptionTime() {
+      if (!this.consumption.timestamp) return "";
+
+      const timestamp = new Date(this.consumption.timestamp);
+
+      const hours = timestamp.getHours();
+      const minutes = timestamp.getMinutes();
+
+      return (
+        timestamp.toLocaleDateString("pt") +
+        " " +
+        timestamp.toLocaleTimeString("pt-PT")
+      );
+    },
   },
   async created() {
     this.$store.dispatch("fillStore");
+    //MQTT
+    //-> Add topics to subscribe
+    this.topics.push(this.userId + "/power");
+    //-> Connect to MQTT Broker
+    mqtt.connect(this.onMessage);
+    //-> Subscribe to topics
+    mqtt.subscribe(this.topics);
 
-    this.createConnection();
     await axios
       .get(`/users/${this.userId}/equipments`)
       .then((response) => {
@@ -104,78 +193,90 @@ export default {
       });
   },
   methods: {
-    createConnection() {
-      // ws unencrypted WebSocket connection
-      // wss encrypted WebSocket connection
-      const { host, port, endpoint, ...options } = this.connection;
-      const connectUrl = `wss://${host}:${port}${endpoint}`;
-      try {
-        this.client = mqtt.connect(connectUrl, options);
-      } catch (error) {
-        console.log("mqtt.connect error", error);
+    onMessage(topic, message) {
+      switch (topic) {
+        case this.userId + "/power":
+          this.consumption = {
+            value: message,
+            timestamp: new Date(),
+          };
+          this.loadChart(
+            [this.consumptionValue.toString(), this.consumptionTime],
+            "area",
+            "Consumptions",
+            false
+          );
+          break;
       }
-      this.client.on("connect", () => {
-        console.log("Connection succeeded!");
-      });
-      this.client.on("error", (error) => {
-        console.log("Connection failed", error);
-      });
-      this.client.on("message", (topic, message) => {
-        this.receiveNews = this.receiveNews.concat(message);
-        var current = new Date();
-        //console.log(current.toLocaleTimeString())
-        console.log(message);
-
-        this.collection.push([
-          current.toLocaleTimeString(),
-          message.toString(),
-        ]);
-        console.log(this.collection);
-        this.loadChart(this.collection, "line", "Consumption (W)", false);
-      });
-    },
-    doSubscribe() {
-      const { topic, qos } = this.subscription;
-      console.log(this.userId + "/power");
-      this.client.subscribe(this.userId + "/power", { qos }, (error, res) => {
-        if (error) {
-          console.log("Subscribe to topics error", error);
-          return;
-        }
-        this.subscribeSuccess = true;
-        console.log("Subscribe to topics res", res);
-      });
-    },
-    doUnSubscribe() {
-      const { topic } = this.subscription;
-      this.client.unsubscribe(topic, (error) => {
-        if (error) {
-          console.log("Unsubscribe error", error);
-        }
-      });
-    },
-    doPublish() {
-      const { topic, qos, payload } = this.publication;
-      this.client.publish(topic, payload, qos, (error) => {
-        if (error) {
-          console.log("Publish error", error);
-        }
-      });
     },
     loadChart(collection, type, label, isBoolean) {
       this.loaded = false;
 
       this.graphConfig.label = label;
       this.graphConfig.type = type;
-
-      this.graphConfig.xAxis.push(collection[collection.length - 1][0]);
-      this.graphConfig.yAxis.push(collection[collection.length - 1][1]);
-      console.log(this.graphConfig);
+      this.graphConfig.xAxis.push(collection[1]);
+      this.graphConfig.yAxis.push(collection[0]);
+      if (this.graphConfig.xAxis.length > 50) {
+        this.graphConfig.xAxis.shift();
+        this.graphConfig.yAxis.shift();
+      }
       this.loaded = true;
+    },
+    startAnalyse() {
+      this.step++;
+      this.state = true;
+      mqtt.publish(`${this.userId}/tare`, "tare");
+    },
+    stopAnalyse() {
+      this.step = 1;
+      this.state = false;
+      mqtt.publish(`${this.userId}/reset`, "reset");
+    },
+    analyse() {
+      this.hideModal();
+      this.step = 1;
+      this.crono.timer = 30;
+      this.analysis.start = parseInt(new Date().getTime() / 1000)
+      this.analysis.equipment_id = this.selected.id
+      this.crono.interval = setInterval(this.countdown, 1000);
+    },
+    savaAnalyse() {
+       axios
+      .post(`/users/${this.userId}/training-examples`, {
+          start: this.analysis.start,
+          end: this.analysis.end,
+          individual:true,
+          equipments_on:[this.analysis.equipment_id],
+        })
+      .then((response) => {
+        this.toast.state = true
+        this.toast.message = response.data.msg;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    },
+    countdown() {
+      this.crono.time = "00:" + (this.crono.timer % 60);
+      this.crono.timer--;
+      if (this.crono.timer < 0) {
+        clearInterval(this.crono.interval);
+        this.analysis.end = parseInt(new Date().getTime() / 1000)
+        mqtt.publish(`${this.userId}/reset`, "reset");
+        this.crono.time = 0;
+        this.savaAnalyse()
+        this.state = false;
+      }
+    },
+    hideModal() {
+      this.$refs["modalAnalyse"].hide();
     },
   },
 };
 </script>
 
 <style>
+.timer {
+  font-size: 6vw;
+}
 </style>

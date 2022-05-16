@@ -15,8 +15,7 @@ class Consumption extends Model
 
     protected $fillable = [
         'value',
-        'variance',
-        'observation_id',
+        'variance'
     ];
 
     public function user()

@@ -17,6 +17,7 @@ export default {
   data() {
     return {
       options: {
+      colors:['#F44336'],
         chart: {
           id: "mychart",
         },

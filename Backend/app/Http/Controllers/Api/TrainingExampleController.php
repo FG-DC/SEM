@@ -25,8 +25,8 @@ class TrainingExampleController extends Controller
         $count = 0;
 
         $consumptions = Consumption::where('user_id', $user->id)
-            ->whereRaw('created_at >= FROM_UNIXTIME(' . $request->start . ')')
-            ->whereRaw('created_at <= FROM_UNIXTIME(' . $request->end . ')')
+            ->whereRaw('timestamp >= FROM_UNIXTIME(' . $request->start . ')')
+            ->whereRaw('timestamp <= FROM_UNIXTIME(' . $request->end . ')')
             ->get();
 
         foreach ($consumptions as $consumption) {
@@ -34,7 +34,7 @@ class TrainingExampleController extends Controller
             $count++;
         }
 
-        return response([$count . ' examples created with success'], 201);
+        return response(['msg' => $count . ' examples created with success'], 201);
     }
 
     private function getSeasonFrom($day_year)

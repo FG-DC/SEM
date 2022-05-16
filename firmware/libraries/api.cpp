@@ -81,22 +81,23 @@ void refresh(WiFiClient client, String endpoint, const char* token) {
   http.end();
 }
 
-void postConsumption(WiFiClient client, String endpoint, float value, float variance) {
+void postConsumptions(WiFiClient client, String endpoint, float *values, float *variances, long *timestamps, const int size) {
 	
   Serial.print("POST CONSUMPTION: ");
   HTTPClient http;
   http.begin(client, endpoint);
   http.addHeader("Content-Type", "application/json");
   http.addHeader("Authorization", "Bearer " + (String)Auth::accessToken);
+  
+  String body = "{\"consumptions\":[";
+  
+  for (int i = 0; i < size; i++) {
+	  body += (i == 0 ? "" : ",");
+	  body += "{\"value\":" + String(values[i]) + ",\"variance\":" +  String(variances[i]) + ",\"timestamp\":" + String(timestamps[i]) + "}";
+  }
 
-  DynamicJsonDocument requestDoc(POST_SIZE);
-  requestDoc["value"] = value;
-  requestDoc["variance"] = variance;
-
-  char requestPtr[POST_SIZE];
-  serializeJson(requestDoc, requestPtr);
-
-  int responseCode = http.POST(requestPtr);
+  body += "]}";
+  int responseCode = http.POST(body.c_str());
   if (responseCode > 0) {
 	Serial.println("OK");
   }

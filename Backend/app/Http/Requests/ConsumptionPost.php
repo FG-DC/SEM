@@ -20,20 +20,22 @@ class ConsumptionPost extends FormRequest
     public function rules()
     {
         return [
-            'observation_id' => 'nullable|integer',
-            'value' => 'required|numeric',
-            'variance' => 'required|numeric'
+            'consumptions' => 'required|array',
+            'consumptions.*.value' => 'required|numeric',
+            'consumptions.*.variance' => 'required|numeric',
+            'consumptions.*.timestamp' => 'required|integer'
         ];
     }
 
     public function messages()
     {
         return [
-            'observation_id.integer' => 'Observation id must be a number',
-            'value.required' => 'Value is mandatory',
-            'value.numeric' => 'Value must be a number',
-            'variance.required' => 'Variance is mandatory',
-            'variance.numeric' => 'Variance must be a number',
+            'consumptions.*.value.required' => 'Value is mandatory',
+            'consumptions.*.value.numeric' => 'Value must be a number',
+            'consumptions.*.variance.required' => 'Variance is mandatory',
+            'consumptions.*.variance.numeric' => 'Variance must be a number',
+            'consumptions.*.timestamp.required' => 'Timestamp is mandatory',
+            'consumptions.*.timestamp.integer' => 'Timestamp must be a integer',
         ];
     }
 }
