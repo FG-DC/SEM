@@ -3,6 +3,7 @@
 #include <WiFiManager.h>
 #include <ArduinoMqttClient.h>
 #include <driver/adc.h>
+#include <DateTime.h>
 #include "EmonLib.h"
 
 #include "config/config.h"
@@ -10,7 +11,8 @@
 #include "libraries/utils.cpp"
 
 //CONSTANTS
-#define TIME_BETWEEN_POSTS 5000
+const int SIZE_CONSUMPTION_BUFFER = 12;
+#define TIME_BETWEEN_READS 5000
 #define TIME_BETWEEN_PUBLISHES 1000
 
 #define ADC_BITS    12
@@ -59,47 +61,69 @@ void setup() {
 
   login(client, API_ENDPOINT + "/login", username, password);
   id = getId(client, API_ENDPOINT + "/user");
-
-  mqttClient.subscribe(String(id) + "/tare");
 }
 
 void loop() {
   if (WiFi.status() == WL_CONNECTED) {
-    if (!mqttClient.connected()) {
-      connectToMQTTServer();
-    }
+
+    float powers[12];
+    float variances[12];
+    long timestamps[12];
+    int pointer = 0;
     
-    int n = 0;
-	  float values[100];
-	
-    unsigned long postTime = millis() + TIME_BETWEEN_POSTS;
-	
-    while (postTime > millis()) {
-      unsigned long publishTime = millis() + TIME_BETWEEN_PUBLISHES;
-      
-      while (publishTime > millis()) {
-        values[n++] = getConsumption();
+    while (pointer < SIZE_CONSUMPTION_BUFFER) {
+      if (!mqttClient.connected()) {
+        connectToMQTTServer();
       }
+      
+      int n = 0;
+      float values[100];
+    
+      unsigned long readTime = millis() + TIME_BETWEEN_READS;
+    
+      while (readTime > millis()) {
+        unsigned long publishTime = millis() + TIME_BETWEEN_PUBLISHES;
+        
+        while (publishTime > millis()) {
+          values[n] = getConsumption() - calibrationValue;
+          if (values[n] < 0) {
+            values[n] = 0;
+          }
+          
+          mqttClient.subscribe(String(id) + "/tare");
+          mqttClient.subscribe(String(id) + "/reset");
+          
+          n++;
+        }
+  
+        lastMeanPower = Statistic::getMean(values, n);
+  
+        //EACH 1 SECOND
+        publishMessage(String(id) + "/power", lastMeanPower);
+      }
+  
+      //EACH 5 SECONDS
+      float meanW = Statistic::getMean(values, n);
+      float varianceW = Statistic::getVariance(values, n);
+  
+      Serial.print("Power: ");
+      Serial.print(meanW);
+      Serial.print(" W | ");
+      Serial.print("Current: ");
+      Serial.print(meanW / HOME_VOLTAGE, 3);
+      Serial.println(" A");
+      Serial.println("----------//----------");
 
-      lastMeanPower = Statistic::getMean(values, n);
-
-      //EACH 1 SECOND
-      publishMessage(String(id) + "/power", lastMeanPower - calibrationValue);
+      powers[pointer] = meanW;
+      variances[pointer] = varianceW;
+      timestamps[pointer] = DateTime.now();
+      pointer += 1;
     }
 
-    //EACH 5 SECONDS
-    float meanW = Statistic::getMean(values, n);
-    float varianceW = Statistic::getVariance(values, n);
-
-    Serial.print("Power: ");
-    Serial.print(meanW);
-    Serial.print(" W | ");
-    Serial.print("Current: ");
-    Serial.print(meanW / HOME_VOLTAGE, 3);
-    Serial.println(" A");
-
-    postConsumption(client, API_ENDPOINT + "/users/" + (String)id + "/consumptions", meanW, varianceW);
+    postConsumptions(client, API_ENDPOINT + "/users/" + (String)id + "/consumptions", powers, variances, timestamps, SIZE_CONSUMPTION_BUFFER);
     Serial.println("--------------------------");
+
+    pointer = 0;
   }
 }
 
@@ -241,41 +265,11 @@ void publishMessage(String topic, float value) {
   Serial.println(value, 2);
 }
 
-/*
 void onMqttMessage(int messageSize) {
   if (mqttClient.messageTopic().equals(String(id) + "/tare")) {
-    
-    //30 seconds read
-    unsigned long startTime = millis() + 30000;
-  
-    while (startTime > millis()) {
-      calibrationValue = lastMeanPower;
-    }
-
+    calibrationValue += lastMeanPower;
+  }
+  if (mqttClient.messageTopic().equals(String(id) + "/reset")) {
     calibrationValue = 0;
   }
-}
-*/
-
-void onMqttMessage(int messageSize) {
-  // we received a message, print out the topic and contents
-  Serial.print("Received a message with topic '");
-  Serial.print(mqttClient.messageTopic());
-  Serial.print("', duplicate = ");
-  Serial.print(mqttClient.messageDup() ? "true" : "false");
-  Serial.print(", QoS = ");
-  Serial.print(mqttClient.messageQoS());
-  Serial.print(", retained = ");
-  Serial.print(mqttClient.messageRetain() ? "true" : "false");
-  Serial.print("', length ");
-  Serial.print(messageSize);
-  Serial.println(" bytes:");
-
-  // use the Stream interface to print the contents
-  while (mqttClient.available()) {
-    Serial.print((char)mqttClient.read());
-  }
-  Serial.println();
-
-  Serial.println();
 }
