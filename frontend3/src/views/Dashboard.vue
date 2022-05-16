@@ -44,7 +44,7 @@
         v-if="cardClicked != null"
         width="100%"
         height="auto"
-        type="line"
+        type="area"
         :options="chartOptions"
         :series="chartSeries"
       />
@@ -95,12 +95,7 @@ export default {
     consumptionTime() {
       if (!this.consumption.timestamp) return "";
 
-      const timestamp = new Date(this.consumption.timestamp);
-
-      const hours = timestamp.getHours();
-      const minutes = timestamp.getMinutes();
-
-      return timestamp.toLocaleDateString('pt') + " " + timestamp.toLocaleTimeString('pt-PT');
+      return this.formatDate(this.consumption.timestamp, true);
     },
     divisionValue() {
       return this.division.value;
@@ -108,12 +103,7 @@ export default {
     divisionTime() {
       if (!this.division.timestamp) return "";
 
-      const timestamp = new Date(this.division.timestamp);
-
-      const hours = timestamp.getHours();
-      const minutes = timestamp.getMinutes();
-
-      return timestamp.toLocaleDateString('pt') + " " + timestamp.toLocaleTimeString('pt-PT');
+      return this.formatDate(this.division.timestamp, true);
     },
     equipmentValue() {
       return this.equipment.value.length;
@@ -121,12 +111,7 @@ export default {
     equipmentTime() {
       if (!this.equipment.timestamp) return "";
 
-      const timestamp = new Date(this.equipment.timestamp);
-
-      const hours = timestamp.getHours();
-      const minutes = timestamp.getMinutes();
-
-      return timestamp.toLocaleDateString('pt') + " " + timestamp.toLocaleTimeString('pt-PT');
+      return this.formatDate(this.equipment.timestamp, true);
     },
     modalTitle() {
       if (this.cardClicked == null) return "";
@@ -144,7 +129,8 @@ export default {
 
     this.$store.dispatch("fillStore");
 
-    this.getLatestObservation();
+    this.getLastNConsumptions(12);
+    this.getLastNObservations(12);
   },
   methods: {
     onMessage(topic, message) {
@@ -160,7 +146,7 @@ export default {
 
         //TOPIC: #/OBSERVATION
         case(this.userId + "/observation"):
-          this.getLatestObservation();
+          this.getLastNObservations(1);
           break;
       }
 
@@ -220,42 +206,31 @@ export default {
         const visited = []
         item.value.forEach((equipment) => {
           const serie = mapIdToSerie.get(equipment.id);
-          serie.data.push(equipment.value);
+          serie.data.push(equipment.value == 0 ? null : equipment.value);
 
           visited.push(equipment.id);
         })
         for (let key in mapIdToSerie.keys()) {
           if (!visited.includes(key)) {
             const serie = mapIdToSerie.get(key);
-            serie.data.push(0);
+            serie.data.push(null);
           }
         }
       });
     },
     formatDate(dateStr, withFullDate) {
-      if (dateStr == null || dateStr == "") return "";
+      if (dateStr == null || dateStr == "")
+        return "";
 
       let date = new Date(dateStr);
       let formatedDate = "";
 
-      let day = date.getDate().toString();
-      day = day.length == 1 ? "0" + day : day;
-      let month = (date.getMonth() + 1).toString();
-      month = month.length == 1 ? "0" + month : month;
-      let year = date.getFullYear();
+      formatedDate = date.toLocaleDateString('pt');
 
-      formatedDate = day + "/" + month + "/" + year;
-
-      if (!withFullDate) return formatedDate;
-
-      let hours = date.getHours().toString();
-      hours = hours.length == 1 ? "0" + hours : hours;
-      let minutes = date.getMinutes().toString();
-      minutes = minutes.length == 1 ? "0" + minutes : minutes;
-
-      formatedDate += " " + hours + ":" + minutes;
-
-      return formatedDate;
+      if (!withFullDate)
+        return formatedDate;
+      
+      return formatedDate + " " + date.toLocaleTimeString('pt-PT');
     },
     addToArray(array, obj) {
       const MAX_ITEMS_ON_ARRAY = 50;
@@ -265,35 +240,56 @@ export default {
       }
       array.push(obj);
     },
-    getLatestObservation() {
+    getLastNConsumptions(limit) {
       axios
-      .get(`/users/${this.userId}/observations/last`)
+      .get(`/users/${this.userId}/consumptions?limit=${limit}`)
       .then((response) => {
-        let data = response.data;
-        let obs = data.observation;
+        let data = response.data.data;
+        console.log(data)
+        data.forEach((consumption) => {
+          this.consumption = {
+            value: consumption.value,
+            timestamp: new Date(consumption.timestamp)
+          }
+          this.addToArray(this.consumptions, this.consumption);
+        })
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    },
+    getLastNObservations(limit) {
+      axios
+      .get(`/users/${this.userId}/observations?limit=${limit}`)
+      .then((response) => {
+        let dataArray = response.data;
 
-        let timestamp = new Date(obs.created_at);
+        dataArray.forEach((data) => {
+          let obs = data.observation;
 
-        this.division = {
-          value: obs.expected_division,
-          timestamp: timestamp
-        }
-        this.addToArray(this.divisions, this.division);
+          let timestamp = new Date(obs.created_at);
 
-        this.equipment = {
-          value: [],
-          timestamp: timestamp
-        };
+          this.division = {
+            value: obs.expected_division,
+            timestamp: timestamp
+          }
+          this.addToArray(this.divisions, this.division);
 
-        obs.equipments.forEach((item) => {
-          this.equipment.value.push({
-            id: item.id,
-            name: item.name,
-            value: item.consumption
+          this.equipment = {
+            value: [],
+            timestamp: timestamp
+          };
+
+          obs.equipments.forEach((item) => {
+            this.equipment.value.push({
+              id: item.id,
+              name: item.name,
+              value: item.consumption
+            });
           });
-        });
 
-        this.addToArray(this.equipments, this.equipment);
+          this.addToArray(this.equipments, this.equipment);
+        })
       })
       .catch((error) => {
         console.log(error);
@@ -304,9 +300,15 @@ export default {
 
       switch (cardNumber) {
         case 0:
+          if (this.consumptions.length == 0)
+            return;
+          
           this.loadChart(this.consumptions)
           break;
         case 2:
+          if (this.equipments.length == 0)
+            return;
+          
           this.loadChart(this.equipments)
           break;
       }
@@ -322,7 +324,8 @@ export default {
       });
 
       return map;
-    }
+    },
+    
   },
 };
 </script>
