@@ -66,6 +66,9 @@ export default {
         if (error) {
           console.log("Error unsubscribing to \"" + topic + "\"");
         }
+        this.topics = this.topics.filter((item)=>{
+          return item != topic
+        })
       });
     });
   },

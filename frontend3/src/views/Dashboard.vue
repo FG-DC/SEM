@@ -18,7 +18,7 @@
       </v-card>
       -->
     </div>
-    <v-card class="mt-5 card-selectable" elevation="6" style="border-radius: 10px;" @click="">
+    <v-card class="mt-5 card-selectable" elevation="6" style="border-radius: 10px;" >
       <div class="text-card">
         <font-awesome-icon icon="fa-solid fa-location-dot" style="margin-right: 2vw;" />
         <span>{{divisionValue}}</span>

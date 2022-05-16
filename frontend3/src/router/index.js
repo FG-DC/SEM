@@ -7,6 +7,7 @@ import Profile from '../views/Profile.vue'
 import GetStarted from '../views/GetStarted.vue'
 import IndividualRead from '../views/IndividualRead.vue'
 import Settings from '../views/Settings.vue'
+import Affiliates from '../views/Affiliates.vue'
 
 Vue.use(VueRouter)
 
@@ -45,6 +46,11 @@ const routes = [
     path: '/settings',
     name: 'settings',
     component: Settings
+  },
+  {
+    path: '/affiliates',
+    name: 'affiliates',
+    component: Affiliates
   },
 ]
 

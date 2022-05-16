@@ -6,7 +6,7 @@
         <router-link to="/read" class="space"><font-awesome-icon class="space" :class="{selected: $route.name == 'read'}" icon="fa-solid fa-magnifying-glass-chart" size="2x" /></router-link>
         <router-link to="/dashboard" class="space"><font-awesome-icon class="space" icon="fa-solid fa-bolt" size="2x" /></router-link>
         <router-link to="/settings" class="space"><font-awesome-icon @click="$router.push({name:'settings'})" class="space" :class="{selected: $route.name == 'settings'}" icon="fa-solid fa-gear" size="2x" /></router-link>
-        <router-link to="/dashboard" class="space"><font-awesome-icon class="space" icon="fa-solid fa-user-group" size="2x" /></router-link>
+        <router-link to="/affiliates" class="space"><font-awesome-icon class="space" :class="{selected: $route.name == 'affiliates'}" icon="fa-solid fa-user-group" size="2x" /></router-link>
       </div>
     </div>
     <b-dropdown variant="link" right no-caret>

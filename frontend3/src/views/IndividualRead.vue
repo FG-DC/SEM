@@ -1,8 +1,6 @@
 <template>
   <b-container class="container mt-5 text-center">
-    <v-snackbar
-      v-model="toast.state"
-    >{{toast.message}}</v-snackbar>
+    <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
     <div data-app></div>
     <v-select
       :disabled="state"
@@ -16,13 +14,22 @@
     ></v-select>
 
     <b-button
+      style="margin-right: 3%"
       v-b-modal.modalAnalyse
+      class="mr-3"
       variant="primary"
       :disabled="selected == -1 || state"
       >Analyse Equipment</b-button
     >
+
+    <b-button variant="danger" :disabled="!state" @click="saveAnalysis()"
+      >Stop Analysing</b-button
+    >
     <br />
-    <span class="timer mt-2" v-if="crono.time != 0">{{ crono.time }}</span>
+    <v-card class="mt-3 timer">
+      <span>{{ crono.time }}</span>
+    </v-card>
+
     <Chart class="mt-5" :config="graphConfig" :isBoolean="false" />
 
     <b-modal
@@ -116,39 +123,36 @@ export default {
   components: { Chart },
   data() {
     return {
+      loaded: false,
+      selected: -1,
       step: 1,
       state: false,
+      equipments: null,
+      currentdate: null,
       topics: [],
+      consumptions: [],
       consumption: {
         value: "---",
         timestamp: "",
       },
-      equipments: null,
-      select: null,
-      currentdate: null,
-      consumptions: [],
       graphConfig: {
         xAxis: [],
         yAxis: [],
       },
-      loaded: false,
-      collection: [],
-      selected: -1,
-
-      crono:{
-        timer:0,
-        interval:0,
-        time:0
+      crono: {
+        timer: 0,
+        interval: 0,
+        time: "00:00",
       },
-      toast:{
-        message:null,
-        state:false
+      toast: {
+        message: null,
+        state: false,
       },
-      analysis:{
-        start:null,
-        end:null,
-        equipment_id:null
-      }
+      analysis: {
+        start: null,
+        end: null,
+        equipment_id: null,
+      },
     };
   },
   computed: {
@@ -180,8 +184,7 @@ export default {
     this.topics.push(this.userId + "/power");
     //-> Connect to MQTT Broker
     mqtt.connect(this.onMessage);
-    //-> Subscribe to topics
-    mqtt.subscribe(this.topics);
+    mqtt.unsubscribe(this.topics)
 
     await axios
       .get(`/users/${this.userId}/equipments`)
@@ -211,9 +214,8 @@ export default {
     },
     loadChart(collection, type, label, isBoolean) {
       this.loaded = false;
-
-      this.graphConfig.label = label;
       this.graphConfig.type = type;
+      this.graphConfig.label = label;
       this.graphConfig.xAxis.push(collection[1]);
       this.graphConfig.yAxis.push(collection[0]);
       if (this.graphConfig.xAxis.length > 50) {
@@ -227,46 +229,52 @@ export default {
       this.state = true;
       mqtt.publish(`${this.userId}/tare`, "tare");
     },
-    stopAnalyse() {
-      this.step = 1;
-      this.state = false;
-      mqtt.publish(`${this.userId}/reset`, "reset");
-    },
     analyse() {
+      mqtt.subscribe(this.topics);
       this.hideModal();
-      this.step = 1;
-      this.crono.timer = 30;
-      this.analysis.start = parseInt(new Date().getTime() / 1000)
-      this.analysis.equipment_id = this.selected.id
+      this.crono.timer = 60;
+      this.analysis.start = parseInt(new Date().getTime() / 1000);
       this.crono.interval = setInterval(this.countdown, 1000);
     },
-    savaAnalyse() {
-       axios
-      .post(`/users/${this.userId}/training-examples`, {
-          start: this.analysis.start,
-          end: this.analysis.end,
-          individual:true,
-          equipments_on:[this.analysis.equipment_id],
-        })
-      .then((response) => {
-        this.toast.state = true
-        this.toast.message = response.data.msg;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    },
     countdown() {
-      this.crono.time = "00:" + (this.crono.timer % 60);
+      const minutes = Math.floor(this.crono.timer / 60);
+      this.crono.time = "0" + minutes + ":" + (this.crono.timer % 60);
       this.crono.timer--;
       if (this.crono.timer < 0) {
-        clearInterval(this.crono.interval);
-        this.analysis.end = parseInt(new Date().getTime() / 1000)
-        mqtt.publish(`${this.userId}/reset`, "reset");
-        this.crono.time = 0;
-        this.savaAnalyse()
-        this.state = false;
+        this.saveAnalysis();
       }
+    },
+    saveAnalysis() {
+      this.analysis.equipment_id = this.selected.id;
+      this.analysis.end = parseInt(new Date().getTime() / 1000);
+      mqtt.publish(`${this.userId}/reset`, "reset");
+
+      this.step = 1;
+      this.crono.time = "00:00";
+
+      mqtt.unsubscribe(this.topics);
+
+      clearInterval(this.crono.interval);
+      this.graphConfig= {
+        xAxis: [],
+        yAxis: [],
+      },
+
+      axios
+        .post(`/users/${this.userId}/training-examples`, {
+          start: this.analysis.start,
+          end: this.analysis.end,
+          individual: true,
+          equipments_on: [this.analysis.equipment_id],
+        })
+        .then((response) => {
+          this.toast.state = true;
+          this.toast.message = response.data.msg;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      this.state = false;
     },
     hideModal() {
       this.$refs["modalAnalyse"].hide();
@@ -275,7 +283,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .timer {
   font-size: 6vw;
 }

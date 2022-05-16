@@ -25,11 +25,11 @@ import { faLocationDot } from '@fortawesome/free-solid-svg-icons'
 import { faCalendar } from '@fortawesome/free-solid-svg-icons'
 import { faPlug } from '@fortawesome/free-solid-svg-icons'
 import { faHouseChimneyWindow } from '@fortawesome/free-solid-svg-icons'
+import { faCirclePlus } from '@fortawesome/free-solid-svg-icons'
 
 import vuetify from './plugins/vuetify'
 
-
-library.add(faHouse, faMagnifyingGlassChart, faUserGroup, faGear, faBolt, faWindowMinimize, faCircleChevronDown, faPlugCircleBolt, faLocationDot, faCalendar, faPlug, faHouseChimneyWindow)
+library.add(faHouse, faMagnifyingGlassChart, faUserGroup, faGear, faBolt, faWindowMinimize, faCircleChevronDown, faPlugCircleBolt, faLocationDot, faCalendar, faPlug, faHouseChimneyWindow,faCirclePlus)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 Vue.use(BootstrapVue)
