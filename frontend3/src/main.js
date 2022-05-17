@@ -4,7 +4,7 @@ import router from './router'
 import store from './store'
 
 import axios from 'axios'
-axios.defaults.baseURL = 'http://backend.test/api'
+axios.defaults.baseURL = 'http://35.181.55.55/api'
 
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'

@@ -44,7 +44,6 @@
         v-if="cardClicked != null"
         width="100%"
         height="auto"
-        type="area"
         :options="chartOptions"
         :series="chartSeries"
       />
@@ -142,20 +141,28 @@ export default {
             timestamp: new Date()
           }
           this.addToArray(this.consumptions, this.consumption);
+
+          if (this.cardClicked == 0) {
+            this.loadChart(this.consumptions);
+          }
           break;
 
         //TOPIC: #/OBSERVATION
         case(this.userId + "/observation"):
           this.getLastNObservations(1);
+
+          if (this.cardClicked == 2) {
+            this.loadChart(this.equipments);
+          }
           break;
       }
-
-      this.loadChart(this.cardClicked == 0 ? this.consumptions : this.equipments);
     },
     initChart() {
       this.chartOptions = {
         chart: {
           id: "chart",
+          type: this.cardClicked == 2 ? "bar" : "area",
+          stacked: true
         },
         dataLabels: {
           enabled: false
@@ -188,6 +195,7 @@ export default {
           name: "",
           data: array
         });
+
         return;
       }
 
@@ -197,25 +205,17 @@ export default {
       mapIdToName.forEach((value, key) => {
         const serie = {
           name: value,
-          data: []
+          data: new Array(collection.length).fill(0)
         };
         this.chartSeries.push(serie);
         mapIdToSerie.set(key, serie);
       });
-      collection.forEach((item) => {
-        const visited = []
+
+      collection.forEach((item, index) => {
         item.value.forEach((equipment) => {
           const serie = mapIdToSerie.get(equipment.id);
-          serie.data.push(equipment.value == 0 ? null : equipment.value);
-
-          visited.push(equipment.id);
+          serie.data[index] = equipment.value;
         })
-        for (let key in mapIdToSerie.keys()) {
-          if (!visited.includes(key)) {
-            const serie = mapIdToSerie.get(key);
-            serie.data.push(null);
-          }
-        }
       });
     },
     formatDate(dateStr, withFullDate) {
@@ -245,14 +245,14 @@ export default {
       .get(`/users/${this.userId}/consumptions?limit=${limit}`)
       .then((response) => {
         let data = response.data.data;
-        console.log(data)
-        data.forEach((consumption) => {
+
+        for (let i = data.length - 1; i >= 0; i--) {
           this.consumption = {
-            value: consumption.value,
-            timestamp: new Date(consumption.timestamp)
+            value: data[i].value,
+            timestamp: new Date(data[i].timestamp)
           }
           this.addToArray(this.consumptions, this.consumption);
-        })
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -264,23 +264,28 @@ export default {
       .then((response) => {
         let dataArray = response.data;
 
-        dataArray.forEach((data) => {
-          let obs = data.observation;
+        for (let i = dataArray.length - 1; i >= 0; i--) {
+          let data = dataArray[i];
 
-          let timestamp = new Date(obs.created_at);
+          let observation = data.observation;
+          let consumption = data.consumption;
 
+          //DIVISIONS
           this.division = {
-            value: obs.expected_division,
-            timestamp: timestamp
+            value: observation.expected_division,
+            timestamp: new Date(consumption.timestamp)
           }
           this.addToArray(this.divisions, this.division);
 
+          //EQUIPMENTS
           this.equipment = {
             value: [],
-            timestamp: timestamp
+            timestamp: new Date(consumption.timestamp)
           };
 
-          obs.equipments.forEach((item) => {
+          observation.equipments.forEach((item) => {
+            if (item.consumption == 0) return;
+
             this.equipment.value.push({
               id: item.id,
               name: item.name,
@@ -289,7 +294,7 @@ export default {
           });
 
           this.addToArray(this.equipments, this.equipment);
-        })
+        }
       })
       .catch((error) => {
         console.log(error);
