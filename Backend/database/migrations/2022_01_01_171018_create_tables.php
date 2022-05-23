@@ -61,7 +61,6 @@ class CreateTables extends Migration
             $table->unsignedBigInteger('equipment_type_id');
             $table->foreign('equipment_type_id')->references('id')->on('equipment_types');
             $table->string('name', 255);
-            $table->string('description')->nullable();
             $table->unsignedBigInteger('division_id');
             $table->foreign('division_id')->references('id')->on('divisions');
             $table->decimal('consumption', 6, 2);

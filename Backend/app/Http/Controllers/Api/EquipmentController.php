@@ -14,7 +14,7 @@ class EquipmentController extends Controller
 {
     public function getUserEquipments(User $user)
     {
-        EquipmentResource::$detail = false;
+        EquipmentResource::$detail = true;
         return EquipmentResource::collection($user->equipments);
     }
 

@@ -1,5 +1,6 @@
 <template>
   <b-container class="text-center mt-5" style="color: black">
+    <router-link :to="{name:'divisions'}" style="text-decoration:none">
     <v-card
       elevation="6"
       class="flex-grow-1 mt"
@@ -9,7 +10,8 @@
         <font-awesome-icon icon="fa-solid fa-house-chimney-window" />
         <span class="p-5">Divisions</span>
       </div>
-    </v-card>
+    </v-card></router-link>
+     <router-link :to="{name:'equipments'}" style="text-decoration:none">
     <v-card
       elevation="6"
       class="icons flex-grow-1 mt-5"
@@ -20,6 +22,7 @@
         <span class="p-5">Equipments</span>
       </div>
     </v-card>
+     </router-link>
   </b-container>
 </template>
 
@@ -32,4 +35,6 @@ export default {};
   color: #191645;
   font-size: 6vw;
 }
+
+
 </style>

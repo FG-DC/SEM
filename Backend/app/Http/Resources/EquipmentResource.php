@@ -20,14 +20,14 @@ class EquipmentResource extends JsonResource
                 "id" => $this->id,
                 "user_id" => $this->user_id,
                 "name" => $this->name,
-                "description" => $this->description,
-                "division_id" => $this->division_id,
+                "division" => $this->division_id,
                 "division_name" => $this->division ? $this->division->name : null,
-                "type_id" => $this->type->id,
+                "type" => $this->type->id,
                 "type_name" => $this->type->name,
                 "consumption" => $this->consumption,
                 "standby" => $this->standby,
-                "activity" => $this->activity
+                "activity" => $this->activity,
+                "equipment_type_id" => $this->equipment_type_id
             ];
         else
             return [
@@ -36,7 +36,6 @@ class EquipmentResource extends JsonResource
                 "consumption" => $this->consumption,
                 "type" => $this->type->name,
                 "activity" => $this->activity,
-                "frequency" => $this->frequency
             ];
     }
 }
