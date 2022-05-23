@@ -1,5 +1,5 @@
 <template>
-  <b-container class="container mt-5 text-center">
+  <b-container class="container mt-2 text-center">
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
 
     <!-- SELECT BOX -->
@@ -38,8 +38,6 @@
         <font-awesome-icon icon="fa-solid fa-stop" size="lg" />
       </b-button>
     </div>
-
-    <br>
 
     <!-- TIMER -->
     <v-card class="timer">

@@ -1,6 +1,9 @@
 <template>
-  <div class="container mt-5 text-center">
-    <div class="d-flex flex-wrap">
+  <div class="container mt-2 text-center">
+    <v-card elevation="20" class="flex-grow-1 card-selectable" style="border-radius: 10px" @click="$refs['user-modal'].show();">
+      <span style="font-size:2rem;font-weight: 400;color:#191645'">{{'Dashboard of ' + user.name}}</span>
+    </v-card>
+    <div class="d-flex flex-wrap mt-4">
       <v-card elevation="6" class="flex-grow-1 card-selectable" style="border-radius: 10px;" @click="showModal(0)">
         <div class="text-card">
           <span>{{consumptionValue}}</span>
@@ -63,6 +66,7 @@
 
     <!-- MODAL -->
     <b-modal ref="division-modal" hide-footer centered size="xl">
+
       <template #modal-title>
         {{modalTitle}}
       </template>
@@ -70,6 +74,21 @@
       <v-card v-for="item,idx in division.value" :key="idx" class="mt-2" elevation="6" style="border-radius: 10px" @click="">
         <div class="text-card-modal text-center p-2">
           <span>{{item.name}}</span>
+        </div>
+      </v-card>
+
+    </b-modal>
+
+    <!-- MODAL -->
+    <b-modal ref="user-modal" hide-footer centered size="xl">
+    
+      <template #modal-title>
+        Dashboard
+      </template>
+
+      <v-card v-for="item,idx in users" :key="idx" class="mt-2" elevation="6" style="border-radius: 10px" v-if="item.id != user.id" @click="changeUser(item)">
+        <div class="text-card-modal text-center p-2">
+          <span>{{(item.id == userId ? '(Me) ' : '') + item.name}}</span>
         </div>
       </v-card>
 
@@ -100,7 +119,7 @@ export default {
         timestamp: ""
       },
       equipment: {
-        value: {},
+        value: [],
         timestamp: "" 
       },
       kWh: {
@@ -117,6 +136,9 @@ export default {
       divisionSelected: "All Divisions",
 
       user: {},
+
+      users: [],
+      userSelected: {}
     };
   },
   computed: {
@@ -132,7 +154,7 @@ export default {
       return this.formatDate(this.consumption.timestamp, true);
     },
     divisionValue() {
-      return this.division.value.length;
+      return this.division.timestamp == "" ? "" : this.division.value.length;
     },
     divisionTime() {
       if (!this.division.timestamp) return "";
@@ -140,7 +162,7 @@ export default {
       return this.formatDate(this.division.timestamp, true);
     },
     equipmentValue() {
-      return this.equipment.value.length;
+      return this.equipment.timestamp == "" ? "" : this.equipment.value.length;
     },
     equipmentTime() {
       if (!this.equipment.timestamp) return "";
@@ -155,7 +177,7 @@ export default {
       if (this.cardClicked === 3) return "Monthly kWh";
     }
   },
-  created() {
+  async created() {
     //MQTT
     //-> Connect to the MQTT Broker
     mqtt.connect(this.onMessage);
@@ -164,16 +186,43 @@ export default {
 
     this.$store.dispatch("fillStore");
 
-    this.getAuthUser();
+    await this.getAuthUser();
+    this.getAffiliates();
+
     this.getKWhs();
     this.getLastNConsumptions(12);
     this.getLastNObservations(12);
   },
   methods: {
+    initEnv() {
+      //FULL DATA
+      this.consumptions = [];
+      this.divisions = [];
+      this.equipments = [];
+      this.kWhs = [];
+
+      //LAST DATA
+      this.consumption = {
+        value: 0,
+        timestamp: ""
+      };
+      this.division = {
+        value: [],
+        timestamp: ""
+      };
+      this.equipment = {
+        value: [],
+        timestamp: "" 
+      };
+      this.kWh = {
+        value: 0,
+        timestamp: "" 
+      };
+    },
     async onMessage(topic, message) {
       switch(topic) {
         //TOPIC: #/POWER
-        case(this.userId + "/power"):
+        case(this.user.id + "/power"):
           this.consumption = {
             value: message,
             timestamp: new Date()
@@ -186,7 +235,7 @@ export default {
           break;
 
         //TOPIC: #/OBSERVATION
-        case(this.userId + "/observation"):
+        case(this.user.id + "/observation"):
           await this.getLastNObservations(1);
 
           if (this.cardClicked == 2) {
@@ -281,7 +330,7 @@ export default {
     },
     getLastNConsumptions(limit) {
       return axios
-        .get(`/users/${this.userId}/consumptions?limit=${limit}`)
+        .get(`/users/${this.user.id}/consumptions?limit=${limit}`)
         .then((response) => {
           let data = response.data.data;
 
@@ -300,7 +349,7 @@ export default {
     },
     getLastNObservations(limit) {
       return axios
-        .get(`/users/${this.userId}/observations?limit=${limit}`)
+        .get(`/users/${this.user.id}/observations?limit=${limit}`)
         .then((response) => {
           let dataArray = response.data;
 
@@ -348,18 +397,31 @@ export default {
         .get(`/user`)
         .then((response) => {
           this.user = response.data;
+          this.users = [ this.user ];
         })
         .catch((error) => {
           console.log(error);
           return Promise.reject(error);
         });
     },
+    getAffiliates() {
+      return axios
+        .get(`/users/${this.userId}/affiliates`)
+        .then((response) => {
+          this.users = [...this.users, ...response.data]
+        })
+        .catch((error) => {
+          return Promise.reject(error);
+        });
+    },
     getKWhs() {
       return axios
-        .get(`/users/${this.userId}/statistics/kwh?months=6`)
+        .get(`/users/${this.user.id}/statistics/kwh?months=6`)
         .then((response) => {
           this.kWhs = response.data.reverse();
+
           this.kWh = this.kWhs[this.kWhs.length - 1];
+          console.log(this.kWh.value)
         })
         .catch((error) => {
           console.log(error);
@@ -442,6 +504,17 @@ export default {
       })
 
       return equipmentsClone;
+    },
+    changeUser(selected) {
+      mqtt.unsubscribe([this.user.id + "/power", this.user.id + "/observation"]);
+      this.initEnv();
+      this.$refs['user-modal'].hide();
+      
+      this.user = selected;
+      mqtt.subscribe([this.user.id + "/power", this.user.id + "/observation"]);
+      this.getKWhs();
+      this.getLastNConsumptions(12);
+      this.getLastNObservations(12);
     }
   },
   watch: {

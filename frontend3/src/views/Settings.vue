@@ -1,5 +1,5 @@
 <template>
-  <b-container class="text-center mt-5" style="color: black">
+  <b-container class="text-center mt-2" style="color: black">
     <router-link :to="{name:'divisions'}" style="text-decoration:none">
     <v-card
       elevation="6"

@@ -1,82 +1,151 @@
 <template>
-  <b-container class="container mt-5">
-    <b-card class="text-card">
+  <b-container class="container mt-2">
+
+    <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
+
+    <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
+
+      <!-- TITLE -->
       <span class="mb-3"><b>Affiliates</b></span>
-      <div class="text-center">
-        <v-text-field
-          class="mt-3"
-          solo
-          v-model="email"
-          label="Email"
-        ></v-text-field>
-        <b-button variant="primary">Add member</b-button>
+
+      <!-- CARD BODY -->
+      <div>
+
+        <!-- ADD AFFILIATE BODY -->
+        <div class="mt-3 d-flex">
+          <v-text-field
+            class="flex-grow-1"
+            solo
+            v-model="email"
+            label="E-mail"
+          />
+          <b-button class="action-button" variant="success" @click="buttonAddClicked">
+            <b-spinner v-if="isLoading.btnAdd" label="Spinning" style="width: 1rem; height: 1rem;" />
+            <font-awesome-icon v-else icon="fa-solid fa-plus" size="lg" />
+          </b-button>
+        </div>
+
+        <!-- AFFILIATE LIST -->
+        <v-simple-table v-if="affiliates.length > 0" fixed-header>
+          <template v-slot:default>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>E-mail</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="affiliate, idx in affiliates" :key="idx">
+                <td>{{affiliate.name}}</td>
+                <td>{{affiliate.email}}</td>
+                <td align="right">
+                  <b-button variant="danger" @click="buttonRemoveClicked(affiliate.id)">
+                    <b-spinner v-if="isLoading[`${affiliate.id}`]" label="Spinning" style="width: 1rem; height: 1rem;" />
+                    <font-awesome-icon v-else icon="fa-solid fa-trash" size="lg" />
+                  </b-button>
+                </td>
+              </tr>
+            </tbody>
+          </template>
+        </v-simple-table>
       </div>
-    </b-card>
 
-    <b-card class="mt-5">
-      <v-simple-table fixed-header height="300px">
-        <template v-slot:default>
-          <thead>
-            <tr>
-              <th class="text-left">Name</th>
-              <th class="text-left">Email</th>
-              <th class="text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Daniel Carreira</td>
-              <td>dcarreira7@mail.pt</td>
-              <td><b-button variant="danger">Unlink user</b-button></td>
-            </tr>
-            <tr>
-              <td>Carlos Costa</td>
-              <td>carloscosta@mail.pt</td>
-              <td><b-button variant="danger">Unlink user</b-button></td>
-            </tr>
-            <tr>
-              <td>Maria Ferreira</td>
-              <td>mariaferreira@mail.pt</td>
-              <td><b-button variant="danger">Unlink user</b-button></td>
-            </tr>
-          </tbody>
-        </template>
-      </v-simple-table>
-    </b-card>
-
-    <b-modal
-      ref="modalAnalyse"
-      id="modalAnalyse"
-      hide-header-close
-      no-close-on-backdrop
-      no-close-on-esc
-      centered
-      size="lg"
-      title="Analyze"
-    >
-      <div class="text-center"></div>
-      <template #modal-footer class="d-flex">
-        <b-button @click="step--" v-if="step != 1 && step != 3"
-          >Previous</b-button
-        >
-        <b-button variant="primary" v-if="step == 1" @click="step++"
-          >Next</b-button
-        >
-        <b-button variant="danger" class="mr-2" @click="hideModal()"
-          >Close</b-button
-        >
-      </template>
-    </b-modal>
+    </v-card>
   </b-container>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
       email: "",
+      affiliates: [],
+      toast: {
+        state: false,
+        message: ""
+      },
+      isLoading: {
+        btnAdd: false,
+      },
     };
   },
+  computed: {
+    userId() {
+      return this.$store.getters.user_id;
+    },
+  },
+  created() {
+    this.getAffiliates();
+  },
+  methods: {
+    getAffiliates() {
+      return axios
+        .get(`/users/${this.userId}/affiliates`)
+        .then((response) => {
+          this.affiliates = response.data;
+        })
+        .catch((error) => {
+          return Promise.reject(error);
+        });
+    },
+    postAffiliate() {
+      return axios
+        .post(`/users/${this.userId}/affiliates`, { email: this.email })
+        .then(() => {
+          return this.getAffiliates();
+        })
+        .catch((error) => {
+          return Promise.reject(error);
+        });
+    },
+    removeAffiliate(id) {
+      return axios
+        .delete(`/users/${this.userId}/affiliates/${id}`)
+        .then(() => {
+          return this.getAffiliates();
+        })
+        .catch((error) => {
+          return Promise.reject(error);
+        });
+    },
+    buttonAddClicked() {
+      this.isLoading.btnAdd = true;
+      this.isLoading = {...this.isLoading};
+      this.postAffiliate()
+        .then(() => {
+          this.isLoading.btnAdd = false;
+          this.isLoading = {...this.isLoading};
+        })
+        .catch((error) => {
+          this.isLoading.btnAdd = false;
+          this.isLoading = {...this.isLoading};
+          this.showToastMessage(error.response.data.errors.email[0]);
+        });
+
+      this.email = "";
+    },
+    buttonRemoveClicked(id) {
+      this.isLoading[`${id}`] = true;
+      this.isLoading = {...this.isLoading};
+      this.removeAffiliate(id)
+        .then(() => {
+          this.isLoading[`${id}`] = false;
+          this.isLoading = {...this.isLoading};
+        })
+        .catch((error) => {
+          this.isLoading[`${id}`] = false;
+          this.isLoading = {...this.isLoading};
+          this.showToastMessage(error);
+        });
+    },
+    showToastMessage(message) {
+      this.toast.message = message;
+      this.toast.state = true;
+    }
+  }
 };
 </script>
 
@@ -85,4 +154,10 @@ export default {
   color: #191645;
   font-size: 2.5rem;
 }
+.action-button {
+  width: 50px;
+  height: 50px;
+  margin-left: 10px;
+}
+
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <b-container class="mt-5 text-center">
+  <b-container class="mt-2 text-center">
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
     <v-card>
       <v-card-title>

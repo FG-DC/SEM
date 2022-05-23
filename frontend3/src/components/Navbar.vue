@@ -18,9 +18,11 @@
             size="2x"
           />
         </router-link>
+        <!--
         <router-link :to="{ name: 'dashboard' }" class="space">
           <font-awesome-icon class="space" icon="fa-solid fa-bolt" size="2x" />
         </router-link>
+        -->
         <router-link :to="{ name: 'settings' }" class="space">
           <font-awesome-icon
             @click="$router.push({ name: 'settings' })"
