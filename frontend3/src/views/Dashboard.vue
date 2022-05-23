@@ -379,6 +379,9 @@ export default {
           break;
 
         case 1:
+          if (this.division.value.length == 0)
+            return;
+
           this.$refs['division-modal'].show();
           break;
 
