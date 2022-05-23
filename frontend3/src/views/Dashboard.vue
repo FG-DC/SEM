@@ -8,24 +8,25 @@
         </div>
         <div class="text-footer">{{consumptionTime}}</div>
       </v-card>
-      <!--
-      <v-card elevation="6" class="flex-grow-1" style="border-radius: 10px">
+      <v-card elevation="6" class="flex-grow-1 card-selectable" style="border-radius: 10px;margin-left: 20px; padding-right: 2vw" @click="showModal(3)">
         <div class="text-card">
-          <span>15,53</span>
-          <span style="font-size:3vw">€</span>
+          <span>{{kWh.value}}</span>
+          <span style="font-size:3vw">kWh</span>
         </div>
-        <div class="text-footer">April</div>
+        <div class="d-flex justify-content-between">
+          <div class="text-footer">{{kWh.timestamp}}</div>
+          <div style="margin-left: 2vw;">{{(user.energy_price * kWh.value).toFixed(2)}}€</div>
+        </div>
       </v-card>
-      -->
     </div>
-    <v-card class="mt-5 card-selectable" elevation="6" style="border-radius: 10px;" >
+    <v-card class="mt-4 card-selectable" elevation="6" style="border-radius: 10px;" @click="showModal(1)">
       <div class="text-card">
         <font-awesome-icon icon="fa-solid fa-location-dot" style="margin-right: 2vw;" />
         <span>{{divisionValue}}</span>
       </div>
       <div class="text-footer">{{divisionTime}}</div>
     </v-card>
-    <v-card class="mt-5 card-selectable" elevation="6" style="border-radius: 10px" @click="showModal(2)">
+    <v-card class="mt-4 card-selectable" elevation="3" style="border-radius: 10px" @click="showModal(2)">
       <div class="text-card">
         <font-awesome-icon icon="fa-solid fa-plug-circle-bolt" style="margin-right: 2vw;" />
         <span>{{equipmentValue}}</span>
@@ -39,6 +40,17 @@
         {{modalTitle}}
       </template>
 
+      <div data-app></div>
+      <v-select
+        v-if="cardClicked == 2"
+        data-app
+        v-model="divisionSelected"
+        :items="divisionsFilter"
+        label="Filter by Division"
+        filled
+        solo
+      />
+
       <!-- CHART -->
       <apexchart
         v-if="cardClicked != null"
@@ -47,6 +59,19 @@
         :options="chartOptions"
         :series="chartSeries"
       />
+    </b-modal>
+
+    <!-- MODAL -->
+    <b-modal ref="division-modal" hide-footer centered size="xl">
+      <template #modal-title>
+        {{modalTitle}}
+      </template>
+
+      <v-card v-for="item,idx in division.value" :key="idx" class="mt-2" elevation="6" style="border-radius: 10px" @click="">
+        <div class="text-card-modal text-center p-2">
+          <span>{{item.name}}</span>
+        </div>
+      </v-card>
 
     </b-modal>
   </div>
@@ -63,6 +88,7 @@ export default {
       consumptions: [],
       divisions: [],
       equipments: [],
+      kWhs: [],
 
       //LAST DATA
       consumption: {
@@ -70,11 +96,15 @@ export default {
         timestamp: ""
       },
       division: {
-        value: "",
+        value: [],
         timestamp: ""
       },
       equipment: {
         value: {},
+        timestamp: "" 
+      },
+      kWh: {
+        value: 0,
         timestamp: "" 
       },
 
@@ -82,6 +112,11 @@ export default {
       chartSeries: [],
 
       cardClicked: null, //0 = Consumption, 1 = Expected Division, 2 = Equipments ON
+
+      divisionsFilter: [],
+      divisionSelected: "All Divisions",
+
+      user: {},
     };
   },
   computed: {
@@ -97,7 +132,7 @@ export default {
       return this.formatDate(this.consumption.timestamp, true);
     },
     divisionValue() {
-      return this.division.value;
+      return this.division.value.length;
     },
     divisionTime() {
       if (!this.division.timestamp) return "";
@@ -115,8 +150,9 @@ export default {
     modalTitle() {
       if (this.cardClicked == null) return "";
       if (this.cardClicked === 0) return "Consumption";
-      if (this.cardClicked === 1) return "Expected Division";
+      if (this.cardClicked === 1) return "Divisions With Activity";
       if (this.cardClicked === 2) return "Equipments Activity";
+      if (this.cardClicked === 3) return "Monthly kWh";
     }
   },
   created() {
@@ -128,11 +164,13 @@ export default {
 
     this.$store.dispatch("fillStore");
 
+    this.getAuthUser();
+    this.getKWhs();
     this.getLastNConsumptions(12);
     this.getLastNObservations(12);
   },
   methods: {
-    onMessage(topic, message) {
+    async onMessage(topic, message) {
       switch(topic) {
         //TOPIC: #/POWER
         case(this.userId + "/power"):
@@ -149,10 +187,10 @@ export default {
 
         //TOPIC: #/OBSERVATION
         case(this.userId + "/observation"):
-          this.getLastNObservations(1);
+          await this.getLastNObservations(1);
 
           if (this.cardClicked == 2) {
-            this.loadChart(this.equipments);
+            this.loadChart(this.getFilteredEquipments());
           }
           break;
       }
@@ -161,7 +199,7 @@ export default {
       this.chartOptions = {
         chart: {
           id: "chart",
-          type: this.cardClicked == 2 ? "bar" : "area",
+          type: this.cardClicked == 3 ? "bar" : "area",
           stacked: true
         },
         dataLabels: {
@@ -170,7 +208,7 @@ export default {
         xaxis: {
           categories: [], // TIMESTAMP VALUES
           labels: {
-            show: false
+            show: this.cardClicked == 3
           },
         },
       }
@@ -181,7 +219,7 @@ export default {
 
       //LOAD TIMESTAMPS
       this.chartOptions.xaxis.categories = collection.map((item) => {
-        return this.formatDate(item.timestamp, true);
+        return this.cardClicked == 3 ? item.timestamp : this.formatDate(item.timestamp, true);
       });
 
       //LOAD SERIES
@@ -200,7 +238,7 @@ export default {
       }
 
       //-> N Series
-      const mapIdToName = this.getEquipmentsHashMap();
+      const mapIdToName = this.getEquipmentsHashMap(collection);
       const mapIdToSerie = new Map();
       mapIdToName.forEach((value, key) => {
         const serie = {
@@ -217,6 +255,7 @@ export default {
           serie.data[index] = equipment.value;
         })
       });
+
     },
     formatDate(dateStr, withFullDate) {
       if (dateStr == null || dateStr == "")
@@ -225,15 +264,15 @@ export default {
       let date = new Date(dateStr);
       let formatedDate = "";
 
-      formatedDate = date.toLocaleDateString('pt');
+      formatedDate = date.toLocaleDateString('pt', { timeZone: 'Europe/Lisbon' });
 
       if (!withFullDate)
         return formatedDate;
       
-      return formatedDate + " " + date.toLocaleTimeString('pt-PT');
+      return formatedDate + " " + date.toLocaleTimeString('pt-PT', { timeZone: 'Europe/Lisbon' });
     },
     addToArray(array, obj) {
-      const MAX_ITEMS_ON_ARRAY = 50;
+      const MAX_ITEMS_ON_ARRAY = 100;
 
       if (array.length >= MAX_ITEMS_ON_ARRAY) {
         array.shift();
@@ -241,64 +280,91 @@ export default {
       array.push(obj);
     },
     getLastNConsumptions(limit) {
-      axios
-      .get(`/users/${this.userId}/consumptions?limit=${limit}`)
-      .then((response) => {
-        let data = response.data.data;
+      return axios
+        .get(`/users/${this.userId}/consumptions?limit=${limit}`)
+        .then((response) => {
+          let data = response.data.data;
 
-        for (let i = data.length - 1; i >= 0; i--) {
-          this.consumption = {
-            value: data[i].value,
-            timestamp: new Date(data[i].timestamp)
+          for (let i = data.length - 1; i >= 0; i--) {
+            this.consumption = {
+              value: data[i].value,
+              timestamp: new Date(data[i].timestamp)
+            }
+            this.addToArray(this.consumptions, this.consumption);
           }
-          this.addToArray(this.consumptions, this.consumption);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+        })
+        .catch((error) => {
+          console.log(error);
+          return Promise.reject(error);
+        });
     },
     getLastNObservations(limit) {
-      axios
-      .get(`/users/${this.userId}/observations?limit=${limit}`)
-      .then((response) => {
-        let dataArray = response.data;
+      return axios
+        .get(`/users/${this.userId}/observations?limit=${limit}`)
+        .then((response) => {
+          let dataArray = response.data;
 
-        for (let i = dataArray.length - 1; i >= 0; i--) {
-          let data = dataArray[i];
+          for (let i = dataArray.length - 1; i >= 0; i--) {
+            let data = dataArray[i];
 
-          let observation = data.observation;
-          let consumption = data.consumption;
+            let observation = data.observation;
+            let consumption = data.consumption;
 
-          //DIVISIONS
-          this.division = {
-            value: observation.expected_division,
-            timestamp: new Date(consumption.timestamp)
-          }
-          this.addToArray(this.divisions, this.division);
+            //DIVISIONS
+            this.division = {
+              value: observation.expected_divisions,
+              timestamp: new Date(consumption.timestamp)
+            }
+            this.addToArray(this.divisions, this.division);
 
-          //EQUIPMENTS
-          this.equipment = {
-            value: [],
-            timestamp: new Date(consumption.timestamp)
-          };
+            //EQUIPMENTS
+            this.equipment = {
+              value: [],
+              timestamp: new Date(consumption.timestamp)
+            };
 
-          observation.equipments.forEach((item) => {
-            if (item.consumption == 0) return;
+            observation.equipments.forEach((item) => {
+              if (item.consumption == 0) return;
 
-            this.equipment.value.push({
-              id: item.id,
-              name: item.name,
-              value: item.consumption
+              this.equipment.value.push({
+                id: item.id,
+                name: item.name,
+                value: item.consumption,
+                division: item.division
+              });
             });
-          });
 
-          this.addToArray(this.equipments, this.equipment);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+            this.addToArray(this.equipments, this.equipment);
+            this.refreshDivisionsFilterContent();
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          return Promise.reject(error);
+        });
+    },
+    getAuthUser() {
+      return axios
+        .get(`/user`)
+        .then((response) => {
+          this.user = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+          return Promise.reject(error);
+        });
+    },
+    getKWhs() {
+      return axios
+        .get(`/users/${this.userId}/statistics/kwh?months=6`)
+        .then((response) => {
+          this.kWhs = response.data.reverse();
+          this.kWh = this.kWhs[this.kWhs.length - 1];
+        })
+        .catch((error) => {
+          console.log(error);
+          return Promise.reject(error);
+        });
     },
     showModal(cardNumber) {
       this.cardClicked = cardNumber;
@@ -309,20 +375,34 @@ export default {
             return;
           
           this.loadChart(this.consumptions)
+          this.$refs['graph-modal'].show();
           break;
+
+        case 1:
+          this.$refs['division-modal'].show();
+          break;
+
         case 2:
           if (this.equipments.length == 0)
             return;
           
           this.loadChart(this.equipments)
+          this.$refs['graph-modal'].show();
+          break;
+        
+        case 3:
+          if (this.kWhs.length == 0)
+            return;
+          
+          this.loadChart(this.kWhs)
+          this.$refs['graph-modal'].show();
           break;
       }
-      this.$refs['graph-modal'].show();
     },
-    getEquipmentsHashMap() {
+    getEquipmentsHashMap(collection) {
       const map = new Map();
 
-      this.equipments.forEach((list) => {
+      collection.forEach((list) => {
         list.value.forEach((item) => {
           map.set(item.id, item.name);
         });
@@ -330,14 +410,53 @@ export default {
 
       return map;
     },
-    
+    refreshDivisionsFilterContent() {
+      const array = ['All Divisions'];
+
+      this.equipments.forEach((list) => {
+        list.value.forEach((item) => {
+          array.push(item.division);
+        });
+      });
+
+      this.divisionsFilter = [...new Set(array)];
+    },
+    getFilteredEquipments() {
+      const equipmentsClone = JSON.parse(JSON.stringify(this.equipments));
+      
+      if (this.divisionSelected == 'All Divisions') {
+        return equipmentsClone;
+      }
+      
+      //EACH OBSERVATION
+      equipmentsClone.forEach((observation) => {
+        
+        //EACH OBSERVATION EQUIPMENT
+        observation.value = observation.value.filter((obsEquipment) => {
+          return obsEquipment.division == this.divisionSelected;
+        })
+
+      })
+
+      return equipmentsClone;
+    }
   },
+  watch: {
+    divisionSelected(newVal, oldVal) {
+      this.loadChart(this.getFilteredEquipments());
+    } 
+  }
 };
 </script>
 
 <style scoped>
 .text-card {
   font-size: 5.5vw;
+  color:#191645
+}
+
+.text-card-modal {
+  font-size: 30px;
   color:#191645
 }
 
@@ -383,5 +502,6 @@ h3 {
 
 .card-selectable:hover {
   transform: scale(1.02);
+  z-index: 1;
 }
 </style>
