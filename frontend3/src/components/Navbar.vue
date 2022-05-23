@@ -49,7 +49,7 @@
           style="color: white !important"
         />
       </template>
-      <b-dropdown-item>Profile</b-dropdown-item>
+        <b-dropdown-item :to="{name: 'profile'}">Profile</b-dropdown-item>
       <b-dropdown-divider></b-dropdown-divider>
       <b-dropdown-item @click="logout()">Log Out</b-dropdown-item>
     </b-dropdown>
