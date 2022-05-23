@@ -25,4 +25,9 @@ class Division extends Model
     {
         return $this->hasMany(Equipment::class, 'division_id', 'id');
     }
+
+    public function observations()
+    {
+        return $this->hasMany(Observation::class, 'divisions_observations', 'division_id', 'observation_id');
+    }
 }

@@ -210,7 +210,6 @@ export default {
         this.equipment = item;
       }
       this.$refs[modal].show();
-      console.log(this.newEquipment);
     },
     getEquipments() {
       axios

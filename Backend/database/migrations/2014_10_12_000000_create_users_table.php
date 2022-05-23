@@ -20,7 +20,8 @@ class CreateUsersTable extends Migration
             $table->string('password', 255);
             $table->timestamp('birthdate');
             $table->unsignedTinyInteger('get_started')->default(0);
-            $table->string('type', 1);
+            $table->string('type', 1)->default('C');
+            $table->decimal('energy_price', 5, 4, true)->default(0.0969);
             $table->timestamps();
             $table->softDeletes();
         });

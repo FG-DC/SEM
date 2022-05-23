@@ -41,6 +41,6 @@ class Equipment extends Model
 
     public function observations()
     {
-        return $this->hasMany(Observation::class, 'equipments_observations', 'equipment_id', 'observation_id')->withPivot('standby_mode');
+        return $this->hasMany(Observation::class, 'equipments_observations', 'equipment_id', 'observation_id');
     }
 }

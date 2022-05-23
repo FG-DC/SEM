@@ -1,17 +1,15 @@
 #include <SPIFFS.h>
-#include <Arduino.h>
 #include <WiFiManager.h>
 #include <ArduinoMqttClient.h>
 #include <driver/adc.h>
-#include <DateTime.h>
 #include "EmonLib.h"
 
 #include "config/config.h"
-#include "libraries/api.cpp"
-#include "libraries/utils.cpp"
+#include "libraries/api/api.cpp"
+#include "libraries/utils/utils.cpp"
+#include "libraries/clock/clock.cpp"
 
 //CONSTANTS
-const int SIZE_CONSUMPTION_BUFFER = 12;
 #define TIME_BETWEEN_READS 5000
 #define TIME_BETWEEN_PUBLISHES 1000
 
@@ -27,9 +25,11 @@ EnergyMonitor SCT013;
 char username[40] = "";
 char password[40] = "";
 int id;
+long initialTimestamp = 0;
 bool shouldSaveConfig = false;
 float calibrationValue = 0;
 float lastMeanPower = 0;
+int SIZE_CONSUMPTION_BUFFER = 12;
 
 // FUNCTIONS
 float getConsumption();
@@ -61,6 +61,8 @@ void setup() {
 
   login(client, API_ENDPOINT + "/login", username, password);
   id = getId(client, API_ENDPOINT + "/user");
+
+  initialTimestamp = getTimestampOfNow(client);
 }
 
 void loop() {
@@ -116,7 +118,7 @@ void loop() {
 
       powers[pointer] = meanW;
       variances[pointer] = varianceW;
-      timestamps[pointer] = DateTime.now();
+      timestamps[pointer] = initialTimestamp + (millis() / 1000);
       pointer += 1;
     }
 
@@ -267,9 +269,11 @@ void publishMessage(String topic, float value) {
 
 void onMqttMessage(int messageSize) {
   if (mqttClient.messageTopic().equals(String(id) + "/tare")) {
+    SIZE_CONSUMPTION_BUFFER = 1;
     calibrationValue += lastMeanPower;
   }
   if (mqttClient.messageTopic().equals(String(id) + "/reset")) {
+    SIZE_CONSUMPTION_BUFFER = 12;
     calibrationValue = 0;
   }
 }

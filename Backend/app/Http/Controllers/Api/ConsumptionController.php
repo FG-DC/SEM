@@ -13,9 +13,12 @@ use App\Models\Observation;
 
 class ConsumptionController extends Controller
 {
-    public function getUserConsumptions(User $user)
+    public function getUserConsumptions(User $user, Request $request)
     {
-        return ConsumptionResource::collection($user->consumptions);
+        $hasNoLimit = $request->query('limit') == null;
+        $limit = $request->query('limit');
+        $consumptions = $hasNoLimit ? $user->consumptions : Consumption::where('user_id', $user->id)->orderBy('timestamp', 'desc')->limit($limit)->get();
+        return ConsumptionResource::collection($consumptions);
     }
 
     public function getUserConsumption(User $user, Consumption $observation)
@@ -25,7 +28,6 @@ class ConsumptionController extends Controller
 
     public function postUserConsumption(ConsumptionPost $request, User $user)
     {
-
         $consumptions = $request->consumptions;
         $count = 0;
 
@@ -39,7 +41,6 @@ class ConsumptionController extends Controller
             try {
                 $new_consumption->save();
             } catch (Exception $e) {
-
                 return response(['error' => 'Something went wrong when creating the consumption'], 500);
             }
 

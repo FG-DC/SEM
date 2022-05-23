@@ -25,7 +25,7 @@ class ObservationPost extends FormRequest
     {
         return [
             'consumption_id' => 'required|integer',
-            'expected_division' => 'nullable|string|max:255',
+            'expected_divisions' => 'nullable|array',
             'activity' => 'nullable|string|max:3',
             'equipments' => 'nullable|array',
             'consumptions' => 'nullable|array'
@@ -37,8 +37,7 @@ class ObservationPost extends FormRequest
         return [
             'consumption_id.required' => 'Consumption id is mandatory',
             'consumption_id.integer' => 'consumption id must be a number',
-            'expected_division.string' => 'Expected division  must be a string',
-            'expected_division.max' => 'Expected division cannot have more than 255 characters',
+            'expected_division.array' => 'Expected divisions must be an array',
             'activity.string' => 'Expected division must be a string',
             'activity.max' => 'Expected division cannot have more than 3 characters',
         ];

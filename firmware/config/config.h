@@ -8,7 +8,7 @@
 #define HOME_VOLTAGE 230
 
 
-const String API_ENDPOINT = "http://35.181.55.55/api";
+const String API_ENDPOINT = "http://192.168.1.98:8000/api";
 
 const char MQTT_HOST[] = "broker.hivemq.com";
 int MQTT_HOST_PORT = 1883;
