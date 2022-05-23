@@ -8,6 +8,8 @@ import GetStarted from '../views/GetStarted.vue'
 import IndividualRead from '../views/IndividualRead.vue'
 import Settings from '../views/Settings.vue'
 import Affiliates from '../views/Affiliates.vue'
+import Equipments from '../views/Equipments.vue'
+import Divisions from '../views/Divisions.vue'
 
 Vue.use(VueRouter)
 
@@ -52,6 +54,16 @@ const routes = [
     name: 'affiliates',
     component: Affiliates
   },
+  {
+    path: '/settings/divisions',
+    name: 'divisions',
+    component: Divisions
+  },
+  {
+    path: '/settings/equipments',
+    name: 'equipments',
+    component: Equipments
+  }
 ]
 
 const router = new VueRouter({

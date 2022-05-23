@@ -37,7 +37,7 @@ class DivisionController extends Controller
         return new DivisionResource($division);
     }
 
-    public function putUserDivision(Request $request, User $user, Division $division)
+    public function putUserDivision(DivisionPost $request, User $user, Division $division)
     {
         $division->fill($request->validated());
         try {

@@ -25,7 +25,6 @@ class EquipmentPost extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
             'division_id' => 'nullable|integer',
             'equipment_type_id' => 'required|integer',
             'consumption' => 'required|numeric|min:0.01|max:9999.99',
@@ -40,7 +39,6 @@ class EquipmentPost extends FormRequest
             'name.required' => 'Name is mandatory',
             'name.string' => 'Name must contain only letters',
             'name.max' => 'Name cannot have more than 255 characters',
-            'description.string' => 'Description must contain only letters',
             'division_id.integer' => 'Division id must be a number',
             'equipment_type_id.required' => 'Type is mandatory',
             'equipment_type_id.integer' => 'Type id must be a number',
@@ -55,8 +53,6 @@ class EquipmentPost extends FormRequest
             'activity.required' => 'Activity is mandatory',
             'activity.string' => 'Activity must contain only letters',
             'activity.max' => 'Activity cannot have more than 3 characters',
-            'frequency.string' => 'Frequency must contain only letters',
-            'frequency.max' => 'Frequency cannot have more than 10 characters',
         ];
     }
 }
