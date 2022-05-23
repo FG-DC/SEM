@@ -20,13 +20,13 @@ class EquipmentResource extends JsonResource
                 "id" => $this->id,
                 "user_id" => $this->user_id,
                 "name" => $this->name,
+                "consumption" => $this->consumption,
+                "activity" => $this->activity,
+                "standby" => $this->standby,
+                "type" => $this->type->id,
                 "division" => $this->division_id,
                 "division_name" => $this->division ? $this->division->name : null,
-                "type" => $this->type->id,
                 "type_name" => $this->type->name,
-                "consumption" => $this->consumption,
-                "standby" => $this->standby,
-                "activity" => $this->activity,
                 "equipment_type_id" => $this->equipment_type_id
             ];
         else

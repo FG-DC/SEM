@@ -1,6 +1,9 @@
 <template>
   <b-container class="mt-5 text-center">
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
+    <b-button variant="success" class="mb-5" @click="showModal('modalAdd', '')"
+      >Add Equipment</b-button
+    >
     <v-card>
       <v-card-title>
         Equipments
@@ -22,10 +25,10 @@
       >
         <template class="d-flex" v-slot:item.actions="{ item }">
           <b-button
-            @click="showModal('modalDelete', item)"
+            @click="showModal('modalRemove', item)"
             variant="danger"
             style="margin-right: 2%"
-            ><span>Delete</span>
+            ><span>Remove</span>
           </b-button>
           <b-button @click="showModal('modalEdit', item)" variant="primary"
             >Edit</b-button
@@ -35,9 +38,9 @@
     </v-card>
 
     <b-modal
-      ref="modalDelete"
+      ref="modalRemove"
       centered
-      id="modalDelete"
+      id="modalRemove"
       @ok="deleteEquipment"
       title="Are you sure you want to delete?"
     >
@@ -53,11 +56,48 @@
     >
       <div data-app />
       <div v-for="(item, key) in newEquipment" v-if="inputs.includes(key)">
-        <span>{{ key.charAt(0).toUpperCase() + key.slice(1) }}</span>
+        <span>{{ key.charAt(0).toUpperCase() + key.slice(1) + ":" }}</span>
+        <v-text-field
+        
+          solo
+          :label="key.charAt(0).toUpperCase() + key.slice(1) + ':'"
+          v-if="key != 'division' && key != 'type'"
+          v-model="newEquipment[key]"
+        ></v-text-field>
+        <v-select
+          solo
+          :label="key.charAt(0).toUpperCase() + key.slice(1) + ':'"
+          v-if="key == 'division'"
+          v-model="newEquipment[key]"
+          :items="divisions"
+          item-text="name"
+          item-value="id"
+        ></v-select>
+        <v-select
+          solo
+          :label="key.charAt(0).toUpperCase() + key.slice(1) + ':'"
+          v-if="key == 'type'"
+          v-model="newEquipment[key]"
+          :items="equipmentTypes"
+          item-text="name"
+          item-value="id"
+        ></v-select>
+      </div>
+    </b-modal>
+
+    <b-modal
+      ref="modalAdd"
+      centered
+      id="modalAdd"
+      @ok="addEquipment()"
+      title="Add equipment"
+    >
+      <div data-app />
+      <div v-for="(item, key) in newEquipment" v-if="inputs.includes(key)">
+        <span>{{ key.charAt(0).toUpperCase() + key.slice(1) + ":"}}</span>
         <v-text-field
           v-if="key != 'division' && key != 'type'"
           v-model="newEquipment[key]"
-          hide-details="auto"
           solo
         ></v-text-field>
         <v-select
@@ -78,11 +118,8 @@
           label="Select"
           solo
         ></v-select>
-        <br />
       </div>
     </b-modal>
-
-    <b-modal id="modalEdit"></b-modal>
   </b-container>
 </template>
 
@@ -100,10 +137,9 @@ export default {
       inputs: [
         "name",
         "consumption",
-        "type",
         "activity",
-        "description",
         "standby",
+        "type",
         "division",
       ],
       headers: [
@@ -119,7 +155,7 @@ export default {
           text: "Standby",
           value: "standby",
         },
-         {
+        {
           text: "Division",
           value: "division_name",
         },
@@ -140,7 +176,7 @@ export default {
       equipments: [],
       divisions: [],
       equipmentTypes: [],
-      newEquipment: null,
+      newEquipment: [],
       equipment: {
         name: "",
         id: null,
@@ -158,9 +194,23 @@ export default {
   },
   methods: {
     showModal(modal, item) {
-      this.newEquipment = {...item};
-      this.equipment = item;
+      if (item == "") {
+        this.newEquipment = {
+          name: "",
+          consumption: "",
+          activity: "",
+          division_id: "",
+          equipment_type_id: "",
+          standby: "",
+          type: "",
+          division: "",
+        };
+      } else {
+        this.newEquipment = { ...item };
+        this.equipment = item;
+      }
       this.$refs[modal].show();
+      console.log(this.newEquipment);
     },
     getEquipments() {
       axios
@@ -220,7 +270,28 @@ export default {
           this.toast.state = true;
         })
         .catch((error) => {
-          console.log(error);
+          this.toast.message = "There was an error removing the device";
+          this.toast.state = true;
+        });
+    },
+    addEquipment() {
+      axios
+        .post(`/users/${this.userId}/equipments`, {
+          name: this.newEquipment.name,
+          consumption: this.newEquipment.consumption,
+          activity: this.newEquipment.activity,
+          division_id: this.newEquipment.division,
+          equipment_type_id: this.newEquipment.type,
+          standby: this.newEquipment.standby,
+        })
+        .then(() => {
+          this.getEquipments();
+          this.toast.message = "Equipment was added successfully";
+          this.toast.state = true;
+        })
+        .catch((error) => {
+          this.toast.message = "There was an error adding the device";
+          this.toast.state = true;
         });
     },
   },
