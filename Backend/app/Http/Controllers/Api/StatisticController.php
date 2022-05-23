@@ -9,60 +9,63 @@ use App\Http\Controllers\Controller;
 
 class StatisticController extends Controller
 {
-    public function getUserConsumptionsStatistics(Request $request, User $user)
+    public function getUserEnergyStatistics(Request $request, User $user)
     {
-        $num = 12; //Use query string parameter to change number of results
-        $consumos = Consumption::where('user_id', $user->id)->orderBy('created_at', 'desc')->limit($num)->get();
+        $n = $request->query('months') ?? 1;
+        $times = [];
 
-        $statistics = [];
-        $aux = [];
+        $n_time = new \stdClass();
+        $n_time->year = intval(date('Y'));
+        $n_time->month = intval(date('n'));
 
-        foreach ($consumos as $consumo) {
-            $dateTime = explode(".", $consumo->created_at);
-            array_push($aux, $dateTime[0], $consumo->value);
-            array_push($statistics, $aux);
-            $aux = [];
+        for ($i = 0; $i < $n; $i++) {
+            $item = $this->getMonthTimes($n_time);
+            array_push($times, $item);
+
+            $this->getPrevMonth($n_time);
         }
 
-        return array_reverse($statistics);
+        $response = [];
+        foreach ($times as $time) {
+            $avg = Consumption::where('user_id', $user->id)
+                ->whereRaw('timestamp >= FROM_UNIXTIME(' . $time->start . ')')
+                ->whereRaw('timestamp <= FROM_UNIXTIME(' . $time->end . ')')
+                ->avg('value');
+
+            $time_diff_seconds = $time->end - $time->start;
+            $time_diff_hour = $time_diff_seconds / 3600;
+
+            $totalW = floatval($avg) ?? 0;
+
+            $kwh = $totalW * $time_diff_hour / 1000;
+
+            $item = new \stdClass();
+            $item->timestamp = $time->desc;
+            $item->value = number_format($kwh, 2);
+            array_push($response, $item);
+        }
+
+        return response($response);
     }
 
-    public function getUserActivityStatistics(Request $request, User $user)
+    private function getMonthTimes($time)
     {
-        $num = 12; //Use query string parameter to change number of results
-        $consumptions = Consumption::where('user_id', $user->id)->whereNotNull('observation_id')->orderBy('created_at', 'desc')->limit($num)->get();
-        $activities = [];
-        $aux = [];
-        foreach ($consumptions as $consumption) {
-            $isActive = false;
-            foreach ($consumption->observation->equipments as $equipment) {
-                if ($equipment->category->activity == 'Yes') {
-                    $isActive = true;
-                    break;
-                }
-            }
-            array_push($aux, $consumption->observation->created_at, $isActive ? 'Yes' : 'No');
-            array_push($activities, $aux);
-            $aux = [];
-        }
-        return array_reverse($activities);
+        $item = new \stdClass();
+
+        $item->start = mktime(0, 0, 0, $time->month, 1, $time->year);
+        $item->end = mktime(0, 0, 0, $time->month + 1, 0, $time->year);
+        $item->desc = date('M Y', $item->start);
+
+        return $item;
     }
 
-    public function getUserEquipmentsStatistics(Request $request, User $user)
+    private function getPrevMonth($time)
     {
-        $num = 12; //Use query string parameter to change number of results
-        $consumptions = Consumption::where('user_id', $user->id)->whereNotNull('observation_id')->orderBy('created_at', 'desc')->limit($num)->get();
-
-        $statistics = [];
-        $aux = [];
-
-        foreach ($consumptions as $consumption) {
-            $dateTime = explode(".", $consumption->created_at);
-            array_push($aux, $dateTime[0], count($consumption->observation->equipments));
-            array_push($statistics, $aux);
-            $aux = [];
+        if ($time->month > 1) {
+            $time->month--;
+            return;
         }
-
-        return array_reverse($statistics);
+        $time->year--;
+        $time->month = 12;
     }
 }

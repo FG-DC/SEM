@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use \DateTime;
 use Exception;
 use App\Models\User;
+use Illuminate\Http\Request;
 use App\Http\Requests\UserPut;
 use App\Http\Requests\UserPost;
 use App\Http\Requests\UserPatch;
@@ -79,6 +80,19 @@ class UserController extends Controller
             return response(['error' => 'Something went wrong when changing the user'], 500);
         }
         return new UserResource($user);
+    }
+
+    public function patchUserEnergyPrice(Request $request, User $user)
+    {
+        if ($request->energy_price && is_numeric($request->energy_price)) {
+            $user->energy_price = $request->energy_price;
+            try {
+                $user->save();
+            } catch (Exception $e) {
+                return response(['error' => 'Something went wrong when changing the energy price'], 500);
+            }
+        }
+        return response(['error' => 'Energy price is not in a valid format'], 400);
     }
 
     public function deleteUser(User $user)

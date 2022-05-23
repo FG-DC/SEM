@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\AffiliateController;
 use App\Http\Controllers\Api\AlertController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
@@ -30,8 +30,13 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('user', [UserController::class, 'getAuthUser']);
     Route::get('users/{user}', [UserController::class, 'getUser'])->middleware('can:view,user');
     Route::put('users/{user}', [UserController::class, 'putUser'])->middleware('can:update,user');
-    Route::patch('users/{user}', [UserController::class, 'patchUserPassword'])->middleware('can:update,user');
+    Route::patch('users/{user}/password', [UserController::class, 'patchUserPassword'])->middleware('can:update,user');
+    Route::patch('users/{user}/price', [UserController::class, 'patchUserEnergyPrice'])->middleware('can:update,user');
     Route::delete('users/{user}', [UserController::class, 'deleteUser'])->middleware('can:delete,user');
+
+    //Affiliate
+    Route::get('users/{user}/affiliates', [AffiliateController::class, 'getUserAffiliates']);
+    Route::post('users/{user}/affiliates', [AffiliateController::class, 'postUserAffiliate']);
 
     //Observations
     Route::get('users/{user}/observations', [ObservationController::class, 'getUserObservations'])->middleware('can:viewAny,App\Models\Observation');
@@ -82,7 +87,5 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('users/{user}/training-examples', [TrainingExampleController::class, 'postUserTrainingExample'])->middleware('can:create,App\Models\TrainingExample,user');
 
     //Statistic
-    Route::get('users/{user}/statistics/consumption', [StatisticController::class, 'getUserConsumptionsStatistics']);
-    Route::get('users/{user}/statistics/activity', [StatisticController::class, 'getUserActivityStatistics']);
-    Route::get('users/{user}/statistics/equipments', [StatisticController::class, 'getUserEquipmentsStatistics']);
+    Route::get('users/{user}/statistics/kwh', [StatisticController::class, 'getUserEnergyStatistics']);
 });

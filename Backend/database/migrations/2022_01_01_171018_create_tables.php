@@ -40,7 +40,7 @@ class CreateTables extends Migration
             $table->foreign('user_id')->references('id')->on('users');
             $table->unsignedBigInteger('consumption_id');
             $table->foreign('consumption_id')->references('id')->on('consumptions');
-            $table->string('expected_division', 255)->nullable();
+            $table->string('expected_divisions', 255)->nullable();
             $table->string('activity', 3)->nullable();
             $table->timestamps();
             $table->softDeletes();
@@ -93,6 +93,24 @@ class CreateTables extends Migration
             $table->unsignedBigInteger('equipment_id');
             $table->foreign('equipment_id')->references('id')->on('equipments');
             $table->decimal('consumptions', 6, 2);
+            $table->softDeletes();
+        });
+
+        Schema::create('divisions_observations', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('observation_id');
+            $table->foreign('observation_id')->references('id')->on('observations');
+            $table->unsignedBigInteger('division_id');
+            $table->foreign('division_id')->references('id')->on('divisions');
+            $table->softDeletes();
+        });
+
+        Schema::create('users_affiliates', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedBigInteger('affiliate_id');
+            $table->foreign('affiliate_id')->references('id')->on('users');
             $table->softDeletes();
         });
 

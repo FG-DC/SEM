@@ -70,4 +70,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Equipment::class, 'user_id', 'id');
     }
+
+    public function affiliates()
+    {
+        return $this->belongsToMany(User::class, 'users_affiliates', 'affiliate_id', 'user_id');
+    }
 }

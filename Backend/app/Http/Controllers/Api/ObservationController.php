@@ -2,25 +2,39 @@
 
 namespace App\Http\Controllers\Api;
 
+use Exception;
+use App\Models\User;
+use App\Models\Division;
+use App\Models\Equipment;
+use App\Models\Consumption;
+use App\Models\Observation;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ObservationPost;
 use App\Http\Resources\ConsumptionResource;
 use App\Http\Resources\ObservationResource;
-use App\Models\Consumption;
-use App\Models\Equipment;
-use App\Models\Observation;
-use Illuminate\Http\Request;
-use Exception;
-use App\Models\User;
 
 
 
 class ObservationController extends Controller
 {
-    public function getUserObservations(User $user)
+    public function getUserObservations(User $user, Request $request)
     {
-        ObservationResource::$detail = false;
-        return  ObservationResource::collection($user->observations);
+        $response = [];
+        $hasNoLimit = $request->query('limit') == null;
+        $num = $request->query('limit');
+        $consumptions = $hasNoLimit ? $user->observations : Consumption::where('user_id', $user->id)->whereNotNull('observation_id')->orderBy('created_at', 'desc')->limit($num)->get();
+        foreach ($consumptions as $consumption) {
+
+            ObservationResource::$detail = true;
+            $item = new \stdClass();
+            $item->observation = new ObservationResource($consumption->observation);
+            $item->consumption = new ConsumptionResource($consumption);
+
+            array_push($response, $item);
+        }
+
+        return response($response, 200);
     }
 
     public function getUserEquipmentObservations(Equipment $equipment)
@@ -33,6 +47,8 @@ class ObservationController extends Controller
     {
         $response = new \stdClass();
         $observation = Observation::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+        if ($observation == null)
+            return response(null, 404);
 
         ObservationResource::$detail = true;
         $response->observation = new ObservationResource($observation);
@@ -73,10 +89,25 @@ class ObservationController extends Controller
             if ($equipment == null) {
                 return response(['error' => 'Equipment ' . $value . ' does not exist'], 404);
             }
+            if ($equipment->user_id != $user->id) {
+                return response(['error' => 'Equipment ' . $value . ' does not belongs to you'], 400);
+            }
 
-            $observation->equipments()->attach($equipment->id,['consumptions'=>$request->consumptions[$key]]);
+            $observation->equipments()->attach($equipment->id, ['consumptions' => $request->consumptions[$key]]);
 
             $isActive = $isActive || $equipment->activity == "Yes";
+        }
+
+        foreach ($request->expected_divisions as $value) {
+            $division = Division::find($value);
+            if ($division == null) {
+                return response(['error' => 'Division ' . $value . ' does not exist'], 404);
+            }
+            if ($division->user_id != $user->id) {
+                return response(['error' => 'Division ' . $value . ' does not belongs to you'], 400);
+            }
+
+            $observation->divisions()->attach($division->id);
         }
 
         $observation->activity = 'No';

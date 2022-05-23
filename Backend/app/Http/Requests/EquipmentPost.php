@@ -25,7 +25,7 @@ class EquipmentPost extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'division_id' => 'nullable|integer',
+            'division_id' => 'required|integer',
             'equipment_type_id' => 'required|integer',
             'consumption' => 'required|numeric|min:0.01|max:9999.99',
             'standby' => 'required|numeric|min:0.01|max:9999.99',
@@ -39,6 +39,7 @@ class EquipmentPost extends FormRequest
             'name.required' => 'Name is mandatory',
             'name.string' => 'Name must contain only letters',
             'name.max' => 'Name cannot have more than 255 characters',
+            'division_id.required' => 'Division id is required',
             'division_id.integer' => 'Division id must be a number',
             'equipment_type_id.required' => 'Type is mandatory',
             'equipment_type_id.integer' => 'Type id must be a number',

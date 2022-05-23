@@ -26,7 +26,7 @@
         <v-card-subtitle class="mt-1">
           Don't have an account? Click to
 
-          <router-link :to="{ name: 'signup' }">Register</router-link>
+          <router-link :to="{ name: 'register' }">Register</router-link>
         </v-card-subtitle>
       </div>
     </v-card>

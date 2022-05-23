@@ -1,6 +1,9 @@
 <template>
   <b-container class="mt-2 text-center">
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
+    <b-button variant="success" class="mb-5" @click="showModal('modalAdd', '')"
+      >Add Division</b-button
+    >
     <v-card>
       <v-card-title>
         Divisions
@@ -22,10 +25,10 @@
       >
         <template class="d-flex" v-slot:item.actions="{ item }">
           <b-button
-            @click="showModal('modalDelete', item)"
+            @click="showModal('modalRemove', item)"
             variant="danger"
             style="margin-right: 2%"
-            ><span>Delete</span>
+            ><span>Remove</span>
           </b-button>
           <b-button @click="showModal('modalEdit', item)" variant="primary"
             >Edit</b-button
@@ -35,13 +38,27 @@
     </v-card>
 
     <b-modal
-      ref="modalDelete"
+      ref="modalAdd"
       centered
-      id="modalDelete"
-      @ok="deleteDivision"
-      title="Are you sure you want to delete?"
+      id="modalAdd"
+      @ok="addDivision"
+      title="Add division"
     >
-      <span>Division: {{ division.name }}</span>
+      <v-text-field
+        v-model="newDivisionName"
+        label="Division name"
+        hide-details="auto"
+        solo
+      ></v-text-field>
+    </b-modal>
+
+    <b-modal
+      ref="modalRemove"
+      centered
+      id="modalRemove"
+      @ok="deleteDivision"
+      :title="'Are you sure you want to delete? - ' + division.name"
+    >
     </b-modal>
 
     <b-modal
@@ -49,9 +66,8 @@
       centered
       id="modalEdit"
       @ok="editDivision(newDivisionName)"
-      title="Edit Division"
+      :title="'Edit Division - ' + division.name"
     >
-      <span>Current name: {{ division.name }}</span>
       <v-text-field
         v-model="newDivisionName"
         label="Change division name"
@@ -129,6 +145,18 @@ export default {
         .then(() => {
           this.getDivisions();
           this.toast.message = `${this.division.name} was deleted successfully`;
+          this.toast.state = true;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    addDivision() {
+      axios
+        .post(`/users/${this.userId}/divisions`, { name: this.newDivisionName })
+        .then(() => {
+          this.getDivisions();
+          this.toast.message = `${this.newDivisionName} was added successfully`;
           this.toast.state = true;
         })
         .catch((error) => {

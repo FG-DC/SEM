@@ -22,16 +22,17 @@ class ObservationResource extends JsonResource
                 "id" => $this->id,
                 "user_id" => $this->user_id,
                 "consumption_id" => $this->consumption_id,
-                "expected_division" => $this->expected_division,
+                "expected_divisions" => DivisionResource::collection($this->divisions),
                 "activity" => $this->activity,
-                "equipments" => $this->equipments ? EquipmentResource::collection($this->equipments) : []
+                "created_at" => $this->created_at . " UTC",
+                "equipments" => EquipmentResource::collection($this->equipments)
             ];
         else
             return [
                 "id" => $this->id,
                 "user_id" => $this->user_id,
                 "consumption_id" => $this->consumption_id,
-                "expected_division" => $this->expected_division,
+                "expected_divisions" => DivisionResource::collection($this->divisions),
                 "activity" => $this->activity
             ];
     }
