@@ -1,47 +1,96 @@
 <template>
-  <b-container class="text-center mb-5">
+  <b-container class="mt-2">
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
-    <v-card elevation="6" class="mt-5 mb-5 p-5">
-      <label for="name">Name:</label>
-      <v-text-field id="name" v-model="this.user.name" solo></v-text-field>
-      <label for="birthdate">Birthdate:</label>
+    
+    <!-- MAIN CARD -->
+    <v-card elevation="6" class="p-4" style="border-radius: 10px">
+
+      <!-- TITLE -->
+      <div class="text-card mb-3"><b style="color:#191645">Profile</b></div>
+
+      <label for="name">Name</label>
+      <v-text-field 
+        id="name" 
+        v-model="this.user.name" 
+        :disabled="!isEditing" 
+        solo 
+      />
+
+      <label for="email">Email</label>
+      <v-text-field 
+        id="email" 
+        v-model="this.user.email" 
+        :disabled="!isEditing" 
+        solo 
+      />
+      
+      <label for="birthdate">Birthdate</label>
       <v-text-field
         id="birthdate"
-        v-model="this.user.birthdate.split(' ')[0]"
+        v-model="this.user.birthdate"
+        :disabled="!isEditing"
+        type="date"
         solo
-      ></v-text-field>
-      <label for="email">Email:</label>
-      <v-text-field id="email" v-model="this.user.email" solo></v-text-field>
-    </v-card>
-    <b-button variant="danger" @click="showModal('modalChangePSW')"
-      >Change Password</b-button
-    >
+      />
 
+      <label for="price">Energy Price per kWh</label>
+      <v-text-field 
+        id="price" 
+        v-model="this.user.energy_price"
+        :disabled="!isEditing"
+        type="number" 
+        suffix="€" 
+        solo 
+      />
+
+      <div class="d-flex justify-content-between">
+        <b-button variant="danger" @click="showModal('modalChangePSW')">
+          Change Password
+        </b-button>
+
+        <div>
+          <b-button v-if="!isEditing" variant="primary" @click="startEdit">
+            <font-awesome-icon icon="fa-solid fa-pen" />
+          </b-button>
+          <div v-else>
+            <b-button variant="primary" style="margin-right: 10px" @click="saveEdit">
+              <font-awesome-icon icon="fa-solid fa-floppy-disk" />
+            </b-button>
+            <b-button variant="danger" @click="cancelEdit">
+              <font-awesome-icon icon="fa-solid fa-ban" />
+            </b-button>
+          </div>
+        </div>
+      </div>
+    </v-card>
+
+    <!-- MODAL CHANGE PASSWORD -->
     <b-modal
-      ref="modalChangePSW"
-      centered
       id="modalChangePSW"
-      @ok="changePSW()"
+      ref="modalChangePSW"
       title="Change Password"
+      centered
+      @ok="editPassword"
     >
-      <label for="oldPSW">Old Password:</label>
+      <label for="oldPSW">Current Password</label>
       <v-text-field
-        id="oldPSW"
         v-model="oldPSW"
+        id="oldPSW"
+        type="password"
         hide-details="auto"
         solo
-        type="password"
-      ></v-text-field>
-      <br />
-      <label for="newPSW">New Password:</label>
+      />
+      <br>
+      <label for="newPSW">New Password</label>
       <v-text-field
-        id="newPSW"
         v-model="newPSW"
+        id="newPSW"
+        type="password"
         hide-details="auto"
         solo
-        type="password"
-      ></v-text-field>
+      />
     </b-modal>
+
   </b-container>
 </template>
 
@@ -62,97 +111,98 @@ export default {
     return {
       oldPSW: "",
       newPSW: "",
-      user: {
-        name: "",
-        email: "",
-        birthdate: "",
-      },
+      user: {},
+      userClone: {},
       toast: {
         message: null,
         state: false,
       },
+      isEditing: false,
     };
   },
-  async created() {
-    await axios
+  created() {
+    return axios
       .get(`/user`)
       .then((response) => {
         this.user = response.data;
+        this.user.birthdate = this.user.birthdate.split(' ')[0];
       })
       .catch((error) => {
-        console.log(error);
+        return Promise.reject(error);
       });
   },
   methods: {
-    changePSW() {
-      axios
+    editPassword() {
+      return axios
         .patch(`/users/${this.userId}/password`, {
           oldPassword: this.oldPSW,
           newPassword: this.newPSW,
         })
         .then(() => {
-          this.toast.message = "Password has been changed";
-          this.toast.state = true;
-          this.newPSW = "";
-          this.oldPSW = "";
+          this.showToastMessage("Password has been changed");
         })
         .catch((error) => {
-          this.toast.message = "There has been an error changing the password";
-          this.toast.state = true;
-          this.newPSW = "";
-          this.oldPSW = "";
+          this.showToastMessage("There has been an error changing the password");
         });
     },
+    editUser() {
+      let date = new Date(this.user.birthdate)
+      let formatedData = date.toLocaleDateString('pt', { timeZone: 'Europe/Lisbon' });
+
+      return axios
+        .put(`/users/${this.userId}`, {...this.user, birthdate: formatedData})
+        .then((response) => {
+          this.showToastMessage("User edited with success");
+          this.user = response.data.data;
+          this.user.birthdate = this.formatDate(this.user.birthdate);
+        })
+        .catch((error) => {
+          this.showToastMessage("There has been an error editing the user");
+        });
+    },
+    saveEdit() {
+      this.editUser()
+        .then(() => {
+          this.isEditing = false;
+        });
+    },
+    cancelEdit() {
+      this.user = this.userClone;
+      this.isEditing = false;
+    },
+    startEdit() {
+      this.isEditing = true;
+      this.userClone = {...this.user};
+    },
     showModal(modal) {
+      this.oldPSW = "";
+      this.newPSW = "";
       this.$refs[modal].show();
+    },
+    showToastMessage(message) {
+      this.toast.message = message;
+      this.toast.state = true;
+    },
+    formatDate(date) {
+      var d = new Date(date),
+          month = '' + (d.getMonth() + 1),
+          day = '' + d.getDate(),
+          year = d.getFullYear();
+
+      if (month.length < 2) 
+          month = '0' + month;
+      if (day.length < 2) 
+          day = '0' + day;
+
+      return [year, month, day].join('-');
     },
   },
 };
 </script>
 
-<style>
-body {
-  background: rgb(99, 39, 120);
-}
-
-.form-control:focus {
-  box-shadow: none;
-  border-color: #ba68c8;
-}
-
-.profile-button {
-  background: rgb(99, 39, 120);
-  box-shadow: none;
-  border: none;
-}
-
-.profile-button:hover {
-  background: #682773;
-}
-
-.profile-button:focus {
-  background: #682773;
-  box-shadow: none;
-}
-
-.profile-button:active {
-  background: #682773;
-  box-shadow: none;
-}
-
-.back:hover {
-  color: #682773;
-  cursor: pointer;
-}
-
-.labels {
-  font-size: 11px;
-}
-
-.add-experience:hover {
-  background: #ba68c8;
-  color: #fff;
-  cursor: pointer;
-  border: solid 1px #ba68c8;
+<style scoped>
+.text-card {
+  color: #191645;
+  font-size: 2.5rem;
 }
 </style>

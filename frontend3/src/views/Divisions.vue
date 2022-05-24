@@ -1,83 +1,83 @@
 <template>
-  <b-container class="mt-2 text-center">
+  <v-container class="mt-2">
+
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
-    <b-button variant="success" class="mb-5" @click="showModal('modalAdd', '')"
-      >Add Division</b-button
-    >
-    <v-card>
-      <v-card-title>
-        Divisions
-        <v-spacer></v-spacer>
+
+    <!-- MAIN CARD -->
+    <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
+
+      <!-- TITLE -->
+      <div class="mb-3"><b style="color:#191645">Divisions</b></div>
+
+      <!-- CREATE DIVISION BODY -->
+      <div class="mt-3 d-flex">
         <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Search"
-          single-line
-          hide-details
-        ></v-text-field>
-      </v-card-title>
+          class="flex-grow-1"
+          solo
+          v-model="newDivisionName"
+          label="New Division"
+        />
+        <b-button class="action-button" variant="success" @click="addDivision">
+          <font-awesome-icon icon="fa-solid fa-plus" size="lg" />
+        </b-button>
+      </div>
+
+      <!-- SEARCH BAR -->
+      <v-text-field
+        v-model="search"
+        append-icon="mdi-magnify"
+        label="Search"
+        single-line
+        hide-details
+      />
+
+      <!-- DATA TABLE -->
       <v-data-table
         :headers="headers"
         :items="divisions"
         :items-per-page="10"
         :search="search"
-        class="elevation-1"
       >
         <template class="d-flex" v-slot:item.actions="{ item }">
-          <b-button
-            @click="showModal('modalRemove', item)"
-            variant="danger"
-            style="margin-right: 2%"
-            ><span>Remove</span>
+          <b-button variant="primary" style="margin: 2px" @click="showModal('modalEdit', item)">
+            <font-awesome-icon icon="fa-solid fa-pen" />
           </b-button>
-          <b-button @click="showModal('modalEdit', item)" variant="primary"
-            >Edit</b-button
-          >
-        </template></v-data-table
-      >
+          
+          <b-button variant="danger" style="margin: 2px" @click="showModal('modalRemove', item)">
+            <font-awesome-icon icon="fa-solid fa-trash" size="lg" />
+          </b-button>
+        </template>
+      </v-data-table>
+
     </v-card>
 
+    <!-- MODAL REMOVE DIVISION -->
     <b-modal
-      ref="modalAdd"
-      centered
-      id="modalAdd"
-      @ok="addDivision"
-      title="Add division"
-    >
-      <v-text-field
-        v-model="newDivisionName"
-        label="Division name"
-        hide-details="auto"
-        solo
-      ></v-text-field>
-    </b-modal>
-
-    <b-modal
-      ref="modalRemove"
-      centered
       id="modalRemove"
+      ref="modalRemove"
+      :title="'You want to delete the ' + division.name + '?'"
+      centered
       @ok="deleteDivision"
-      :title="'Are you sure you want to delete? - ' + division.name"
     >
     </b-modal>
 
+    <!-- MODAL EDIT DIVISION -->
     <b-modal
-      ref="modalEdit"
-      centered
       id="modalEdit"
+      ref="modalEdit"
+      :title="'Edit Division ' + division.name"
+      centered
       @ok="editDivision(newDivisionName)"
-      :title="'Edit Division - ' + division.name"
     >
       <v-text-field
         v-model="newDivisionName"
-        label="Change division name"
+        label="New Division Name"
         hide-details="auto"
         solo
       ></v-text-field>
     </b-modal>
 
-    <b-modal id="modalEdit"></b-modal>
-  </b-container>
+  </v-container>
 </template>
 
 <script>
@@ -92,9 +92,8 @@ export default {
   data() {
     return {
       headers: [
-        { text: "ID", value: "id" },
         { text: "Name", value: "name" },
-        { text: "Actions", value: "actions" },
+        { text: "", value: "actions", sortable: false },
       ],
       search: "",
       divisions: [],
@@ -106,8 +105,8 @@ export default {
       },
     };
   },
-  async created() {
-    await this.getDivisions();
+  created() {
+    this.getDivisions();
   },
   methods: {
     showModal(modal, item) {
@@ -116,55 +115,69 @@ export default {
       this.$refs[modal].show();
     },
     getDivisions() {
-      axios
+      return axios
         .get(`/users/${this.userId}/divisions`)
         .then((response) => {
           this.divisions = response.data.data;
         })
         .catch((error) => {
-          console.log(error);
+          return Promise.reject(error);
         });
     },
     editDivision() {
-      axios
+      return axios
         .put(`/users/${this.userId}/divisions/${this.division.id}`, {
           name: this.newDivisionName,
         })
         .then(() => {
           this.getDivisions();
-          this.toast.message = "Division was renamed successfully";
-          this.toast.state = true;
+          this.showToastMessage('Division was renamed successfully');
         })
         .catch((error) => {
-          console.log(error);
+          this.showToastMessage('Error trying to edit this division');
+          return Promise.reject(error);
         });
     },
     deleteDivision() {
-      axios
+      return axios
         .delete(`/users/${this.userId}/divisions/${this.division.id}`)
         .then(() => {
           this.getDivisions();
-          this.toast.message = `${this.division.name} was deleted successfully`;
-          this.toast.state = true;
+          this.showToastMessage(`${this.division.name} was deleted successfully`);
         })
         .catch((error) => {
-          console.log(error);
+          this.showToastMessage('Error trying to delete this division');
+          return Promise.reject(error);
         });
     },
     addDivision() {
-      axios
+      return axios
         .post(`/users/${this.userId}/divisions`, { name: this.newDivisionName })
         .then(() => {
           this.getDivisions();
-          this.toast.message = `${this.newDivisionName} was added successfully`;
-          this.toast.state = true;
+          this.showToastMessage(`${this.newDivisionName} was added successfully`);
+          this.newDivisionName = "";
         })
         .catch((error) => {
-          console.log(error);
+          this.showToastMessage('Error trying to add this division');
+          return Promise.reject(error);
         });
     },
+    showToastMessage(message) {
+      this.toast.message = message;
+      this.toast.state = true;
+    }
   },
 };
 </script>
 <style>
+.text-card {
+  color: #191645;
+  font-size: 2.5rem;
+}
+.action-button {
+  width: 50px;
+  height: 50px;
+  margin-left: 10px;
+}
 </style>

@@ -37,6 +37,7 @@ Route::middleware(['auth:api'])->group(function () {
     //Affiliate
     Route::get('users/{user}/affiliates', [AffiliateController::class, 'getUserAffiliates']);
     Route::post('users/{user}/affiliates', [AffiliateController::class, 'postUserAffiliate']);
+    Route::delete('users/{user}/affiliates/{affiliate}', [AffiliateController::class, 'deleteUserAffiliate']);
 
     //Observations
     Route::get('users/{user}/observations', [ObservationController::class, 'getUserObservations'])->middleware('can:viewAny,App\Models\Observation');

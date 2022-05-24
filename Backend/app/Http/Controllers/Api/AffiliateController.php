@@ -7,23 +7,37 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AffiliatePost;
 use App\Http\Resources\UserResource;
+use Exception;
 
 class AffiliateController extends Controller
 {
     public function getUserAffiliates(User $user)
     {
-        return User::collection($user->affiliates);
+        $array = [];
+
+        foreach ($user->affiliates as $affiliate) {
+            $item = new \stdClass();
+
+            $item->id = $affiliate->id;
+            $item->name = $affiliate->name;
+            $item->email = $affiliate->email;
+            $item->energy_price = $affiliate->energy_price;
+
+            array_push($array, $item);
+        }
+
+        return $array;
     }
 
     public function postUserAffiliate(AffiliatePost $request, User $user)
     {
         if ($request->email == $user->email) {
-            return response(['error' => 'Affiliate e-mail is equal to yours'], 400);
+            return response(['errors' => ['email' => ['Affiliate e-mail is equal to yours']]], 400);
         }
 
         $affiliate = User::where('email', $request->email)->first();
         if ($affiliate == null) {
-            return response(['error' => 'Affiliate e-mail does not exist'], 404);
+            return response(['errors' => ['email' => ['Affiliate e-mail does not exist']]], 404);
         }
 
         $alreadyAffiliated = false;
@@ -35,10 +49,19 @@ class AffiliateController extends Controller
         }
 
         if ($alreadyAffiliated) {
-            return response(['error' => 'Affiliate e-mail is already affiliated'], 400);
+            return response(['errors' => ['email' => ['Affiliate e-mail is already affiliated']]], 400);
         }
         $user->affiliates()->attach($affiliate->id);
 
         return new UserResource($affiliate);
+    }
+
+    public function deleteUserAffiliate(User $user,  User $affiliate)
+    {
+        try {
+            $user->affiliates()->detach($affiliate->id);
+        } catch (Exception $e) {
+            return response(['errors' => ['email' => ['That user is not your affiliate']]], 500);
+        }
     }
 }

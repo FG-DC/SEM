@@ -421,7 +421,7 @@ export default {
           this.kWhs = response.data.reverse();
 
           this.kWh = this.kWhs[this.kWhs.length - 1];
-          console.log(this.kWh.value)
+          this.kWh.value = Math.round(this.kWh.value * 100) / 100;
         })
         .catch((error) => {
           console.log(error);
@@ -564,11 +564,6 @@ h3 {
   color: black;
   font-weight: 400;
   font-family: "Trebuchet MS", Helvetica, sans-serif;
-}
-
-.selected {
-  border: 2px solid #409eff;
-  border-radius: 5px;
 }
 
 .card-selectable {

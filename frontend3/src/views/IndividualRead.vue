@@ -3,7 +3,7 @@
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
 
     <!-- SELECT BOX -->
-    <div class="d-flex">
+    <div class="d-flex" style="border-radius: 10px;">
       <div class="flex-grow-1">
         <div data-app></div>
         <v-select
@@ -40,7 +40,7 @@
     </div>
 
     <!-- TIMER -->
-    <v-card class="timer">
+    <v-card class="timer" style="border-radius: 10px;">
       <span>{{ crono.time }}</span>
     </v-card>
 

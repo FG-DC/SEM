@@ -27,7 +27,7 @@
           <font-awesome-icon
             @click="$router.push({ name: 'settings' })"
             class="space"
-            :class="{ selected: $route.name == 'settings' }"
+            :class="{ selected: $route.path.startsWith('/settings') }"
             icon="fa-solid fa-gear"
             size="2x"
           />
@@ -51,9 +51,13 @@
           style="color: white !important"
         />
       </template>
-        <b-dropdown-item :to="{name: 'profile'}">Profile</b-dropdown-item>
+
+      <b-dropdown-item :to="{name: 'profile'}">Profile</b-dropdown-item>
+
       <b-dropdown-divider></b-dropdown-divider>
+
       <b-dropdown-item @click="logout()">Log Out</b-dropdown-item>
+      
     </b-dropdown>
   </div>
   <!--

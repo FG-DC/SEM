@@ -1,147 +1,191 @@
 <template>
-  <b-container class="mt-2 text-center">
+  <v-container class="mt-2">
+
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
-    <b-button variant="success" class="mb-5" @click="showModal('modalAdd', '')"
-      >Add Equipment</b-button
-    >
-    <v-card>
-      <v-card-title>
-        Equipments
-        <v-spacer></v-spacer>
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Search"
-          single-line
-          hide-details
-        ></v-text-field>
-      </v-card-title>
+
+    <!-- MAIN CARD -->
+    <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
+
+      <!-- TITLE -->
+      <div class="mb-3"><b style="color:#191645">Divisions</b></div>
+
+      <!-- CREATE EQUIPMENT -->
+      <b-button variant="success" @click="showModal('modalAdd', {})">
+        Create Equipment
+      </b-button>
+
+      <!-- SEARCH -->
+      <v-text-field
+        v-model="search"
+        append-icon="mdi-magnify"
+        label="Search"
+        single-line
+        hide-details
+      />
+
+      <!-- DATA TABLE -->
       <v-data-table
         :headers="headers"
         :items="equipments"
         :items-per-page="10"
         :search="search"
-        class="elevation-1"
       >
         <template class="d-flex" v-slot:item.actions="{ item }">
-          <b-button
-            @click="showModal('modalRemove', item)"
-            variant="danger"
-            style="margin-right: 2%"
-            ><span>Remove</span>
+          <b-button variant="primary" style="margin: 2px" @click="showModal('modalEdit', item)">
+            <font-awesome-icon icon="fa-solid fa-pen" />
           </b-button>
-          <b-button @click="showModal('modalEdit', item)" variant="primary"
-            >Edit</b-button
-          >
-        </template></v-data-table
+          
+          <b-button variant="danger" style="margin: 2px" @click="showModal('modalRemove', item)">
+            <font-awesome-icon icon="fa-solid fa-trash" size="lg" />
+          </b-button>
+        </template>
+      </v-data-table>
+
+      <!-- MODAL REMOVE EQUIPMENT -->
+      <b-modal
+        id="modalRemove"
+        ref="modalRemove"
+        :title="'You want to delete the ' + equipment.name + '?'"
+        centered
+        @ok="deleteEquipment"
       >
-    </v-card>
+      </b-modal>
 
-    <b-modal
-      ref="modalRemove"
-      centered
-      id="modalRemove"
-      @ok="deleteEquipment"
-      title="Are you sure you want to delete?"
-    >
-      <span>Equipment: {{ equipment.name }}</span>
-    </b-modal>
-
-    <b-modal
-      ref="modalEdit"
-      centered
-      id="modalEdit"
-      @ok="editEquipment()"
-      title="Edit equipment"
-    >
-      <div data-app />
-      <div v-for="(item, key) in newEquipment" v-if="inputs.includes(key)">
-        <span>{{ key.charAt(0).toUpperCase() + key.slice(1) + ":" }}</span>
-        <v-text-field
+      <!-- MODAL EDIT EQUIPMENT -->
+      <b-modal
+        id="modalEdit"
+        ref="modalEdit"
+        :title="'Edit Equipment ' + equipment.name"
+        centered
+        @ok="editEquipment"
+      >
+        <div data-app />
         
-          solo
-          :label="key.charAt(0).toUpperCase() + key.slice(1) + ':'"
-          v-if="key != 'division' && key != 'type'"
-          v-model="newEquipment[key]"
-        ></v-text-field>
-        <v-select
-          solo
-          :label="key.charAt(0).toUpperCase() + key.slice(1) + ':'"
-          v-if="key == 'division'"
-          v-model="newEquipment[key]"
-          :items="divisions"
-          item-text="name"
-          item-value="id"
-        ></v-select>
-        <v-select
-          solo
-          :label="key.charAt(0).toUpperCase() + key.slice(1) + ':'"
-          v-if="key == 'type'"
-          v-model="newEquipment[key]"
-          :items="equipmentTypes"
-          item-text="name"
-          item-value="id"
-        ></v-select>
-      </div>
-    </b-modal>
-
-    <b-modal
-      ref="modalAdd"
-      centered
-      id="modalAdd"
-      @ok="addEquipment()"
-      title="Add equipment"
-    >
-      <div data-app />
-      <div v-for="(item, key) in newEquipment" v-if="inputs.includes(key)">
-        <span>{{ key.charAt(0).toUpperCase() + key.slice(1) + ":"}}</span>
+        <!-- INPUT NAME -->
+        <span>Name</span>
         <v-text-field
-          v-if="key != 'division' && key != 'type'"
-          v-model="newEquipment[key]"
-          solo
-        ></v-text-field>
+            v-model="equipment.name"
+            solo
+        />
+
+        <!-- INPUT TYPE -->
+        <span>Type</span>
         <v-select
-          v-if="key == 'division'"
-          v-model="newEquipment[key]"
-          :items="divisions"
-          item-text="name"
-          item-value="id"
-          label="Select"
-          solo
-        ></v-select>
-        <v-select
-          v-if="key == 'type'"
-          v-model="newEquipment[key]"
+          v-model="equipment.type"
           :items="equipmentTypes"
           item-text="name"
           item-value="id"
-          label="Select"
           solo
-        ></v-select>
-      </div>
-    </b-modal>
-  </b-container>
+        />
+
+        <!-- INPUT DIVISION -->
+        <span>Division</span>
+        <v-select
+          v-model="equipment.division"
+          :items="divisions"
+          item-text="name"
+          item-value="id"
+          solo
+        />
+
+        <!-- INPUT CONSUMPTION -->
+        <span>Consumption</span>
+        <v-text-field
+            v-model="equipment.consumption"
+            type="number"
+            solo
+        />
+
+        <!-- INPUT STANDBY -->
+        <span>Standby</span>
+        <v-text-field
+            v-model="equipment.standby"
+            type="number"
+            solo
+        />
+
+        <!-- INPUT ACTIVITY -->
+        <span>Activity</span>
+        <v-select
+          v-model="equipment.activity"
+          :items="['Yes', 'No']"
+          solo
+        />
+
+      </b-modal>
+
+      <!-- MODAL CREATE EQUIPMENT -->
+      <b-modal
+        id="modalAdd"
+        ref="modalAdd"
+        title="Create Equipment"
+        centered
+        @ok="addEquipment"
+      >
+        <div data-app />
+
+        <!-- INPUT NAME -->
+        <span>Name</span>
+        <v-text-field
+            v-model="newEquipment.name"
+            solo
+        />
+
+        <!-- INPUT TYPE -->
+        <span>Type</span>
+        <v-select
+          v-model="newEquipment.type"
+          :items="equipmentTypes"
+          item-text="name"
+          item-value="id"
+          solo
+        />
+
+        <!-- INPUT DIVISION -->
+        <span>Division</span>
+        <v-select
+          v-model="newEquipment.division"
+          :items="divisions"
+          item-text="name"
+          item-value="id"
+          solo
+        />
+
+        <!-- INPUT CONSUMPTION -->
+        <span>Consumption</span>
+        <v-text-field
+            v-model="newEquipment.consumption"
+            type="number"
+            solo
+        />
+
+        <!-- INPUT STANDBY -->
+        <span>Standby</span>
+        <v-text-field
+            v-model="newEquipment.standby"
+            type="number"
+            solo
+        />
+
+        <!-- INPUT ACTIVITY -->
+        <span>Activity</span>
+        <v-select
+          v-model="newEquipment.activity"
+          :items="['Yes', 'No']"
+          solo
+        />
+
+      </b-modal>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
 import axios from "axios";
 
 export default {
-  computed: {
-    userId() {
-      return this.$store.getters.user_id;
-    },
-  },
   data() {
     return {
-      inputs: [
-        "name",
-        "consumption",
-        "activity",
-        "standby",
-        "type",
-        "division",
-      ],
       headers: [
         {
           text: "Name",
@@ -168,15 +212,17 @@ export default {
           value: "activity",
         },
         {
-          text: "Actions",
+          text: "",
           value: "actions",
+          sortable: false,
         },
       ],
       search: "",
+
       equipments: [],
       divisions: [],
       equipmentTypes: [],
-      newEquipment: [],
+      newEquipment: {},
       equipment: {
         name: "",
         id: null,
@@ -187,76 +233,79 @@ export default {
       },
     };
   },
-  async created() {
+  computed: {
+    userId() {
+      return this.$store.getters.user_id;
+    },
+  },
+  created() {
     this.getEquipments();
     this.getDivisions();
     this.getEquipmentTypes();
   },
   methods: {
     showModal(modal, item) {
-      if (item == "") {
-        this.newEquipment = {
-          name: "",
-          consumption: "",
-          activity: "",
-          division_id: "",
-          equipment_type_id: "",
-          standby: "",
-          type: "",
-          division: "",
-        };
-      } else {
-        this.newEquipment = { ...item };
-        this.equipment = item;
-      }
+      this.newEquipment = {
+        name: '',
+        consumption: '',
+        activity: '',
+        division_id: '',
+        equipment_type_id: '',
+        standby: '',
+        type: '',
+        division: '',
+      };
+      
+      this.equipment = { ...item };
+      
       this.$refs[modal].show();
     },
     getEquipments() {
-      axios
+      return axios
         .get(`/users/${this.userId}/equipments`)
         .then((response) => {
           this.equipments = response.data.data;
         })
         .catch((error) => {
-          console.log(error);
+          return Promise.reject(error);
         });
     },
     getDivisions() {
-      axios
+      return axios
         .get(`/users/${this.userId}/divisions`)
         .then((response) => {
           this.divisions = response.data.data;
         })
         .catch((error) => {
-          console.log(error);
+          return Promise.reject(error);
         });
     },
     getEquipmentTypes() {
-      axios
+      return axios
         .get(`/equipment-types`)
         .then((response) => {
           this.equipmentTypes = response.data.data;
         })
         .catch((error) => {
-          console.log(error);
+          return Promise.reject(error);
         });
     },
     editEquipment() {
       axios
-        .put(`/users/${this.userId}/equipments/${this.newEquipment.id}`, {
-          name: this.newEquipment.name,
-          consumption: this.newEquipment.consumption,
-          activity: this.newEquipment.activity,
-          division_id: this.newEquipment.division,
-          equipment_type_id: this.newEquipment.type,
-          standby: this.newEquipment.standby,
+        .put(`/users/${this.userId}/equipments/${this.equipment.id}`, {
+          name: this.equipment.name,
+          consumption: this.equipment.consumption,
+          activity: this.equipment.activity,
+          division_id: this.equipment.division,
+          equipment_type_id: this.equipment.type,
+          standby: this.equipment.standby,
         })
         .then(() => {
           this.getEquipments();
-          this.toast.message = "Equipment was edited successfully";
-          this.toast.state = true;
+          this.showToastMessage('Equipment was edited successfully');
         })
         .catch((error) => {
+          this.showToastMessage('There was an error editing the device');
           console.log(error);
         });
     },
@@ -265,12 +314,10 @@ export default {
         .delete(`/users/${this.userId}/equipments/${this.equipment.id}`)
         .then(() => {
           this.getEquipments();
-          this.toast.message = `${this.equipment.name} was deleted successfully`;
-          this.toast.state = true;
+          this.showToastMessage(`${this.equipment.name} was deleted successfully`);
         })
         .catch((error) => {
-          this.toast.message = "There was an error removing the device";
-          this.toast.state = true;
+          this.showToastMessage('There was an error removing the device');
         });
     },
     addEquipment() {
@@ -285,14 +332,16 @@ export default {
         })
         .then(() => {
           this.getEquipments();
-          this.toast.message = "Equipment was added successfully";
-          this.toast.state = true;
+          this.showToastMessage('Equipment was added successfully');
         })
         .catch((error) => {
-          this.toast.message = "There was an error adding the device";
-          this.toast.state = true;
+          this.showToastMessage('There was an error adding the device');
         });
     },
+    showToastMessage(message) {
+      this.toast.message = message;
+      this.toast.state = true;
+    }
   },
 };
 </script>

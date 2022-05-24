@@ -1,12 +1,11 @@
 <template>
-  <b-container class="container mt-2">
-
+  <b-container class="mt-2">
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
 
     <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
 
       <!-- TITLE -->
-      <span class="mb-3"><b>Affiliates</b></span>
+      <span class="mb-3"><b style="color:#191645">Affiliates</b></span>
 
       <!-- CARD BODY -->
       <div>
@@ -118,14 +117,13 @@ export default {
         .then(() => {
           this.isLoading.btnAdd = false;
           this.isLoading = {...this.isLoading};
+          this.email = "";
         })
         .catch((error) => {
           this.isLoading.btnAdd = false;
           this.isLoading = {...this.isLoading};
           this.showToastMessage(error.response.data.errors.email[0]);
         });
-
-      this.email = "";
     },
     buttonRemoveClicked(id) {
       this.isLoading[`${id}`] = true;
