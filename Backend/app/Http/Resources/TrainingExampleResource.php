@@ -18,7 +18,7 @@ class TrainingExampleResource extends JsonResource
             "id" => $this->id,
             "consumption" => $this->consumption,
             "consumption_variance" => $this->consumption_variance,
-            "time" => $this->time,
+            "time" => strtotime($this->time),
             "equipment_id" => $this->equipment_id,
             "equipment_type_id" => $this->equipment_type_id,
             "equipment_status" => $this->equipment_status,

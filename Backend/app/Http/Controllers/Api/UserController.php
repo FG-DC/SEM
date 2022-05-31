@@ -57,7 +57,8 @@ class UserController extends Controller
 
     public function putUser(UserPut $request, User $user)
     {
-        $user->fill($request->validated());
+        $user->name = $request->name;
+        $user->energy_price = $request["energy_price"];
         $user->birthdate = DateTime::createFromFormat('!d/m/Y', $request->birthdate);
         try {
             $user->save();
@@ -84,8 +85,8 @@ class UserController extends Controller
 
     public function patchUserEnergyPrice(Request $request, User $user)
     {
-        if ($request->energy_price && is_numeric($request->energy_price)) {
-            $user->energy_price = $request->energy_price;
+        if ($request["energy_price"] && is_numeric($request["energy_price"])) {
+            $user->energy_price = $request["energy_price"];
             try {
                 $user->save();
             } catch (Exception $e) {

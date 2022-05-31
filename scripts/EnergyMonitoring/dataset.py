@@ -136,7 +136,7 @@ def dataToDataframe(examples, equipments):
     return pd.DataFrame(data, columns=headers)
 
 
-    # ENV
+# ENV
 API_ENDPOINT = 'http://15.188.51.61/api'
 BROKER_ENDPOINT = 'broker.hivemq.com'
 BROKER_PORT = 1883
@@ -147,7 +147,7 @@ y_axis = []
 
 try:
     # START
-    print('---- S.E.M Toolkit ----')
+    print('---- S.E.M Dataset Builder ----')
 
     api = Api(API_ENDPOINT)
 

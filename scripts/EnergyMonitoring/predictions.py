@@ -1,3 +1,4 @@
+import queue
 import pwinput
 import requests
 from datetime import datetime
@@ -5,6 +6,7 @@ from paho.mqtt import client as mqtt_client
 import random
 from lib import fhmm_model as fhmm
 import pandas as pd
+import time
 
 
 class Api:
@@ -52,7 +54,7 @@ class Api:
 
     def get_user_consumptions(self, userID):
         response = requests.get(
-            f'{self.endpoint}/users/{userID}/consumptions?limit=6&observation=0', headers=self.HEADERS)
+            f'{self.endpoint}/users/{userID}/consumptions?limit=12&observation=0', headers=self.HEADERS)
 
         if (200 <= response.status_code < 300):
             return response.json()['data']
@@ -64,7 +66,6 @@ class Api:
         DATA = {
             'consumption_id': consumptionID,
             'equipments': equipments,
-            'expected_divisions': [],
             'consumptions': consumptions
         }
         response = requests.post(
@@ -102,6 +103,13 @@ class Broker:
         client.loop_start()
         self.client = client
 
+    def subscribe(self, topic):
+        def on_message(client, userdata, msg):
+            client_queue.append(int(float(msg.payload.decode())))
+
+        self.client.subscribe(topic)
+        self.client.on_message = on_message
+
     def publish(self, topic, msg=''):
         self.client.publish(topic, msg)
 
@@ -115,9 +123,11 @@ BROKER_PORT = 1883
 x_axis = []
 y_axis = []
 
+client_queue = []
+
 try:
     # START
-    print('---- S.E.M Toolkit ----')
+    print('---- S.E.M Predict ----')
 
     api = Api(API_ENDPOINT)
 
@@ -130,65 +140,67 @@ try:
     # -> MQTT BROKER
     broker = Broker(BROKER_ENDPOINT, BROKER_PORT)
     broker.connect()
+    broker.subscribe('/post')
 
-    # PROCCESS
+    while True:
 
-    # -> CLIENTS = USERS[TYPE = 'C']
-    clients = api.get_clients()
-
-    for client in clients:
-        print(
-            f'[{datetime.now().strftime("%d/%m/%Y %H:%M:%S")}] CLIENT {client["id"]} - LOADING')
-
-        # TRAIN MODEL
-        try:
-            train = pd.read_csv(f"./datasets/{client['id']}.csv")
-            if len(train) == 0:
-                print(
-                    f'[{datetime.now().strftime("%d/%m/%Y %H:%M:%S")}] CLIENT {client["id"]} - SKIPPED')
-                continue
-
-            print(train)
-
-            list_of_appliance = train.keys()[2:]
-            fhmms = fhmm.FHMM()
-
-            fhmms.train(train, list_of_appliance)
-
-            # TEST DATA
-            consumptions = api.get_user_consumptions(client["id"])
-            if len(consumptions) == 0:
-                print(
-                    f'[{datetime.now().strftime("%d/%m/%Y %H:%M:%S")}] CLIENT {client["id"]} - SKIPPED')
-                continue
-
-            for consumption in consumptions:
-                x_axis.append(consumption["timestamp"])
-                y_axis.append(consumption["value"])
-
-            data = {'timestamp': x_axis, 'power': y_axis}
-            test = pd.DataFrame(data=data)
-
-            # APPLY MODEL
-            predictions = fhmms.disaggregate(test)
-
-            # CONCLUSION
-            obs_indexes = []
-            obs_values = []
-
-            for equipment in predictions.columns.values:
-                obs_indexes.append(equipment)
-                obs_values.append(predictions[equipment].values[-1])
-
-            api.post_user_observation(
-                client['id'], consumptions[-1]['id'], obs_indexes, obs_values)
+        while len(client_queue) > 0:
+            client = client_queue[0]
+            client_queue = client_queue[1:]
 
             print(
-                f'[{datetime.now().strftime("%d/%m/%Y %H:%M:%S")}] CLIENT {client["id"]} - DONE')
-            print()
+                f'[{datetime.now().strftime("%d/%m/%Y %H:%M:%S")}] CLIENT {client} - LOADING')
 
-        except FileNotFoundError:
-            continue
+            # TRAIN MODEL
+            try:
+                train = pd.read_csv(f"./datasets/{client}.csv")
+                if len(train) == 0:
+                    print(
+                        f'[{datetime.now().strftime("%d/%m/%Y %H:%M:%S")}] CLIENT {client} - SKIPPED')
+                    continue
+
+                list_of_appliance = train.keys()[2:]
+                fhmms = fhmm.FHMM()
+
+                fhmms.train(train, list_of_appliance)
+
+                # TEST DATA
+                consumptions = api.get_user_consumptions(client)
+                if len(consumptions) == 0:
+                    print(
+                        f'[{datetime.now().strftime("%d/%m/%Y %H:%M:%S")}] CLIENT {client} - SKIPPED')
+                    continue
+
+                x_axis = []
+                y_axis = []
+                for consumption in consumptions:
+                    x_axis.append(consumption["timestamp"])
+                    y_axis.append(consumption["value"])
+
+                data = {'timestamp': x_axis, 'power': y_axis}
+                test = pd.DataFrame(data=data)
+
+                # APPLY MODEL
+                predictions = fhmms.disaggregate(test)
+
+                # CONCLUSION
+                obs_indexes = []
+                obs_values = []
+
+                for equipment in predictions.columns.values:
+                    obs_indexes.append(equipment)
+                    obs_values.append(predictions[equipment].values[1])
+
+                api.post_user_observation(
+                    client, consumptions[1]['id'], obs_indexes, obs_values)
+                broker.publish(f'{client}/observation')
+
+                print(
+                    f'[{datetime.now().strftime("%d/%m/%Y %H:%M:%S")}] CLIENT {client} - DONE')
+                print()
+
+            except FileNotFoundError:
+                continue
 
 
 except Exception as e:

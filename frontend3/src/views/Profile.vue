@@ -11,7 +11,7 @@
       <label for="name">Name</label>
       <v-text-field 
         id="name" 
-        v-model="this.user.name" 
+        v-model="user.name" 
         :disabled="!isEditing" 
         solo 
       />
@@ -19,15 +19,15 @@
       <label for="email">Email</label>
       <v-text-field 
         id="email" 
-        v-model="this.user.email" 
-        :disabled="!isEditing" 
+        v-model="user.email" 
+        :disabled="true" 
         solo 
       />
       
       <label for="birthdate">Birthdate</label>
       <v-text-field
         id="birthdate"
-        v-model="this.user.birthdate"
+        v-model="user.birthdate"
         :disabled="!isEditing"
         type="date"
         solo
@@ -36,7 +36,7 @@
       <label for="price">Energy Price per kWh</label>
       <v-text-field 
         id="price" 
-        v-model="this.user.energy_price"
+        v-model.number="user.energy_price"
         :disabled="!isEditing"
         type="number" 
         suffix="€" 
@@ -53,7 +53,7 @@
             <font-awesome-icon icon="fa-solid fa-pen" />
           </b-button>
           <div v-else>
-            <b-button variant="primary" style="margin-right: 10px" @click="saveEdit">
+            <b-button variant="primary" style="margin-right: 10px" @click="editUser">
               <font-awesome-icon icon="fa-solid fa-floppy-disk" />
             </b-button>
             <b-button variant="danger" @click="cancelEdit">
@@ -154,15 +154,12 @@ export default {
         .then((response) => {
           this.showToastMessage("User edited with success");
           this.user = response.data.data;
-          this.user.birthdate = this.formatDate(this.user.birthdate);
+          this.user.birthdate = this.user.birthdate.split('/').reverse().join('-');
+          this.isEditing = false;
         })
         .catch((error) => {
           this.showToastMessage("There has been an error editing the user");
-        });
-    },
-    saveEdit() {
-      this.editUser()
-        .then(() => {
+          this.user = this.userClone;
           this.isEditing = false;
         });
     },
@@ -182,19 +179,6 @@ export default {
     showToastMessage(message) {
       this.toast.message = message;
       this.toast.state = true;
-    },
-    formatDate(date) {
-      var d = new Date(date),
-          month = '' + (d.getMonth() + 1),
-          day = '' + d.getDate(),
-          year = d.getFullYear();
-
-      if (month.length < 2) 
-          month = '0' + month;
-      if (day.length < 2) 
-          day = '0' + day;
-
-      return [year, month, day].join('-');
     },
   },
 };

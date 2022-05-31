@@ -7,11 +7,33 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AffiliatePost;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\DB;
 use Exception;
 
 class AffiliateController extends Controller
 {
     public function getUserAffiliates(User $user)
+    {
+        $array = [];
+
+        $affiliatesIds = DB::table('users_affiliates')->where('user_id', $user->id)->pluck('affiliate_id');
+
+        foreach ($affiliatesIds as $affiliateId) {
+            $affiliate = User::find($affiliateId);
+            $item = new \stdClass();
+
+            $item->id = $affiliate->id;
+            $item->name = $affiliate->name;
+            $item->email = $affiliate->email;
+            $item->energy_price = $affiliate->energy_price;
+
+            array_push($array, $item);
+        }
+
+        return $array;
+    }
+
+    public function getUserAffiliatesMy(User $user)
     {
         $array = [];
 

@@ -36,6 +36,7 @@ Route::middleware(['auth:api'])->group(function () {
 
     //Affiliate
     Route::get('users/{user}/affiliates', [AffiliateController::class, 'getUserAffiliates']);
+    Route::get('users/{user}/affiliates/my', [AffiliateController::class, 'getUserAffiliatesMy']);
     Route::post('users/{user}/affiliates', [AffiliateController::class, 'postUserAffiliate']);
     Route::delete('users/{user}/affiliates/{affiliate}', [AffiliateController::class, 'deleteUserAffiliate']);
 

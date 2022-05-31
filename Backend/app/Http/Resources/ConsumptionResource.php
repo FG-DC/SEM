@@ -20,7 +20,7 @@ class ConsumptionResource extends JsonResource
             "observation_id" => $this->observation_id,
             "value" => $this->value,
             "variance" => $this->variance,
-            "timestamp" => $this->timestamp . " UTC"
+            "timestamp" => strtotime($this->timestamp)
         ];
     }
 }

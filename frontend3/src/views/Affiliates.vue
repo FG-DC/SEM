@@ -82,7 +82,7 @@ export default {
   methods: {
     getAffiliates() {
       return axios
-        .get(`/users/${this.userId}/affiliates`)
+        .get(`/users/${this.userId}/affiliates/my`)
         .then((response) => {
           this.affiliates = response.data;
         })

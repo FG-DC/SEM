@@ -24,7 +24,7 @@ class UserResource extends JsonResource
             "id" => $this->id,
             "name" => $this->name,
             "email" => $this->email,
-            "birthdate" => date_format($birthdate, "d-m-Y"),
+            "birthdate" => date_format($birthdate, "d/m/Y"),
             "divisions" => $this->divisions == null ? [] : DivisionResource::Collection($this->divisions),
             "type" => $this->type,
             "energy_price" => $this->energy_price

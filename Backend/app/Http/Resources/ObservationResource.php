@@ -24,7 +24,7 @@ class ObservationResource extends JsonResource
                 "consumption_id" => $this->consumption_id,
                 "expected_divisions" => DivisionResource::collection($this->divisions),
                 "activity" => $this->activity,
-                "created_at" => $this->created_at . " UTC",
+                "created_at" => strtotime($this->created_at),
                 "equipments" => EquipmentResource::collection($this->equipments)
             ];
         else

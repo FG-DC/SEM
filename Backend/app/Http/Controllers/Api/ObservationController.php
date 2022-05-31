@@ -84,6 +84,7 @@ class ObservationController extends Controller
         }
 
         $isActive = false;
+        $activeDivisions = [];
         foreach ($request->equipments as $key => $value) {
             $equipment = Equipment::find($value);
             if ($equipment == null) {
@@ -96,18 +97,28 @@ class ObservationController extends Controller
             $observation->equipments()->attach($equipment->id, ['consumptions' => $request->consumptions[$key]]);
 
             $isActive = $isActive || $equipment->activity == "Yes";
+
+            if ($equipment->activity == "Yes" && $request->consumptions[$key] > 0 && array_search($equipment->division_id, $activeDivisions) === false) {
+                array_push($activeDivisions, $equipment->division_id);
+            }
         }
 
-        foreach ($request->expected_divisions as $value) {
-            $division = Division::find($value);
-            if ($division == null) {
-                return response(['error' => 'Division ' . $value . ' does not exist'], 404);
+        if ($request->expected_divisions == null) {
+            foreach ($activeDivisions as $value) {
+                $observation->divisions()->attach($value);
             }
-            if ($division->user_id != $user->id) {
-                return response(['error' => 'Division ' . $value . ' does not belongs to you'], 400);
-            }
+        } else {
+            foreach ($request->expected_divisions as $value) {
+                $division = Division::find($value);
+                if ($division == null) {
+                    return response(['error' => 'Division ' . $value . ' does not exist'], 404);
+                }
+                if ($division->user_id != $user->id) {
+                    return response(['error' => 'Division ' . $value . ' does not belongs to you'], 400);
+                }
 
-            $observation->divisions()->attach($division->id);
+                $observation->divisions()->attach($division->id);
+            }
         }
 
         $observation->activity = 'No';

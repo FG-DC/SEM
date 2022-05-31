@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-2 text-center">
-    <v-card elevation="20" class="flex-grow-1 card-selectable" style="border-radius: 10px" @click="$refs['user-modal'].show();">
+    <v-card elevation="20" class="flex-grow-1 card-selectable" style="border-radius: 10px" @click="showDashboardModal">
       <span style="font-size:2rem;font-weight: 400;color:#191645'">{{'Dashboard of ' + user.name}}</span>
     </v-card>
     <div class="d-flex flex-wrap mt-4">
@@ -166,7 +166,7 @@ export default {
     },
     equipmentTime() {
       if (!this.equipment.timestamp) return "";
-
+      
       return this.formatDate(this.equipment.timestamp, true);
     },
     modalTitle() {
@@ -310,7 +310,7 @@ export default {
       if (dateStr == null || dateStr == "")
         return "";
 
-      let date = new Date(dateStr);
+      let date = new Date(dateStr.toString().length == 10 ? dateStr * 1000 : dateStr);
       let formatedDate = "";
 
       formatedDate = date.toLocaleDateString('pt', { timeZone: 'Europe/Lisbon' });
@@ -337,13 +337,12 @@ export default {
           for (let i = data.length - 1; i >= 0; i--) {
             this.consumption = {
               value: data[i].value,
-              timestamp: new Date(data[i].timestamp)
+              timestamp: data[i].timestamp
             }
             this.addToArray(this.consumptions, this.consumption);
           }
         })
         .catch((error) => {
-          console.log(error);
           return Promise.reject(error);
         });
     },
@@ -362,14 +361,14 @@ export default {
             //DIVISIONS
             this.division = {
               value: observation.expected_divisions,
-              timestamp: new Date(consumption.timestamp)
+              timestamp: consumption.timestamp
             }
             this.addToArray(this.divisions, this.division);
 
             //EQUIPMENTS
             this.equipment = {
               value: [],
-              timestamp: new Date(consumption.timestamp)
+              timestamp: consumption.timestamp
             };
 
             observation.equipments.forEach((item) => {
@@ -388,7 +387,6 @@ export default {
           }
         })
         .catch((error) => {
-          console.log(error);
           return Promise.reject(error);
         });
     },
@@ -400,7 +398,7 @@ export default {
           this.users = [ this.user ];
         })
         .catch((error) => {
-          console.log(error);
+          
           return Promise.reject(error);
         });
     },
@@ -424,7 +422,6 @@ export default {
           this.kWh.value = Math.round(this.kWh.value * 100) / 100;
         })
         .catch((error) => {
-          console.log(error);
           return Promise.reject(error);
         });
     },
@@ -515,6 +512,10 @@ export default {
       this.getKWhs();
       this.getLastNConsumptions(12);
       this.getLastNObservations(12);
+    },
+    showDashboardModal() {
+      if (this.users.length > 1)
+        this.$refs['user-modal'].show();
     }
   },
   watch: {

@@ -15,10 +15,24 @@ class ConsumptionController extends Controller
 {
     public function getUserConsumptions(User $user, Request $request)
     {
-        $hasNoLimit = $request->query('limit') == null;
-        $limit = $request->query('limit');
-        $consumptions = $hasNoLimit ? $user->consumptions : Consumption::where('user_id', $user->id)->orderBy('timestamp', 'desc')->limit($limit)->get();
-        return ConsumptionResource::collection($consumptions);
+        $hasLimit = $request->query('?limit') != null;
+        $limit = $request->query('?limit');
+        $hasObservation = $request->query('observation') != null;
+        $observation = $request->query('observation');
+
+        $query = Consumption::where('user_id', $user->id);
+        if ($hasObservation) {
+            if ($observation == '0') {
+                $query = $query->whereNull('observation_id');
+            } elseif ($observation == '1') {
+                $query = $query->whereNotNull('observation_id');
+            }
+        }
+        $query = $query->orderBy('timestamp', 'desc');
+        if ($hasLimit) {
+            $query = $query->limit($limit);
+        }
+        return ConsumptionResource::collection($query->get());
     }
 
     public function getUserConsumption(User $user, Consumption $observation)
