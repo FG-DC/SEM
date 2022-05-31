@@ -189,10 +189,10 @@ try:
 
                 for equipment in predictions.columns.values:
                     obs_indexes.append(equipment)
-                    obs_values.append(predictions[equipment].values[1])
+                    obs_values.append(predictions[equipment].values[-1])
 
                 api.post_user_observation(
-                    client, consumptions[1]['id'], obs_indexes, obs_values)
+                    client, consumptions[-1]['id'], obs_indexes, obs_values)
                 broker.publish(f'{client}/observation')
 
                 print(
