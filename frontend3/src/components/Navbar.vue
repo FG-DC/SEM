@@ -1,5 +1,6 @@
 <template>
-  <div class="navbar d-flex">
+  <div>
+    <!--
     <div class="flex-grow-1">
       <div class="d-flex justify-content-center">
         <router-link :to="{ name: 'dashboard' }" class="space">
@@ -18,11 +19,6 @@
             size="2x"
           />
         </router-link>
-        <!--
-        <router-link :to="{ name: 'dashboard' }" class="space">
-          <font-awesome-icon class="space" icon="fa-solid fa-bolt" size="2x" />
-        </router-link>
-        -->
         <router-link :to="{ name: 'settings' }" class="space">
           <font-awesome-icon
             @click="$router.push({ name: 'settings' })"
@@ -59,73 +55,68 @@
       <b-dropdown-item @click="logout()">Log Out</b-dropdown-item>
       
     </b-dropdown>
+     <v-card>
+       -->
+    <v-bottom-navigation height="" :background-color="'#191645'">
+      <router-link :to="{ name: 'dashboard' }" class="m-4 notification">
+        <font-awesome-icon
+          class="notSelected"
+          :class="{ selected: $route.name == 'dashboard' }"
+          icon="fa-solid fa-house"
+          size="2x"
+        />
+        <div class="badge">3</div>
+      </router-link>
+
+      <router-link :to="{ name: 'read' }" class="m-4 notification">
+        <font-awesome-icon
+          class="notSelected"
+          :class="{ selected: $route.name == 'read' }"
+          icon="fa-solid fa-magnifying-glass-chart"
+          size="2x"
+        />
+        <div class="badge">3</div>
+      </router-link>
+
+      <router-link :to="{ name: 'affiliates' }" class="m-4 notification">
+        <font-awesome-icon
+          class="notSelected"
+          :class="{ selected: $route.name == 'affiliates' }"
+          icon="fa-solid fa-user-group"
+          size="2x"
+        />
+        <div class="badge">3</div>
+      </router-link>
+
+      <router-link :to="{ name: 'settings' }" class="m-4 notification">
+        <font-awesome-icon
+          @click="$router.push({ name: 'settings' })"
+          class="notSelected"
+          :class="{ selected: $route.path.startsWith('/settings') }"
+          icon="fa-solid fa-gear"
+          size="2x"
+        />
+        <div class="badge">3</div>
+      </router-link>
+      <div class="m-3">
+        <b-dropdown variant="link" right no-caret>
+          <template #button-content>
+            <font-awesome-icon
+              icon="fa-solid fa-circle-chevron-down"
+              size="2x"
+              style="color: white !important"
+            />
+          </template>
+
+          <b-dropdown-item :to="{ name: 'profile' }">Profile</b-dropdown-item>
+
+          <b-dropdown-divider></b-dropdown-divider>
+
+          <b-dropdown-item @click="logout()">Log Out</b-dropdown-item>
+        </b-dropdown>
+      </div>
+    </v-bottom-navigation>
   </div>
-  <!--
-  <el-menu
-    :default-active="activeIndex2"
-    class="el-menu-demo"
-    mode="horizontal"
-    background-color="#545c64"
-    text-color="#fff"
-    active-text-color="#ffd04b"
-    @select="handleSelect"
-  >
-    <router-link to="dashboard" style="text-decoration: none">
-      <el-menu-item index="1">Dashboard</el-menu-item>
-    </router-link>
-    <router-link to="profile" style="text-decoration: none">
-      <el-menu-item index="2">Profile</el-menu-item>
-    </router-link>
-    <el-menu-item index="3" @click="this.logout()">Logout</el-menu-item>
-
-    <el-menu-item index="4" @click="obsAnaliyse">Analyse</el-menu-item>
-  </el-menu>
-
-  <el-dialog v-model="modalState" width="80%">
-    <span class="modalText"
-      ><b
-        >Are this the equipments that were turned ON on {{analyze.consumption.date}}
-        </b
-      ></span
-    >
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="analyseEdit">Edit</el-button>
-        <el-button type="primary" @click="dialogVisible = false"
-          >Confirm</el-button
-        >
-      </span>
-    </template>
-    <br />
-    <div
-      class="row modalText"
-      v-for="equipment in analyze.observation.equipments"
-      :key="equipment.id"
-    >
-      <div class="col-7">
-        {{ equipment.name }}
-      </div>
-
-      <div class="col">
-        <button class="btn btn-success btn-sm" :disabled="!edit">ON</button>
-      </div>
-    </div>
-
-    <div
-      class="row modalText"
-      v-for="equipment in this.equipments"
-      :key="equipment.id"
-    >
-      <div class="col-7">
-        {{ equipment.name }}
-      </div>
-
-      <div class="col">
-        <button class="btn btn-danger btn-sm" :disabled="!edit">OFF</button>
-      </div>
-    </div>
-  </el-dialog>
-  -->
 </template>
 
 <script>
@@ -148,12 +139,14 @@ export default {
       equipments: null,
     };
   },
-  mounted() {},
+ created(){
+
+ },
   methods: {
     logout() {
       axios
         .post(`logout`)
-        .then((response) => {
+        .then(() => {
           this.$store.dispatch("logout");
           this.$router.push({
             name: "login",
@@ -216,13 +209,28 @@ export default {
   height: 5%;
 }
 
-.space {
-  margin-right: 3%;
+.selected {
+  color: #44c6ac !important;
+}
+
+.notSelected {
   color: white;
 }
 
-.selected {
-  color: #44c6ac;
+.notification {
+  color: white;
+  text-decoration: none;
+  position: relative;
   display: inline-block;
+  border-radius: 2px;
+}
+
+.notification .badge {
+  position: absolute;
+  top: -11px;
+  left: 35px;
+  border-radius: 50%;
+  background: red;
+  color: white;
 }
 </style>
