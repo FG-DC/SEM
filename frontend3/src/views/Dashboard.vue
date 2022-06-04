@@ -142,6 +142,9 @@ export default {
     };
   },
   computed: {
+    get_started() {
+      return this.$store.getters.get_started;
+    },
     userId() {
       return this.$store.getters.user_id;
     },

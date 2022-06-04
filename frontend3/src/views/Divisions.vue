@@ -155,6 +155,9 @@ export default {
         .post(`/users/${this.userId}/divisions`, { name: this.newDivisionName })
         .then(() => {
           this.getDivisions();
+          if(this.divisions.length >= 1){
+            this.$root.ola()
+          }
           this.showToastMessage(`${this.newDivisionName} was added successfully`);
           this.newDivisionName = "";
         })

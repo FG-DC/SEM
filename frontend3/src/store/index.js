@@ -10,11 +10,13 @@ export default new Vuex.Store({
     userType: null,
     user_id:null,
     status: false,
-    access_token:null
+    access_token:null,
+    get_started: null
   },
   getters: {
     username: state => state.username,
     user_id: state => state.user_id,
+    get_started: state => state.get_started
   },
   mutations: {
     mutationAuthOk(state) {
@@ -23,6 +25,7 @@ export default new Vuex.Store({
       state.userType = localStorage.getItem("user_type")
       state.user_id = localStorage.getItem("user_id")
       state.access_token = localStorage.getItem("access_token")
+      state.get_started = localStorage.getItem("get_started")
     },
     mutationAuthReset(state) {
         state.status = false,
@@ -60,6 +63,7 @@ export default new Vuex.Store({
             .get("/user")
             .then((response) => {
               localStorage.setItem("user_id", response.data.id);
+              localStorage.setItem("get_started", response.data.get_started);
               context.commit('mutationAuthOk')
               resolve(response)
             })

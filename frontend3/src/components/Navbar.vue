@@ -58,7 +58,7 @@
      <v-card>
        -->
     <v-bottom-navigation height="" :background-color="'#191645'">
-      <router-link :to="{ name: 'dashboard' }" class="m-4 notification">
+      <router-link :to="{ name: 'dashboard' }" class="m-4 notification" v-if="this.get_started >= 5">
         <font-awesome-icon
           class="notSelected"
           :class="{ selected: $route.name == 'dashboard' }"
@@ -68,7 +68,7 @@
         <div class="badge">3</div>
       </router-link>
 
-      <router-link :to="{ name: 'read' }" class="m-4 notification">
+      <router-link :to="{ name: 'read' }" class="m-4 notification" v-if="this.get_started >= 3">
         <font-awesome-icon
           class="notSelected"
           :class="{ selected: $route.name == 'read' }"
@@ -78,17 +78,7 @@
         <div class="badge">3</div>
       </router-link>
 
-      <router-link :to="{ name: 'affiliates' }" class="m-4 notification">
-        <font-awesome-icon
-          class="notSelected"
-          :class="{ selected: $route.name == 'affiliates' }"
-          icon="fa-solid fa-user-group"
-          size="2x"
-        />
-        <div class="badge">3</div>
-      </router-link>
-
-      <router-link :to="{ name: 'settings' }" class="m-4 notification">
+      <router-link :to="{ name: 'settings' }" class="m-4 notification" v-if="this.get_started >= 0">
         <font-awesome-icon
           @click="$router.push({ name: 'settings' })"
           class="notSelected"
@@ -96,7 +86,7 @@
           icon="fa-solid fa-gear"
           size="2x"
         />
-        <div class="badge">3</div>
+        <div class="badge">!</div>
       </router-link>
       <div class="m-3">
         <b-dropdown variant="link" right no-caret>
@@ -116,6 +106,7 @@
         </b-dropdown>
       </div>
     </v-bottom-navigation>
+    <br>
   </div>
 </template>
 
@@ -130,6 +121,9 @@ export default {
     userId() {
       return this.$store.getters.user_id;
     },
+    get_started() {
+      return this.$store.getters.get_started;
+    },
   },
   data() {
     return {
@@ -139,9 +133,7 @@ export default {
       equipments: null,
     };
   },
- created(){
-
- },
+  created() {},
   methods: {
     logout() {
       axios

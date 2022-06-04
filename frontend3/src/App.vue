@@ -23,7 +23,6 @@ export default {
       return this.$store.getters.user_id;
     },
   },
-
   created() {
     this.$store.dispatch("fillStore");
   },

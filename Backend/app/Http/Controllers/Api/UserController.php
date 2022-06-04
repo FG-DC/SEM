@@ -105,4 +105,18 @@ class UserController extends Controller
         }
         return new UserResource($user);
     }
+
+    public function patchGetStarted(Request $request, User $user){
+        if (is_numeric($request["get_started"])) {
+            $user->get_started = $request["get_started"];
+            try {
+                $user->save();
+                return $user->get_started;
+            } catch (Exception $e) {
+                return response(['error' => 'Something went wrong when changing get started status'], 500);
+            }
+        }
+        return response(['error' => 'Get started is not in a valid format'], 400);
+
+    }
 }
