@@ -14,7 +14,8 @@ use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-
+use App\Http\Resources\EquipmentResource;
+use App\Models\TrainingExample;
 
 class UserController extends Controller
 {
@@ -105,4 +106,36 @@ class UserController extends Controller
         }
         return new UserResource($user);
     }
+
+    public function patchGetStarted(Request $request, User $user){
+        if (is_numeric($request["get_started"])) {
+            $user->get_started = $request["get_started"];
+            try {
+                $user->save();
+                return $user->get_started;
+            } catch (Exception $e) {
+                return response(['error' => 'Something went wrong when changing get started status'], 500);
+            }
+        }
+        return response(['error' => 'Get started is not in a valid format'], 400);
+    }
+
+
+    public function getUserStats(User $user){
+        $equipments = $user->equipments;
+        $trainCount = [];
+        foreach($equipments as $equipment){
+            $count = TrainingExample::where('user_id',$user->id)->where('equipment_id',$equipment->id)->count();
+            $item = new \stdClass();
+            $item->equipment_name = $equipment->name;
+            $item->count = $count;
+            array_push($trainCount, $item);
+        }
+        $stats = new \stdClass();
+        $stats->divisions = $user->divisions()->count();
+        $stats->equipments =$user->equipments()->count();
+        $stats->training_examples = $trainCount;
+        return $stats;
+    }
+
 }
