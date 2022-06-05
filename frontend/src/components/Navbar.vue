@@ -1,113 +1,65 @@
 <template>
-  <div>
-    <!--
-    <div class="flex-grow-1">
-      <div class="d-flex justify-content-center">
-        <router-link :to="{ name: 'dashboard' }" class="space">
+  <v-bottom-navigation height="" :background-color="'#191645'">
+    <router-link
+      :to="{ name: 'dashboard' }"
+      class="m-4 notification"
+      v-if="this.get_started >= 5"
+    >
+      <font-awesome-icon
+        class="notSelected"
+        :class="{ selected: $route.name == 'dashboard' }"
+        icon="fa-solid fa-house"
+        size="2x"
+      />
+      <div class="badge">3</div>
+    </router-link>
+
+    <router-link
+      :to="{ name: 'read' }"
+      class="m-4 notification"
+      v-if="this.get_started >= 3"
+    >
+      <font-awesome-icon
+        class="notSelected"
+        :class="{ selected: $route.name == 'read' }"
+        icon="fa-solid fa-magnifying-glass-chart"
+        size="2x"
+      />
+      <div class="badge">3</div>
+    </router-link>
+
+    <router-link
+      :to="{ name: 'settings' }"
+      class="m-4 notification"
+      v-if="this.get_started >= 0"
+    >
+      <font-awesome-icon
+        @click="$router.push({ name: 'settings' })"
+        class="notSelected"
+        :class="{ selected: $route.path.startsWith('/settings') }"
+        icon="fa-solid fa-gear"
+        size="2x"
+      />
+      <div class="badge">!</div>
+    </router-link>
+    <div class="m-3">
+      <b-dropdown variant="link" right no-caret>
+        <template #button-content>
           <font-awesome-icon
-            @click="$router.push({ name: 'dashboard' })"
-            :class="{ selected: $route.name == 'dashboard' }"
-            icon="fa-solid fa-house"
+            icon="fa-solid fa-circle-chevron-down"
             size="2x"
+            style="color: white !important"
           />
-        </router-link>
-        <router-link :to="{ name: 'read' }" class="space">
-          <font-awesome-icon
-            class="space"
-            :class="{ selected: $route.name == 'read' }"
-            icon="fa-solid fa-magnifying-glass-chart"
-            size="2x"
-          />
-        </router-link>
-        <router-link :to="{ name: 'settings' }" class="space">
-          <font-awesome-icon
-            @click="$router.push({ name: 'settings' })"
-            class="space"
-            :class="{ selected: $route.path.startsWith('/settings') }"
-            icon="fa-solid fa-gear"
-            size="2x"
-          />
-        </router-link>
-        <router-link :to="{ name: 'affiliates' }" class="space">
-          <font-awesome-icon
-            class="space"
-            :class="{ selected: $route.name == 'affiliates' }"
-            icon="fa-solid fa-user-group"
-            size="2x"
-          />
-        </router-link>
-      </div>
+        </template>
+
+        <b-dropdown-item :to="{ name: 'profile' }">Profile</b-dropdown-item>
+
+        <b-dropdown-divider></b-dropdown-divider>
+
+        <b-dropdown-item @click="logout()">Log Out</b-dropdown-item>
+      </b-dropdown>
     </div>
-    <b-dropdown variant="link" right no-caret>
-      <template #button-content>
-        <font-awesome-icon
-          class="align-content-end"
-          icon="fa-solid fa-circle-chevron-down"
-          size="2x"
-          style="color: white !important"
-        />
-      </template>
-
-      <b-dropdown-item :to="{name: 'profile'}">Profile</b-dropdown-item>
-
-      <b-dropdown-divider></b-dropdown-divider>
-
-      <b-dropdown-item @click="logout()">Log Out</b-dropdown-item>
-      
-    </b-dropdown>
-     <v-card>
-       -->
-    <v-bottom-navigation height="" :background-color="'#191645'">
-      <router-link :to="{ name: 'dashboard' }" class="m-4 notification" v-if="this.get_started >= 5">
-        <font-awesome-icon
-          class="notSelected"
-          :class="{ selected: $route.name == 'dashboard' }"
-          icon="fa-solid fa-house"
-          size="2x"
-        />
-        <div class="badge">3</div>
-      </router-link>
-
-      <router-link :to="{ name: 'read' }" class="m-4 notification" v-if="this.get_started >= 3">
-        <font-awesome-icon
-          class="notSelected"
-          :class="{ selected: $route.name == 'read' }"
-          icon="fa-solid fa-magnifying-glass-chart"
-          size="2x"
-        />
-        <div class="badge">3</div>
-      </router-link>
-
-      <router-link :to="{ name: 'settings' }" class="m-4 notification" v-if="this.get_started >= 0">
-        <font-awesome-icon
-          @click="$router.push({ name: 'settings' })"
-          class="notSelected"
-          :class="{ selected: $route.path.startsWith('/settings') }"
-          icon="fa-solid fa-gear"
-          size="2x"
-        />
-        <div class="badge">!</div>
-      </router-link>
-      <div class="m-3">
-        <b-dropdown variant="link" right no-caret>
-          <template #button-content>
-            <font-awesome-icon
-              icon="fa-solid fa-circle-chevron-down"
-              size="2x"
-              style="color: white !important"
-            />
-          </template>
-
-          <b-dropdown-item :to="{ name: 'profile' }">Profile</b-dropdown-item>
-
-          <b-dropdown-divider></b-dropdown-divider>
-
-          <b-dropdown-item @click="logout()">Log Out</b-dropdown-item>
-        </b-dropdown>
-      </div>
-    </v-bottom-navigation>
-    <br>
-  </div>
+  </v-bottom-navigation>
 </template>
 
 <script>
@@ -123,6 +75,19 @@ export default {
     },
     get_started() {
       return this.$store.getters.get_started;
+    },
+    navbarUpdate() {
+      return this.$store.getters.navbarUpdate;
+    },
+  },
+  watch: {
+    navbarUpdate(params) {
+      switch (params[0]) {
+        case "divisionUpdate":
+        case "equipmentUpdate":
+        case "affiliateUpdate":
+        case "profileUpdate":
+      }
     },
   },
   data() {

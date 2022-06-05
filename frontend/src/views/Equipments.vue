@@ -237,6 +237,14 @@ export default {
     userId() {
       return this.$store.getters.user_id;
     },
+    equipmentUpdate() {
+      return this.$store.getters.equipmentUpdate;
+    },
+  },
+  watch: {
+    equipmentUpdate() {
+      this.getEquipments();
+    },
   },
   created() {
     this.getEquipments();
@@ -301,7 +309,7 @@ export default {
           standby: this.equipment.standby,
         })
         .then(() => {
-          this.getEquipments();
+          this.$socket.emit("equipmentUpdate",this.userId);
           this.showToastMessage('Equipment was edited successfully');
         })
         .catch((error) => {
@@ -313,7 +321,7 @@ export default {
       axios
         .delete(`/users/${this.userId}/equipments/${this.equipment.id}`)
         .then(() => {
-          this.getEquipments();
+          this.$socket.emit("equipmentUpdate",this.userId);
           this.showToastMessage(`${this.equipment.name} was deleted successfully`);
         })
         .catch((error) => {
@@ -331,7 +339,7 @@ export default {
           standby: this.newEquipment.standby,
         })
         .then(() => {
-          this.getEquipments();
+          this.$socket.emit("equipmentUpdate",this.userId);
           this.showToastMessage('Equipment was added successfully');
         })
         .catch((error) => {

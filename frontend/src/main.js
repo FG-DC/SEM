@@ -3,6 +3,8 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
+import VueSocketIO from 'vue-socket.io'
+
 import axios from 'axios'
 axios.defaults.baseURL = 'http://15.188.51.61/api'
 
@@ -36,13 +38,26 @@ import { faBan } from '@fortawesome/free-solid-svg-icons'
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 
 
+const socketIO = new VueSocketIO({
+  debug: true,
+  connection: "http://127.0.0.1:8080",
+  vuex: {
+    store,
+    actionPrefix: 'SOCKET_',
+    mutationPrefix: 'SOCKET_'
+    }
+})   
+
 import vuetify from './plugins/vuetify'
 
 library.add(faBan, faFloppyDisk, faPen, faTrash, faPlus, faStop, faPlay, faHouse, faMagnifyingGlassChart, faUserGroup, faGear, faBolt, faWindowMinimize, faCircleChevronDown, faPlugCircleBolt, faLocationDot, faCalendar, faPlug, faHouseChimneyWindow, faCirclePlus,faTriangleExclamation)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
-
+Vue.use(socketIO)
 Vue.use(BootstrapVue)
 Vue.use(VueApexCharts)
+
+store.$socket = socketIO.io
+
 
 Vue.component('apexchart', VueApexCharts)
 new Vue({

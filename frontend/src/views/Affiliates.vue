@@ -3,13 +3,11 @@
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
 
     <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
-
       <!-- TITLE -->
-      <span class="mb-3"><b style="color:#191645">Affiliates</b></span>
+      <span class="mb-3"><b style="color: #191645">Affiliates</b></span>
 
       <!-- CARD BODY -->
       <div>
-
         <!-- ADD AFFILIATE BODY -->
         <div class="mt-3 d-flex">
           <v-text-field
@@ -18,8 +16,16 @@
             v-model="email"
             label="E-mail"
           />
-          <b-button class="action-button" variant="success" @click="buttonAddClicked">
-            <b-spinner v-if="isLoading.btnAdd" label="Spinning" style="width: 1rem; height: 1rem;" />
+          <b-button
+            class="action-button"
+            variant="success"
+            @click="buttonAddClicked"
+          >
+            <b-spinner
+              v-if="isLoading.btnAdd"
+              label="Spinning"
+              style="width: 1rem; height: 1rem"
+            />
             <font-awesome-icon v-else icon="fa-solid fa-plus" size="lg" />
           </b-button>
         </div>
@@ -35,13 +41,24 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="affiliate, idx in affiliates" :key="idx">
-                <td>{{affiliate.name}}</td>
-                <td>{{affiliate.email}}</td>
+              <tr v-for="(affiliate, idx) in affiliates" :key="idx">
+                <td>{{ affiliate.name }}</td>
+                <td>{{ affiliate.email }}</td>
                 <td align="right">
-                  <b-button variant="danger" @click="buttonRemoveClicked(affiliate.id)">
-                    <b-spinner v-if="isLoading[`${affiliate.id}`]" label="Spinning" style="width: 1rem; height: 1rem;" />
-                    <font-awesome-icon v-else icon="fa-solid fa-trash" size="lg" />
+                  <b-button
+                    variant="danger"
+                    @click="buttonRemoveClicked(affiliate.id)"
+                  >
+                    <b-spinner
+                      v-if="isLoading[`${affiliate.id}`]"
+                      label="Spinning"
+                      style="width: 1rem; height: 1rem"
+                    />
+                    <font-awesome-icon
+                      v-else
+                      icon="fa-solid fa-trash"
+                      size="lg"
+                    />
                   </b-button>
                 </td>
               </tr>
@@ -49,7 +66,6 @@
           </template>
         </v-simple-table>
       </div>
-
     </v-card>
   </b-container>
 </template>
@@ -64,7 +80,7 @@ export default {
       affiliates: [],
       toast: {
         state: false,
-        message: ""
+        message: "",
       },
       isLoading: {
         btnAdd: false,
@@ -74,6 +90,14 @@ export default {
   computed: {
     userId() {
       return this.$store.getters.user_id;
+    },
+    affiliateUpdate() {
+      return this.$store.getters.affiliateUpdate;
+    },
+  },
+  watch: {
+    affiliateUpdate() {
+      this.getAffiliates();
     },
   },
   created() {
@@ -94,7 +118,7 @@ export default {
       return axios
         .post(`/users/${this.userId}/affiliates`, { email: this.email })
         .then(() => {
-          return this.getAffiliates();
+          this.$socket.emit("affiliateUpdate", this.userId);
         })
         .catch((error) => {
           return Promise.reject(error);
@@ -104,7 +128,7 @@ export default {
       return axios
         .delete(`/users/${this.userId}/affiliates/${id}`)
         .then(() => {
-          return this.getAffiliates();
+          this.$socket.emit("affiliateUpdate", this.userId);
         })
         .catch((error) => {
           return Promise.reject(error);
@@ -112,38 +136,38 @@ export default {
     },
     buttonAddClicked() {
       this.isLoading.btnAdd = true;
-      this.isLoading = {...this.isLoading};
+      this.isLoading = { ...this.isLoading };
       this.postAffiliate()
         .then(() => {
           this.isLoading.btnAdd = false;
-          this.isLoading = {...this.isLoading};
+          this.isLoading = { ...this.isLoading };
           this.email = "";
         })
         .catch((error) => {
           this.isLoading.btnAdd = false;
-          this.isLoading = {...this.isLoading};
+          this.isLoading = { ...this.isLoading };
           this.showToastMessage(error.response.data.errors.email[0]);
         });
     },
     buttonRemoveClicked(id) {
       this.isLoading[`${id}`] = true;
-      this.isLoading = {...this.isLoading};
+      this.isLoading = { ...this.isLoading };
       this.removeAffiliate(id)
         .then(() => {
           this.isLoading[`${id}`] = false;
-          this.isLoading = {...this.isLoading};
+          this.isLoading = { ...this.isLoading };
         })
         .catch((error) => {
           this.isLoading[`${id}`] = false;
-          this.isLoading = {...this.isLoading};
+          this.isLoading = { ...this.isLoading };
           this.showToastMessage(error);
         });
     },
     showToastMessage(message) {
       this.toast.message = message;
       this.toast.state = true;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -157,5 +181,4 @@ export default {
   height: 50px;
   margin-left: 10px;
 }
-
 </style>

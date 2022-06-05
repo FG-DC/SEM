@@ -1,29 +1,18 @@
 <template>
   <b-container class="mt-2">
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
-    
+
     <!-- MAIN CARD -->
     <v-card elevation="6" class="p-4" style="border-radius: 10px">
-
       <!-- TITLE -->
-      <div class="text-card mb-3"><b style="color:#191645">Profile</b></div>
+      <div class="text-card mb-3"><b style="color: #191645">Profile</b></div>
 
       <label for="name">Name</label>
-      <v-text-field 
-        id="name" 
-        v-model="user.name" 
-        :disabled="!isEditing" 
-        solo 
-      />
+      <v-text-field id="name" v-model="user.name" :disabled="!isEditing" solo />
 
       <label for="email">Email</label>
-      <v-text-field 
-        id="email" 
-        v-model="user.email" 
-        :disabled="true" 
-        solo 
-      />
-      
+      <v-text-field id="email" v-model="user.email" :disabled="true" solo />
+
       <label for="birthdate">Birthdate</label>
       <v-text-field
         id="birthdate"
@@ -34,13 +23,13 @@
       />
 
       <label for="price">Energy Price per kWh</label>
-      <v-text-field 
-        id="price" 
+      <v-text-field
+        id="price"
         v-model.number="user.energy_price"
         :disabled="!isEditing"
-        type="number" 
-        suffix="€" 
-        solo 
+        type="number"
+        suffix="€"
+        solo
       />
 
       <div class="d-flex justify-content-between">
@@ -53,7 +42,11 @@
             <font-awesome-icon icon="fa-solid fa-pen" />
           </b-button>
           <div v-else>
-            <b-button variant="primary" style="margin-right: 10px" @click="editUser">
+            <b-button
+              variant="primary"
+              style="margin-right: 10px"
+              @click="editUser"
+            >
               <font-awesome-icon icon="fa-solid fa-floppy-disk" />
             </b-button>
             <b-button variant="danger" @click="cancelEdit">
@@ -80,7 +73,7 @@
         hide-details="auto"
         solo
       />
-      <br>
+      <br />
       <label for="newPSW">New Password</label>
       <v-text-field
         v-model="newPSW"
@@ -90,7 +83,6 @@
         solo
       />
     </b-modal>
-
   </b-container>
 </template>
 
@@ -102,6 +94,14 @@ export default {
   computed: {
     userId() {
       return this.$store.getters.user_id;
+    },
+    profileUpdate() {
+      return this.$store.getters.profileUpdate;
+    },
+  },
+  watch: {
+    profileUpdate() {
+      this.getProfile();
     },
   },
   components: {
@@ -121,17 +121,20 @@ export default {
     };
   },
   created() {
-    return axios
-      .get(`/user`)
-      .then((response) => {
-        this.user = response.data;
-        this.user.birthdate = this.user.birthdate.split(' ')[0];
-      })
-      .catch((error) => {
-        return Promise.reject(error);
-      });
+    this.getProfile();
   },
   methods: {
+    getProfile() {
+      axios
+        .get(`/user`)
+        .then((response) => {
+          this.user = response.data;
+          this.user.birthdate = this.user.birthdate.split(" ")[0];
+        })
+        .catch((error) => {
+          return Promise.reject(error);
+        });
+    },
     editPassword() {
       return axios
         .patch(`/users/${this.userId}/password`, {
@@ -142,19 +145,22 @@ export default {
           this.showToastMessage("Password has been changed");
         })
         .catch((error) => {
-          this.showToastMessage("There has been an error changing the password");
+          this.showToastMessage(
+            "There has been an error changing the password"
+          );
         });
     },
     editUser() {
-      let date = new Date(this.user.birthdate)
-      let formatedData = date.toLocaleDateString('pt', { timeZone: 'Europe/Lisbon' });
+      let date = new Date(this.user.birthdate);
+      let formatedData = date.toLocaleDateString("pt", {
+        timeZone: "Europe/Lisbon",
+      });
 
       return axios
-        .put(`/users/${this.userId}`, {...this.user, birthdate: formatedData})
-        .then((response) => {
+        .put(`/users/${this.userId}`, { ...this.user, birthdate: formatedData })
+        .then(() => {
           this.showToastMessage("User edited with success");
-          this.user = response.data.data;
-          this.user.birthdate = this.user.birthdate.split('/').reverse().join('-');
+          this.$socket.emit("profileUpdate", this.userId);
           this.isEditing = false;
         })
         .catch((error) => {
@@ -169,7 +175,7 @@ export default {
     },
     startEdit() {
       this.isEditing = true;
-      this.userClone = {...this.user};
+      this.userClone = { ...this.user };
     },
     showModal(modal) {
       this.oldPSW = "";

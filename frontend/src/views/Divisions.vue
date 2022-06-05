@@ -1,14 +1,10 @@
 <template>
   <v-container class="mt-2">
-
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
-
     <!-- MAIN CARD -->
     <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
-
       <!-- TITLE -->
-      <div class="mb-3"><b style="color:#191645">Divisions</b></div>
-
+      <div class="mb-3"><b style="color: #191645">Divisions</b></div>
       <!-- CREATE DIVISION BODY -->
       <div class="mt-3 d-flex">
         <v-text-field
@@ -39,16 +35,23 @@
         :search="search"
       >
         <template class="d-flex" v-slot:item.actions="{ item }">
-          <b-button variant="primary" style="margin: 2px" @click="showModal('modalEdit', item)">
+          <b-button
+            variant="primary"
+            style="margin: 2px"
+            @click="showModal('modalEdit', item)"
+          >
             <font-awesome-icon icon="fa-solid fa-pen" />
           </b-button>
-          
-          <b-button variant="danger" style="margin: 2px" @click="showModal('modalRemove', item)">
+
+          <b-button
+            variant="danger"
+            style="margin: 2px"
+            @click="showModal('modalRemove', item)"
+          >
             <font-awesome-icon icon="fa-solid fa-trash" size="lg" />
           </b-button>
         </template>
       </v-data-table>
-
     </v-card>
 
     <!-- MODAL REMOVE DIVISION -->
@@ -76,7 +79,6 @@
         solo
       ></v-text-field>
     </b-modal>
-
   </v-container>
 </template>
 
@@ -87,6 +89,15 @@ export default {
   computed: {
     userId() {
       return this.$store.getters.user_id;
+    },
+    divisionUpdate() {
+      return this.$store.getters.divisionUpdate;
+    },
+  },
+  watch: {
+    divisionUpdate() {
+      console.log("dsa")
+      this.getDivisions();
     },
   },
   data() {
@@ -130,11 +141,11 @@ export default {
           name: this.newDivisionName,
         })
         .then(() => {
-          this.getDivisions();
-          this.showToastMessage('Division was renamed successfully');
+          this.$socket.emit("divisionUpdate",this.userId);
+          this.showToastMessage("Division was renamed successfully");
         })
         .catch((error) => {
-          this.showToastMessage('Error trying to edit this division');
+          this.showToastMessage("Error trying to edit this division");
           return Promise.reject(error);
         });
     },
@@ -142,11 +153,13 @@ export default {
       return axios
         .delete(`/users/${this.userId}/divisions/${this.division.id}`)
         .then(() => {
-          this.getDivisions();
-          this.showToastMessage(`${this.division.name} was deleted successfully`);
+          this.$socket.emit("divisionUpdate",this.userId);
+          this.showToastMessage(
+            `${this.division.name} was deleted successfully`
+          );
         })
         .catch((error) => {
-          this.showToastMessage('Error trying to delete this division');
+          this.showToastMessage("Error trying to delete this division");
           return Promise.reject(error);
         });
     },
@@ -154,22 +167,21 @@ export default {
       return axios
         .post(`/users/${this.userId}/divisions`, { name: this.newDivisionName })
         .then(() => {
-          this.getDivisions();
-          if(this.divisions.length >= 1){
-            this.$root.ola()
-          }
-          this.showToastMessage(`${this.newDivisionName} was added successfully`);
+          this.$socket.emit("divisionUpdate",this.userId);
+          this.showToastMessage(
+            `${this.newDivisionName} was added successfully`
+          );
           this.newDivisionName = "";
         })
         .catch((error) => {
-          this.showToastMessage('Error trying to add this division');
+          this.showToastMessage("Error trying to add this division");
           return Promise.reject(error);
         });
     },
     showToastMessage(message) {
       this.toast.message = message;
       this.toast.state = true;
-    }
+    },
   },
 };
 </script>
