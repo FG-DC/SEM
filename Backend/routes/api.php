@@ -34,6 +34,8 @@ Route::middleware(['auth:api'])->group(function () {
     Route::patch('users/{user}/price', [UserController::class, 'patchUserEnergyPrice'])->middleware('can:update,user');
     Route::patch('users/{user}/status', [UserController::class, 'patchGetStarted'])->middleware('can:update,user');
     Route::delete('users/{user}', [UserController::class, 'deleteUser'])->middleware('can:delete,user');
+    Route::get('users/{user}/stats', [UserController::class, 'getUserStats'])->middleware('can:update,user');
+
 
     //Affiliate
     Route::get('users/{user}/affiliates', [AffiliateController::class, 'getUserAffiliates']);

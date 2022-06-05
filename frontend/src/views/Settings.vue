@@ -3,7 +3,7 @@
     <v-card
       @click="$router.push({ name: 'divisions' })"
       elevation="6"
-      :class="{ card: get_started == 0 }"
+      :class="{ card: stats.divisions == 0 }"
       class="flex-grow-1 card-selectable"
       style="border-radius: 10px"
     >
@@ -23,7 +23,7 @@
               title="Divisions must be inserted"
               style="color: red"
               icon="fa-solid fa-triangle-exclamation"
-              v-if="get_started == 0"
+              v-if="stats.divisions == 0"
             />
           </b-col>
         </b-row>
@@ -31,10 +31,10 @@
     </v-card>
 
     <v-card
-      :disabled="get_started == 0"
+      :disabled="stats.divisions == 0"
       @click="$router.push({ name: 'equipments' })"
       elevation="6"
-      :class="{ card: get_started == 1 }"
+      :class="{ card: stats.equipments == 0 && stats.divisions > 0 }"
       class="flex-grow-1 mt-4 card-selectable"
       style="border-radius: 10px"
     >
@@ -48,10 +48,9 @@
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
                 <font-awesome-icon
-                  title=""
                   style="color: red"
                   icon="fa-solid fa-triangle-exclamation"
-                  v-if="get_started == 1"
+                  v-show="stats.equipments == 0 && stats.divisions > 0"
                 />
               </template> </v-tooltip
           ></b-col>
@@ -78,10 +77,35 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
+  data() {
+    return {
+      stats: {},
+    };
+  },
   computed: {
+    userId() {
+      return this.$store.getters.user_id;
+    },
     get_started() {
       return this.$store.getters.get_started;
+    },
+  },
+  async created() {
+    await this.getStats();
+  },
+  methods: {
+    getStats() {
+      axios
+        .get(`/users/${this.userId}/stats`)
+        .then((response) => {
+          this.stats = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
   },
 };

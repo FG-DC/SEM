@@ -1,4 +1,5 @@
 const httpServer = require("http").createServer();
+
 const io = require("socket.io")(httpServer, {
   allowEIO3: true,
   cors: {
@@ -7,9 +8,11 @@ const io = require("socket.io")(httpServer, {
     credentials: true,
   },
 });
+
 httpServer.listen(8080, function () {
   console.log("listening on *:8080");
 });
+
 io.on("connection", function (socket) {
   console.log(`client ${socket.id} has connected`);
 
@@ -18,27 +21,31 @@ io.on("connection", function (socket) {
     socket.join(userId);
   });
 
+  socket.on("logged_out", function (userId) {
+    socket.leave(userId);
+  });
+
   socket.on("divisionUpdate", function (userId) {
     userId = parseInt(userId);
     io.to(userId).emit("divisionUpdate");
-    io.to(userId).emit("navbarUpdate", "divisionUpdate");
+    io.to(userId).emit("navbarUpdate");
   });
 
   socket.on("equipmentUpdate", function (userId) {
     userId = parseInt(userId);
     io.to(userId).emit("equipmentUpdate");
-    io.to(userId).emit("navbarUpdate", "equipmentUpdate");
+    io.to(userId).emit("navbarUpdate");
   });
 
   socket.on("affiliateUpdate", function (userId) {
     userId = parseInt(userId);
     io.to(userId).emit("affiliateUpdate");
-    io.to(userId).emit("navbarUpdate", "affiliateUpdate");
+    io.to(userId).emit("navbarUpdate");
   });
 
   socket.on("profileUpdate", function (userId) {
     userId = parseInt(userId);
     io.to(userId).emit("profileUpdate");
-    io.to(userId).emit("navbarUpdate", "profileUpdate");
+    io.to(userId).emit("navbarUpdate");
   });
 });

@@ -15,8 +15,8 @@ export default new Vuex.Store({
     divisionUpdate: false,
     equipmentUpdate: false,
     affiliateUpdate: false,
-    profileUpdate:false,
-    navbarUpdate:false
+    profileUpdate: false,
+    navbarUpdate: false,
   },
   getters: {
     username: (state) => state.username,
@@ -39,11 +39,11 @@ export default new Vuex.Store({
     },
     mutationAuthReset(state) {
       (state.status = false),
-      (state.username = null),
-      (state.userType = null),
-      (state.user_id = null),
-      (state.access_token = null),
-      localStorage.removeItem("username");
+        (state.username = null),
+        (state.userType = null),
+        (state.user_id = null),
+        (state.access_token = null),
+        localStorage.removeItem("username");
       localStorage.removeItem("user_type");
       localStorage.removeItem("user_id");
       localStorage.removeItem("access_token");
@@ -71,7 +71,8 @@ export default new Vuex.Store({
       axios.defaults.headers.common.Authorization =
         "Bearer " + this.state.access_token;
     },
-    logout(context) {
+    logout(context,state) {
+      this.$socket.emit("logged_out", state);
       context.commit("mutationAuthReset");
     },
     authRequest(context, credentials) {
@@ -82,17 +83,19 @@ export default new Vuex.Store({
             password: credentials.password,
           })
           .then((response) => {
-            axios.defaults.headers.common.Authorization =
-              "Bearer " + response.data.access_token;
+            axios.defaults.headers.common.Authorization = "Bearer " + response.data.access_token;
             localStorage.setItem("access_token", response.data.access_token);
             localStorage.setItem("username", credentials.username);
+
             axios
               .get("/user")
               .then((response) => {
                 localStorage.setItem("user_id", response.data.id);
-                this.$socket.emit("logged_in", response.data.id);
                 localStorage.setItem("get_started", response.data.get_started);
+
+                this.$socket.emit("logged_in", response.data.id);
                 context.commit("mutationAuthOk");
+
                 resolve(response);
               })
               .catch((error) => {

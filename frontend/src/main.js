@@ -6,7 +6,7 @@ import store from './store'
 import VueSocketIO from 'vue-socket.io'
 
 import axios from 'axios'
-axios.defaults.baseURL = 'http://15.188.51.61/api'
+axios.defaults.baseURL = 'http://backend.test/api'
 
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'

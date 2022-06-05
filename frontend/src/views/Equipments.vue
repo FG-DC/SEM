@@ -174,7 +174,6 @@
           :items="['Yes', 'No']"
           solo
         />
-
       </b-modal>
     </v-card>
   </v-container>

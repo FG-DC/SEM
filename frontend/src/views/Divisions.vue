@@ -96,7 +96,6 @@ export default {
   },
   watch: {
     divisionUpdate() {
-      console.log("dsa")
       this.getDivisions();
     },
   },

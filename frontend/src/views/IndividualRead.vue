@@ -3,7 +3,7 @@
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
 
     <!-- SELECT BOX -->
-    <div class="d-flex" style="border-radius: 10px;">
+    <div class="d-flex" style="border-radius: 10px">
       <div class="flex-grow-1">
         <div data-app></div>
         <v-select
@@ -19,7 +19,7 @@
       </div>
 
       <!-- BUTTON START -->
-      <b-button 
+      <b-button
         v-b-modal.modalAnalyse
         class="action-button"
         variant="primary"
@@ -27,12 +27,12 @@
       >
         <font-awesome-icon icon="fa-solid fa-play" size="lg" />
       </b-button>
-      
+
       <!-- BUTTON STOP -->
-      <b-button 
+      <b-button
         class="action-button"
-        variant="danger" 
-        v-if="step >= 3" 
+        variant="danger"
+        v-if="step >= 3"
         @click="stopAnalysis()"
       >
         <font-awesome-icon icon="fa-solid fa-stop" size="lg" />
@@ -40,11 +40,11 @@
     </div>
 
     <!-- TIMER -->
-    <v-card class="timer" style="border-radius: 10px;">
+    <v-card class="timer" style="border-radius: 10px">
       <span>{{ crono.time }}</span>
     </v-card>
 
-    <!-- CHART LOADING... --> 
+    <!-- CHART LOADING... -->
     <v-progress-circular
       v-if="step == 4 && isCalibrating"
       :size="70"
@@ -54,8 +54,19 @@
       class="mt-5"
     />
     <!-- CHART -->
-    <Chart v-if="step == 4 && !isCalibrating" class="mt-5" :config="graphConfig" :isBoolean="false" />
-
+    <Chart
+      v-if="step == 4 && !isCalibrating"
+      class="mt-5"
+      :config="graphConfig"
+      :isBoolean="false"
+    />
+    <v-data-table
+      v-else
+      class="mt-5"
+      :headers="headers"
+      :items="stats"
+      :items-per-page="10"
+    />
     <b-modal
       ref="modalAnalyse"
       id="modalAnalyse"
@@ -65,7 +76,6 @@
     >
       <div class="text-justify lead">
         <v-stepper v-model="step" value="1">
-
           <v-stepper-header>
             <v-stepper-step step="1" :complete="step > 1">
               Information
@@ -88,7 +98,8 @@
               conclusions will yield false results.
               <p>
                 <b>
-                  The process should be carried out from start to finish (1 minute)
+                  The process should be carried out from start to finish (1
+                  minute)
                 </b>
               </p>
               In case of any doubt, do not hesitate to contact us.
@@ -98,15 +109,19 @@
           <v-stepper-content class="mt-3" step="2">
             <span>
               <b>
-                Please be sure that the {{selected.name}} is
-                turned OFF before starting the process.
+                Please be sure that the {{ selected.name }} is turned OFF before
+                starting the process.
               </b>
-              <br>
-                To carry out the consumption analysis process, please click on the
-                button below.
+              <br />
+              To carry out the consumption analysis process, please click on the
+              button below.
             </span>
-            <br>
-            <b-button variant="danger" @click="startAnalyse()" class="mt-5 mb-2">
+            <br />
+            <b-button
+              variant="danger"
+              @click="startAnalyse()"
+              class="mt-5 mb-2"
+            >
               Start analysis
             </b-button>
           </v-stepper-content>
@@ -118,24 +133,20 @@
                 below!
               </b>
             </span>
-            <br>
+            <br />
             <b-button variant="danger" class="mt-5 mb-2" @click="analyse()">
               The equipment is turned ON
             </b-button>
           </v-stepper-content>
-
         </v-stepper>
       </div>
 
       <template #modal-footer class="d-flex">
-        <b-button @click="step--" v-if="step == 2">
-          Back
-        </b-button>
+        <b-button @click="step--" v-if="step == 2"> Back </b-button>
         <b-button variant="primary" v-if="step == 1" @click="step++">
           Next
         </b-button>
       </template>
-
     </b-modal>
   </b-container>
 </template>
@@ -155,6 +166,7 @@ export default {
 
       equipments: [],
       selected: {},
+      stats: [],
 
       consumptions: [],
       consumption: {},
@@ -182,6 +194,10 @@ export default {
 
       isCalibrating: false,
       timeout: 0,
+      headers: [
+        { text: "Equipment", value: "equipment_name" },
+        { text: "Need to Analyze?", value: "count", sortable: false },
+      ],
     };
   },
   computed: {
@@ -199,7 +215,11 @@ export default {
 
       const timestamp = new Date(this.consumption.timestamp);
 
-      return timestamp.toLocaleDateString("pt") + " " + timestamp.toLocaleTimeString("pt-PT");
+      return (
+        timestamp.toLocaleDateString("pt") +
+        " " +
+        timestamp.toLocaleTimeString("pt-PT")
+      );
     },
   },
   async created() {
@@ -210,7 +230,7 @@ export default {
     this.topics.push(this.userId + "/power");
     //-> Connect to MQTT Broker
     mqtt.connect(this.onMessage);
-
+    await this.getStats();
     await axios
       .get(`/users/${this.userId}/equipments`)
       .then((response) => {
@@ -282,7 +302,7 @@ export default {
     stopAnalysis() {
       clearTimeout(this.timeout);
       clearInterval(this.crono.interval);
-      
+
       mqtt.publish(`${this.userId}/reset`, "reset");
 
       this.step = 1;
@@ -290,7 +310,7 @@ export default {
 
       mqtt.unsubscribe(this.topics);
 
-      this.graphConfig= {
+      this.graphConfig = {
         xAxis: [],
         yAxis: [],
       };
@@ -300,7 +320,7 @@ export default {
     saveAnalysis() {
       this.analysis.equipment_id = this.selected.id;
       this.analysis.end = parseInt(new Date().getTime() / 1000);
-      
+
       this.stopAnalysis();
 
       return axios
@@ -319,6 +339,22 @@ export default {
           return Promise.reject(error);
         });
     },
+    getStats() {
+      axios
+        .get(`/users/${this.userId}/stats`)
+        .then((response) => {
+          this.stats = response.data.training_examples.map((item)=>{
+            let x = item.count > 0 ? 'No' : 'Yes'
+            return {
+              ...item,
+              count: x
+            }
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
     hideModal() {
       this.$refs["modalAnalyse"].hide();
     },
@@ -335,5 +371,4 @@ export default {
   height: 50px;
   margin-left: 10px;
 }
-
 </style>

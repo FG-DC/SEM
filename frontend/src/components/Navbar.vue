@@ -11,13 +11,13 @@
         icon="fa-solid fa-house"
         size="2x"
       />
-      <div class="badge">3</div>
     </router-link>
 
     <router-link
       :to="{ name: 'read' }"
       class="m-4 notification"
       v-if="this.get_started >= 3"
+      :title="'There is ' + equipsNoTrain.length + ' equipments that has not been analyzed'"
     >
       <font-awesome-icon
         class="notSelected"
@@ -25,7 +25,7 @@
         icon="fa-solid fa-magnifying-glass-chart"
         size="2x"
       />
-      <div class="badge">3</div>
+      <div class="badge">{{equipsNoTrain.length}}</div>
     </router-link>
 
     <router-link
@@ -40,7 +40,9 @@
         icon="fa-solid fa-gear"
         size="2x"
       />
-      <div class="badge">!</div>
+      <div class="badge" v-if="stats.divisions == 0 || stats.equipments == 0">
+        !
+      </div>
     </router-link>
     <div class="m-3">
       <b-dropdown variant="link" right no-caret>
@@ -66,8 +68,9 @@
 import axios from "axios";
 
 export default {
-  created() {
-    this.$store.dispatch("fillStore");
+  async created() {
+    await this.$store.dispatch("fillStore");
+    await this.getStats();
   },
   computed: {
     userId() {
@@ -81,13 +84,8 @@ export default {
     },
   },
   watch: {
-    navbarUpdate(params) {
-      switch (params[0]) {
-        case "divisionUpdate":
-        case "equipmentUpdate":
-        case "affiliateUpdate":
-        case "profileUpdate":
-      }
+    navbarUpdate() {
+      this.getStats();
     },
   },
   data() {
@@ -96,9 +94,10 @@ export default {
       analyze: null,
       edit: false,
       equipments: null,
+      stats: {},
+      equipsNoTrain:[]
     };
   },
-  created() {},
   methods: {
     logout() {
       axios
@@ -146,6 +145,19 @@ export default {
               }
             );
           });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    getStats() {
+      axios
+        .get(`/users/${this.userId}/stats`)
+        .then((response) => {
+          this.stats = response.data;
+          this.equipsNoTrain = this.stats.training_examples.filter(function(item){
+            return item.count == 0
+          })
         })
         .catch((error) => {
           console.log(error);

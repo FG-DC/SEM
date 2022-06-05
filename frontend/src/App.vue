@@ -34,6 +34,7 @@ export default {
   },
   created() {
     this.$store.dispatch("fillStore");
+    this.$socket.emit("logged_in", this.userId);
   },
 };
 </script>
