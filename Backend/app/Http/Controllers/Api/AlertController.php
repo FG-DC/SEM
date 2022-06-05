@@ -8,7 +8,9 @@ use App\Models\Alert;
 use App\Models\Observation;
 use App\Http\Requests\AlertPost;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Resources\AlertResource;
+use App\Mail\AlertNotification;
 
 class AlertController extends Controller
 {
@@ -28,15 +30,14 @@ class AlertController extends Controller
         $alert->fill($request->validated());
         $alert->user_id = $user->id;
 
-        $obs = Observation::find($request->observation_id);
-        if ($obs == null) {
-            return response(['error' => 'Observation ' . $request->observation_id . ' does not exist'], 404);
-        }
-
         try {
             $alert->save();
         } catch (Exception $e) {
             return response(['error' => 'Something went wrong when creating the alert'], 500);
+        }
+
+        if ($user->notifications) {
+            Mail::to($user->email)->send(new AlertNotification($alert));
         }
 
         return new AlertResource($alert);
@@ -45,11 +46,6 @@ class AlertController extends Controller
     public function putUserAlert(User $user, Alert $alert, AlertPost $request)
     {
         $alert->fill($request->validated());
-
-        $obs = Observation::find($request->observation_id);
-        if ($obs == null) {
-            return response(['error' => 'Observation ' . $request->observation_id . ' does not exist'], 404);
-        }
 
         try {
             $alert->save();

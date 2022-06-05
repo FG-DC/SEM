@@ -64,8 +64,8 @@ class CreateTables extends Migration
             $table->unsignedBigInteger('division_id');
             $table->foreign('division_id')->references('id')->on('divisions');
             $table->decimal('consumption', 6, 2);
-            $table->decimal('standby', 6, 2)->nullable();
             $table->string('activity', 3);
+            $table->unsignedBigInteger('examples')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -75,8 +75,6 @@ class CreateTables extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->string('alert', 255);
-            $table->unsignedBigInteger('observation_id');
-            $table->foreign('observation_id')->references('id')->on('observations');
             $table->timestamps();
             $table->softDeletes();
         });

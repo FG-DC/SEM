@@ -12,7 +12,6 @@ class Alert extends Model
 
     protected $fillable = [
         'alert',
-        'observation_id'
     ];
 
     public $timestamps = true;
@@ -20,10 +19,5 @@ class Alert extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
-    }
-
-    public function observation()
-    {
-        return $this->belongsTo(Observation::class, 'observation_id', 'id');
     }
 }

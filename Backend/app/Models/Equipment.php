@@ -20,7 +20,6 @@ class Equipment extends Model
         'division_id',
         'equipment_type_id',
         'consumption',
-        'standby',
         'activity'
     ];
 

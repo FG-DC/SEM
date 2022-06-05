@@ -25,7 +25,6 @@ class EquipmentResource extends JsonResource
                 "type" => $this->type->id,
                 "type_name" => $this->type->name,
                 "consumption" => $this->pivot ? $this->pivot->consumptions : $this->consumption,
-                "standby" => $this->standby,
                 "activity" => $this->activity,
                 "equipment_type_id" => $this->equipment_type_id
             ];

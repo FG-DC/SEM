@@ -29,6 +29,9 @@ class UserResource extends JsonResource
             "type" => $this->type,
             "energy_price" => $this->energy_price,
             "get_started" => $this->get_started
+            "notifications" => $this->notifications,
+            "no_activity_start" => $this->no_activity_start,
+            "no_activity_end" => $this->no_activity_end
         ];
     }
 }

@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateUsersTable extends Migration
 {
@@ -19,9 +20,13 @@ class CreateUsersTable extends Migration
             $table->string('email', 255);
             $table->string('password', 255);
             $table->timestamp('birthdate');
-            $table->unsignedTinyInteger('get_started')->default(0);
+            $table->integer('get_started')->default(0);
+            $table->unsignedTinyInteger('notifications')->default(0);
+            $table->timestamp('no_activity_start')->default(new Carbon('22:00:00'));
+            $table->timestamp('no_activity_end')->default(new Carbon('07:00:00'));
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('type', 1)->default('C');
-            $table->decimal('energy_price', 5, 4, true)->default(0.0969);
+            $table->decimal('energy_price', 5, 4, true)->default(0.151);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -18,7 +18,7 @@ class AlertPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->type == 'C';
+        return $user->type == 'C' || $user->type === 'A';
     }
 
     /**
@@ -41,7 +41,7 @@ class AlertPolicy
      */
     public function create(User $user)
     {
-        return $user->type === 'P';
+        return $user->type === 'P' || $user->type === 'A';
     }
 
     /**

@@ -25,7 +25,6 @@ class AlertPost extends FormRequest
     {
         return [
             'alert' => 'required|string|max:255',
-            'observation_id' => 'required|integer'
         ];
     }
 }

@@ -2,23 +2,24 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Models\Alert;
-use App\Models\Consumption;
 use App\Models\Division;
 use App\Models\Equipment;
-use App\Models\EquipmentType;
+use App\Models\Consumption;
 use App\Models\Observation;
+use App\Policies\UserPolicy;
+use App\Models\EquipmentType;
+use App\Policies\AlertPolicy;
+use Laravel\Passport\Passport;
 use App\Models\TrainingExample;
-use App\Models\User;
-use App\Policies\ConsumptionPolicy;
 use App\Policies\DivisionPolicy;
 use App\Policies\EquipmentPolicy;
-use App\Policies\EquipmentTypePolicy;
+use App\Policies\ConsumptionPolicy;
 use App\Policies\ObservationPolicy;
+use App\Policies\EquipmentTypePolicy;
 use App\Policies\TrainingExamplePolicy;
-use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -35,7 +36,7 @@ class AuthServiceProvider extends ServiceProvider
         Equipment::class => EquipmentPolicy::class,
         Observation::class => ObservationPolicy::class,
         TrainingExample::class => TrainingExamplePolicy::class,
-        Alert::class => Alert::class,
+        Alert::class => AlertPolicy::class,
     ];
 
     /**
@@ -46,6 +47,7 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
+
         if (!$this->app->routesAreCached()) {
             Passport::routes();
         }

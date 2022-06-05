@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\DivisionController;
 use App\Http\Controllers\Api\ObservationController;
 use App\Http\Controllers\Api\StatisticController;
 use App\Http\Controllers\Api\TrainingExampleController;
+use App\Http\Controllers\Auth\VerificationController;
 
 //Auth
 Route::post('login', [AuthController::class, 'login']); //checked
@@ -21,6 +22,10 @@ Route::post('refresh', [AuthController::class, 'refresh']); //checked
 Route::post('users', [UserController::class, 'postUser'])->middleware('can:create,App\Models\User'); //checked
 
 Route::middleware(['auth:api'])->group(function () {
+
+    //Email
+    Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
+    Route::post('email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
 
     //Auth
     Route::post('logout', [AuthController::class, 'logout']); //checked

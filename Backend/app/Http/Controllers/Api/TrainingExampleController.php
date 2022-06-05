@@ -69,6 +69,11 @@ class TrainingExampleController extends Controller
                 $trainingExample->equipment_activity = $equipment->activity;
                 $trainingExample->equipment_status = $equipmentStatusON ? 'ON' : 'OFF';
 
+                if ($equipmentStatusON) {
+                    $equipment->examples = $equipment->examples + 1;
+                    $equipment->save();
+                }
+
                 $trainingExample->save();
             }
         } catch (Exception $e) {

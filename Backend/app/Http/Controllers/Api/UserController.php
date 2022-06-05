@@ -50,6 +50,9 @@ class UserController extends Controller
 
         try {
             $user->save();
+
+            //$newUser = User::where('email', $user->email)->first();
+            //$newUser->sendEmailVerificationNotification();
         } catch (Exception $e) {
             return response(['error' => 'Something went wrong when creating the user'], 500);
         }
@@ -60,6 +63,9 @@ class UserController extends Controller
     {
         $user->name = $request->name;
         $user->energy_price = $request["energy_price"];
+        $user->no_activity_start = date("Y-m-d H:i:s", $request["no_activity_start"]);
+        $user->no_activity_end = date("Y-m-d H:i:s", $request["no_activity_end"]);
+        $user->notifications = $request["notifications"];
         $user->birthdate = DateTime::createFromFormat('!d/m/Y', $request->birthdate);
         try {
             $user->save();
