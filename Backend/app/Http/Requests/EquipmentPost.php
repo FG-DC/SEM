@@ -29,7 +29,8 @@ class EquipmentPost extends FormRequest
             'equipment_type_id' => 'required|integer',
             'consumption' => 'required|numeric|min:0.01|max:9999.99',
             'standby' => 'required|numeric|min:0.01|max:9999.99',
-            'activity' => 'required|string|max:3'
+            'activity' => 'required|string|max:3',
+            'notify_when_passed' => 'nullable|integer|min:0'
         ];
     }
 

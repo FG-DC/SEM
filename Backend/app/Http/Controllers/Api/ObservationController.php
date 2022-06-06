@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use Exception;
 use App\Models\User;
+use App\Models\Alert;
 use App\Models\Division;
 use App\Models\Equipment;
 use App\Models\Consumption;
 use App\Models\Observation;
 use Illuminate\Http\Request;
+use App\Mail\AlertNotification;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\ObservationPost;
 use App\Http\Resources\ConsumptionResource;
 use App\Http\Resources\ObservationResource;
@@ -83,7 +86,6 @@ class ObservationController extends Controller
             return response(['error' => 'Something went wrong when creating the observation'], 500);
         }
 
-        $isActive = false;
         $activeDivisions = [];
         foreach ($request->equipments as $key => $value) {
             $equipment = Equipment::find($value);
@@ -96,11 +98,71 @@ class ObservationController extends Controller
 
             $observation->equipments()->attach($equipment->id, ['consumptions' => $request->consumptions[$key]]);
 
-            $isActive = $isActive || $equipment->activity == "Yes";
+            if ($request->consumptions[$key] > 0) {
+                if (is_null($equipment->init_status_on)) {
+                    $equipment->init_status_on = $consumption->timestamp;
+                }
 
-            if ($equipment->activity == "Yes" && $request->consumptions[$key] > 0 && array_search($equipment->division_id, $activeDivisions) === false) {
-                array_push($activeDivisions, $equipment->division_id);
+                //EQUIPMENT IS ON AND REQUIRE HUMAN INTERVENTION TO OPERATE
+                if ($equipment->activity == "Yes") {
+
+                    $noType1Sent = $equipment->notifications == 0 || $equipment->notifications == 2;
+                    if ($noType1Sent) {
+                        //NOTIFICATION TYPE 1 -> EQUIPMENT IS ON FOR LONGER THEN X TIME
+                        $diffSeconds = strtotime($consumption->timestamp) - strtotime($equipment->init_status_on);
+                        $diffMinutes = $diffSeconds / 60;
+                        if (!is_null($equipment->notify_when_passed) && $diffMinutes > $equipment->notify_when_passed) {
+                            //CREATE ALERT
+                            $alert = new Alert();
+                            $alert->alert = "The " . $equipment->name . " from the " . $equipment->division->name . " is already active for " . floor($diffMinutes) . " minutes. We recommend you to turn OFF this equipment if you are not using it.";
+                            $alert->user_id = $user->id;
+                            $alert->save();
+
+                            if ($user->notifications) {
+                                Mail::to($user->email)->send(new AlertNotification($user->name . ' warning of usage', $alert));
+
+                                foreach ($user->affiliates as $affiliate) {
+                                    Mail::to($affiliate->email)->send(new AlertNotification($user->name . ' warning of usage', $alert));
+                                }
+                            }
+                            $equipment->notifications = $equipment->notifications + 1;
+                        }
+                    }
+
+                    $noType2Sent = $equipment->notifications == 0 || $equipment->notifications == 1;
+                    if ($noType2Sent) {
+                        $start = strtotime($user->no_activity_start) % 86400;
+                        $end = strtotime($user->no_activity_end) % 86400;
+                        $time = strtotime($consumption->timestamp) % 86400;
+                        if ($time > $start || $time < $end) {
+                            //NOTIFICATION TYPE 2 -> EQUIPMENT IS ON WHILE USER ASLEEP
+                            //CREATE ALERT
+                            $alert = new Alert();
+                            $alert->alert = "The " . $equipment->name . " from the " . $equipment->division->name . " is turned ON.";
+                            $alert->user_id = $user->id;
+                            $alert->save();
+
+                            if ($user->notifications) {
+                                Mail::to($user->email)->send(new AlertNotification($user->name . ' suspicious activity', $alert));
+
+                                foreach ($user->affiliates as $affiliate) {
+                                    Mail::to($affiliate->email)->send(new AlertNotification($user->name . ' suspicious activity', $alert));
+                                }
+                            }
+                            $equipment->notifications = $equipment->notifications + 2;
+                        }
+                    }
+
+                    //ADD DIVISION TO ACTIVE DIVISIONS
+                    if (array_search($equipment->division_id, $activeDivisions) === false) {
+                        array_push($activeDivisions, $equipment->division_id);
+                    }
+                }
+            } else {
+                $equipment->init_status_on = null;
+                $equipment->notifications = 0;
             }
+            $equipment->save();
         }
 
         if ($request->expected_divisions == null) {
@@ -119,11 +181,6 @@ class ObservationController extends Controller
 
                 $observation->divisions()->attach($division->id);
             }
-        }
-
-        $observation->activity = 'No';
-        if ($isActive) {
-            $observation->activity = 'Yes';
         }
 
         $consumption->observation_id = $observation->id;

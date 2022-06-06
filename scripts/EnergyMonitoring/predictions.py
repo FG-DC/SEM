@@ -115,7 +115,7 @@ class Broker:
 
 
 # ENV
-API_ENDPOINT = 'http://15.188.51.61/api'
+API_ENDPOINT = 'http://backend.test/api'
 BROKER_ENDPOINT = 'broker.hivemq.com'
 BROKER_PORT = 1883
 

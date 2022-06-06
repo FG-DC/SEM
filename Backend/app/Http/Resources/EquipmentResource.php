@@ -27,7 +27,9 @@ class EquipmentResource extends JsonResource
                 "consumption" => $this->pivot ? $this->pivot->consumptions : $this->consumption,
                 "activity" => $this->activity,
                 "equipment_type_id" => $this->equipment_type_id,
-                "examples" => $this->examples
+                "examples" => $this->examples,
+                "init_status_on" => $this->init_status_on,
+                "notify_when_passed" => $this->notify_when_passed
             ];
         else
             return [

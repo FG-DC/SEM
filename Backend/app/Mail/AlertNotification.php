@@ -16,8 +16,9 @@ class AlertNotification extends Mailable
      *
      * @return void
      */
-    public function __construct($alert)
+    public function __construct($subject, $alert)
     {
+        $this->subject = $subject;
         $this->alert = $alert;
     }
 
@@ -28,8 +29,8 @@ class AlertNotification extends Mailable
      */
     public function build()
     {
-        return $this->from('alerts-noreply@sem.com', 'S.E.M Alerts')
-            ->subject('Automatic Alert')
+        return $this->from(env('MAIL_FROM_ADDRESS'), 'Smart Energy Monitoring')
+            ->subject($this->subject)
             ->view('mail.alert', ['alert' => $this->alert]);
     }
 }

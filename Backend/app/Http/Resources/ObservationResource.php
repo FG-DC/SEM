@@ -23,7 +23,6 @@ class ObservationResource extends JsonResource
                 "user_id" => $this->user_id,
                 "consumption_id" => $this->consumption_id,
                 "expected_divisions" => DivisionResource::collection($this->divisions),
-                "activity" => $this->activity,
                 "created_at" => strtotime($this->created_at),
                 "equipments" => EquipmentResource::collection($this->equipments)
             ];
@@ -32,8 +31,7 @@ class ObservationResource extends JsonResource
                 "id" => $this->id,
                 "user_id" => $this->user_id,
                 "consumption_id" => $this->consumption_id,
-                "expected_divisions" => DivisionResource::collection($this->divisions),
-                "activity" => $this->activity
+                "expected_divisions" => DivisionResource::collection($this->divisions)
             ];
     }
 }

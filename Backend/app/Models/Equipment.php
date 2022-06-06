@@ -20,7 +20,8 @@ class Equipment extends Model
         'division_id',
         'equipment_type_id',
         'consumption',
-        'activity'
+        'activity',
+        'notify_when_passed'
     ];
 
     public function user()

@@ -103,6 +103,20 @@ class UserController extends Controller
         return response(['error' => 'Energy price is not in a valid format'], 400);
     }
 
+    public function patchUserNotificationsON(Request $request, User $user)
+    {
+        $user->notifications = 1;
+        $user->save();
+        return response(['msg' => 'Notifications are turned ON']);
+    }
+
+    public function patchUserNotificationsOFF(Request $request, User $user)
+    {
+        $user->notifications = 0;
+        $user->save();
+        return response(['msg' => 'Notifications are turned ON']);
+    }
+
     public function deleteUser(User $user)
     {
         try {
@@ -113,7 +127,8 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    public function patchGetStarted(Request $request, User $user){
+    public function patchGetStarted(Request $request, User $user)
+    {
         if (is_numeric($request["get_started"])) {
             $user->get_started = $request["get_started"];
             try {
@@ -127,10 +142,11 @@ class UserController extends Controller
     }
 
 
-    public function getUserStats(User $user){
+    public function getUserStats(User $user)
+    {
         $equipments = $user->equipments;
         $trainCount = [];
-        foreach($equipments as $equipment){
+        foreach ($equipments as $equipment) {
             $item = new \stdClass();
             $item->equipment_name = $equipment->name;
             $item->count = $equipment->examples;
@@ -138,9 +154,8 @@ class UserController extends Controller
         }
         $stats = new \stdClass();
         $stats->divisions = $user->divisions()->count();
-        $stats->equipments =$user->equipments()->count();
+        $stats->equipments = $user->equipments()->count();
         $stats->training_examples = $trainCount;
         return $stats;
     }
-
 }

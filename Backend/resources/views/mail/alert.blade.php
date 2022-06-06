@@ -64,7 +64,6 @@
             letter-spacing: 1px;
             color: #CBD6E2;
         }
-
     </style>
 
 </head>
@@ -90,12 +89,9 @@
                         style="padding: 30px 30px 30px 60px;">
                         <tr>
                             <td>
-                                <h2>Unusual usage</h2>
+                                <h2>Notification</h2>
                                 <p>
                                     {{ $alert->alert }}
-                                </p>
-                                <p>
-                                    {{ $alert->created_at }}
                                 </p>
                             </td>
                         </tr>
