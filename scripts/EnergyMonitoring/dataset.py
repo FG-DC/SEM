@@ -133,11 +133,30 @@ def dataToDataframe(examples, equipments):
         arrayIdx = np.where(mapper == example['equipment_id'])
         row[arrayIdx[0] + 2] = example['consumption'] if example['equipment_status'] == 'ON' else 0
 
+    DATA_AUGMENTATION = 100
+
+    for next in range(1, len(data)):
+        current = next - 1
+
+        augmented = []
+        for idx in range(len(equipments) + 2):
+            arr = np.linspace(data[current][idx], data[next]
+                              [idx], num=DATA_AUGMENTATION + 2)[1:-1]
+            augmented.append(np.round(arr, 2))
+
+        for pos in range(DATA_AUGMENTATION):
+            # ADD NEW ROW
+            row = []
+            for idx in range(len(equipments) + 2):
+                row.append(augmented[idx][pos])
+
+            data.append(row)
+
     return pd.DataFrame(data, columns=headers)
 
 
 # ENV
-API_ENDPOINT = 'http://15.188.51.61/api'
+API_ENDPOINT = 'http://backend.test/api'
 BROKER_ENDPOINT = 'broker.hivemq.com'
 BROKER_PORT = 1883
 
