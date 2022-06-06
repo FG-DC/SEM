@@ -21,6 +21,7 @@ class TrainingExampleController extends Controller
 
     public function postUserTrainingExample(TrainingExamplePost $request, User $user)
     {
+
         $equipmentsON = !is_array($request->equipments_on) ? [] : $request->equipments_on;
         $count = 0;
 
@@ -30,8 +31,12 @@ class TrainingExampleController extends Controller
             ->get();
 
         foreach ($consumptions as $consumption) {
-            $this->storeExamplesFor($user, $consumption, $equipmentsON, $request->individual);
-            $count++;
+            try {
+                $this->storeExamplesFor($user, $consumption, $equipmentsON, $request->individual);
+                $count++;
+            } catch (Exception $e) {
+                return response(['error' => 'Something went wrong when creating the training examples'], 500);
+            }
         }
 
         return response(['msg' => $count . ' examples created with success'], 201);
@@ -48,36 +53,30 @@ class TrainingExampleController extends Controller
 
     private function storeExamplesFor($user, $consumption, $equipmentsON, $individual = false)
     {
-        try {
-            foreach ($user->equipments as $equipment) {
-                //CREATE ONE ROW FOR EACH EQUIPMENT
-                $trainingExample = new TrainingExample();
+        foreach ($user->equipments as $equipment) {
+            //CREATE ONE ROW FOR EACH EQUIPMENT
+            $trainingExample = new TrainingExample();
+            $equipmentStatusON = in_array($equipment->id, $equipmentsON);
+            $trainingExample->user_id = $user->type == 'A' ? null : $user->id;
+            $trainingExample->consumption = $consumption->value;
+            $trainingExample->consumption_variance = $consumption->variance;
+            $trainingExample->time = $consumption->created_at;
+            $trainingExample->weekend = $consumption->created_at->format("w") == '0' || $consumption->created_at->format("w") == '6' ? "Yes" : "No";
+            $trainingExample->day_week = $this->getDayWeekByInteger(intval($consumption->created_at->format("w")));
+            $trainingExample->season = $this->getSeasonFrom(intval($consumption->created_at->format("z")) + 1);
+            $trainingExample->equipment_id = $equipment->id;
+            $trainingExample->equipment_consumption = $equipmentStatusON ? ($individual ? $consumption->value : $equipment->consumption) : 0;
+            $trainingExample->equipment_division = $equipment->division->name;
+            $trainingExample->equipment_type = $equipment->type->name;
+            $trainingExample->equipment_activity = $equipment->activity;
+            $trainingExample->equipment_status = $equipmentStatusON ? 'ON' : 'OFF';
 
-                $equipmentStatusON = in_array($equipment->id, $equipmentsON);
-
-                $trainingExample->user_id = $user->type == 'A' ? null : $user->id;
-                $trainingExample->consumption = $consumption->value;
-                $trainingExample->consumption_variance = $consumption->variance;
-                $trainingExample->time = $consumption->created_at;
-                $trainingExample->weekend = $consumption->created_at->format("w") == '0' || $consumption->created_at->format("w") == '6' ? "Yes" : "No";
-                $trainingExample->day_week = $this->getDayWeekByInteger(intval($consumption->created_at->format("w")));
-                $trainingExample->season = $this->getSeasonFrom(intval($consumption->created_at->format("z")) + 1);
-                $trainingExample->equipment_id = $equipment->id;
-                $trainingExample->equipment_consumption = $equipmentStatusON ? ($individual ? $consumption->value : $equipment->consumption) : 0;
-                $trainingExample->equipment_division = $equipment->division->name;
-                $trainingExample->equipment_type = $equipment->type->name;
-                $trainingExample->equipment_activity = $equipment->activity;
-                $trainingExample->equipment_status = $equipmentStatusON ? 'ON' : 'OFF';
-
-                if ($equipmentStatusON) {
-                    $equipment->examples = $equipment->examples + 1;
-                    $equipment->save();
-                }
-
-                $trainingExample->save();
+            if ($equipmentStatusON) {
+                $equipment->examples = $equipment->examples + 1;
+                $equipment->save();
             }
-        } catch (Exception $e) {
-            return response(['error' => 'Something went wrong when creating the training examples'], 500);
+
+            $trainingExample->save();
         }
     }
 

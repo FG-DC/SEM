@@ -131,10 +131,9 @@ class UserController extends Controller
         $equipments = $user->equipments;
         $trainCount = [];
         foreach($equipments as $equipment){
-            $count = TrainingExample::where('user_id',$user->id)->where('equipment_id',$equipment->id)->count();
             $item = new \stdClass();
             $item->equipment_name = $equipment->name;
-            $item->count = $count;
+            $item->count = $equipment->examples;
             array_push($trainCount, $item);
         }
         $stats = new \stdClass();

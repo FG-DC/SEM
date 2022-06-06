@@ -157,9 +157,9 @@ export default {
             `${this.division.name} was deleted successfully`
           );
         })
-        .catch((error) => {
-          this.showToastMessage("Error trying to delete this division");
-          return Promise.reject(error);
+        .catch((e) => {
+          this.showToastMessage(e.response.data.error);
+          return Promise.reject(e);
         });
     },
     addDivision() {

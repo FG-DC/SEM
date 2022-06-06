@@ -4,10 +4,10 @@
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
 
-#define CREDENTIALS_SIZE 100
-#define AUTH_SIZE 1900
-#define POST_SIZE 500
-#define USER_SIZE 500
+#define CREDENTIALS_SIZE 200
+#define AUTH_SIZE 2000
+#define POST_SIZE 700
+#define USER_SIZE 700
 
 struct Auth {
   static long expiresIn;

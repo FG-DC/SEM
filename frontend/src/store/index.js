@@ -17,6 +17,7 @@ export default new Vuex.Store({
     affiliateUpdate: false,
     profileUpdate: false,
     navbarUpdate: false,
+    trainingExamples: false
   },
   getters: {
     username: (state) => state.username,
@@ -27,6 +28,7 @@ export default new Vuex.Store({
     affiliateUpdate: (state) => state.affiliateUpdate,
     profileUpdate: (state) => state.profileUpdate,
     navbarUpdate: (state) => state.navbarUpdate,
+    trainingExamples: (state) => state.trainingExamples,
   },
   mutations: {
     mutationAuthOk(state) {
@@ -59,6 +61,9 @@ export default new Vuex.Store({
     },
     async SOCKET_profileUpdate(state) {
       state.profileUpdate = !state.profileUpdate;
+    },
+    async SOCKET_trainingExamples(state) {
+      state.trainingExamples = !state.trainingExamples;
     },
     async SOCKET_navbarUpdate(state) {
       state.navbarUpdate = !state.navbarUpdate;

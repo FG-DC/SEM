@@ -48,4 +48,10 @@ io.on("connection", function (socket) {
     io.to(userId).emit("profileUpdate");
     io.to(userId).emit("navbarUpdate");
   });
+
+  socket.on("trainingExamples", function (userId) {
+    userId = parseInt(userId);
+    io.to(userId).emit("trainingExamples");
+    io.to(userId).emit("navbarUpdate");
+  });
 });

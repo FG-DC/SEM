@@ -61,8 +61,6 @@ void setup() {
 
   login(client, API_ENDPOINT + "/login", username, password);
   id = getId(client, API_ENDPOINT + "/user");
-
-  initialTimestamp = getTimestampOfNow(client);
 }
 
 void loop() {
@@ -118,11 +116,15 @@ void loop() {
 
       powers[pointer] = meanW;
       variances[pointer] = varianceW;
-      timestamps[pointer] = initialTimestamp + (millis() / 1000);
+      timestamps[pointer] = getTimestampOfNow(client);
       pointer += 1;
     }
 
     postConsumptions(client, API_ENDPOINT + "/users/" + (String)id + "/consumptions", powers, variances, timestamps, SIZE_CONSUMPTION_BUFFER);
+    if (calibrationValue == 0) {
+      publishMessage("/post", id);
+    }
+    
     Serial.println("--------------------------");
 
     pointer = 0;
@@ -188,7 +190,7 @@ void readAuthFromFlashMemory() {
 
 void startWiFiManager() {
   WiFiManager wifiManager;
-  //wifiManager.resetSettings();
+  wifiManager.resetSettings();
   wifiManager.setSaveConfigCallback(saveConfigCallback);
   wifiManager.setClass("invert"); // dark theme
 

@@ -26,8 +26,8 @@ class CreateTables extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
-            $table->decimal('value', 6, 2);
-            $table->decimal('variance', 6, 2);
+            $table->decimal('value', 10, 2);
+            $table->decimal('variance', 10, 2);
             $table->unsignedBigInteger('observation_id');
             $table->timestamp('timestamp');
             $table->timestamps();

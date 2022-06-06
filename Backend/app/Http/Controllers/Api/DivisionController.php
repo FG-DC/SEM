@@ -51,7 +51,10 @@ class DivisionController extends Controller
     public function deleteUserDivision(User $user, Division $division)
     {
         try {
-            $division->delete();
+            if($division->equipments()->count() == 0)
+                $division->delete();
+            else
+                return response(['error' => 'Division has equipments associated!'], 400);
         } catch (Exception $e) {
             return response(['error' => 'Something went wrong when deleting the division'], 500);
         }

@@ -3,7 +3,6 @@
     <router-link
       :to="{ name: 'dashboard' }"
       class="m-4 notification"
-      v-if="this.get_started >= 5"
     >
       <font-awesome-icon
         class="notSelected"
@@ -16,7 +15,6 @@
     <router-link
       :to="{ name: 'read' }"
       class="m-4 notification"
-      v-if="this.get_started >= 3"
       :title="'There is ' + equipsNoTrain.length + ' equipments that has not been analyzed'"
     >
       <font-awesome-icon
@@ -25,7 +23,7 @@
         icon="fa-solid fa-magnifying-glass-chart"
         size="2x"
       />
-      <div class="badge">{{equipsNoTrain.length}}</div>
+      <div class="badge" v-if="equipsNoTrain.length">{{equipsNoTrain.length}}</div>
     </router-link>
 
     <router-link

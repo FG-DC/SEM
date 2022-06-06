@@ -60,13 +60,21 @@
       :config="graphConfig"
       :isBoolean="false"
     />
+
     <v-data-table
       v-else
       class="mt-5"
       :headers="headers"
       :items="stats"
       :items-per-page="10"
-    />
+    >
+      <template v-slot:item.count="{ item }">
+        <v-chip dark :color="item.count == 'Yes' ? '#f44336' : '#4caf50'">
+          {{ item.count }}
+        </v-chip>
+      </template>
+    </v-data-table>
+
     <b-modal
       ref="modalAnalyse"
       id="modalAnalyse"
@@ -221,6 +229,14 @@ export default {
         timestamp.toLocaleTimeString("pt-PT")
       );
     },
+     trainingExamples() {
+      return this.$store.getters.trainingExamples;
+    },
+  },
+  watch: {
+    trainingExamples() {
+      this.getStats();
+    },
   },
   async created() {
     this.$store.dispatch("fillStore");
@@ -241,6 +257,10 @@ export default {
       });
   },
   methods: {
+    getColor(count) {
+      if (count == "yes") return "green";
+      else return "red";
+    },
     onMessage(topic, message) {
       switch (topic) {
         case this.userId + "/power":
@@ -333,6 +353,7 @@ export default {
         .then((response) => {
           this.toast.state = true;
           this.toast.message = response.data.msg;
+          this.$socket.emit("trainingExamples", this.userId);
         })
         .catch((error) => {
           console.log(error);
@@ -343,13 +364,15 @@ export default {
       axios
         .get(`/users/${this.userId}/stats`)
         .then((response) => {
-          this.stats = response.data.training_examples.map((item)=>{
-            let x = item.count > 0 ? 'No' : 'Yes'
+          console.log(response.data.training_examples);
+          this.stats = response.data.training_examples.map((item) => {
+            let x = item.count > 0 ? "No" : "Yes";
             return {
               ...item,
-              count: x
-            }
+              count: x,
+            };
           });
+          console.log(this.stats)
         })
         .catch((error) => {
           console.log(error);
