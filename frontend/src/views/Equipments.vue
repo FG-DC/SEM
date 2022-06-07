@@ -7,11 +7,11 @@
     <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
 
       <!-- TITLE -->
-      <div class="mb-3"><b style="color:#191645">Divisions</b></div>
+      <div class="mb-3"><b style="color:#191645">Equipments</b></div>
 
       <!-- CREATE EQUIPMENT -->
       <b-button variant="success" @click="showModal('modalAdd', {})">
-        Create Equipment
+        + Create Equipment
       </b-button>
 
       <!-- SEARCH -->
@@ -96,14 +96,6 @@
             solo
         />
 
-        <!-- INPUT STANDBY -->
-        <span>Standby</span>
-        <v-text-field
-            v-model="equipment.standby"
-            type="number"
-            solo
-        />
-
         <!-- INPUT ACTIVITY -->
         <span>Activity</span>
         <v-select
@@ -159,14 +151,6 @@
             solo
         />
 
-        <!-- INPUT STANDBY -->
-        <span>Standby</span>
-        <v-text-field
-            v-model="newEquipment.standby"
-            type="number"
-            solo
-        />
-
         <!-- INPUT ACTIVITY -->
         <span>Activity</span>
         <v-select
@@ -191,24 +175,16 @@ export default {
           value: "name",
         },
         {
-          text: "Consumption",
-          value: "consumption",
-        },
-        {
-          text: "Standby",
-          value: "standby",
-        },
-        {
           text: "Division",
           value: "division_name",
         },
         {
-          text: "Type",
-          value: "type_name",
+          text: "Consumption",
+          value: "consumption",
         },
         {
-          text: "Activity",
-          value: "activity",
+          text: "Time ON",
+          value: "status",
         },
         {
           text: "",
@@ -258,7 +234,6 @@ export default {
         activity: '',
         division_id: '',
         equipment_type_id: '',
-        standby: '',
         type: '',
         division: '',
       };
@@ -267,11 +242,47 @@ export default {
       
       this.$refs[modal].show();
     },
+    formatDate(dateStr, withFullDate) {
+      if (dateStr == null || dateStr == "")
+        return "";
+
+      let date = new Date(dateStr.toString().length == 10 ? dateStr * 1000 : dateStr);
+      let formatedDate = "";
+
+      formatedDate = date.toLocaleDateString('pt', { timeZone: 'Europe/Lisbon' });
+
+      if (!withFullDate)
+        return formatedDate;
+      
+      return formatedDate + " " + date.toLocaleTimeString('pt-PT', { timeZone: 'Europe/Lisbon' });
+    },
+    timeDiff(timeStr) {
+      let time = (new Date(timeStr)).getTime();
+      let now = (new Date()).getTime() - 3600000;
+
+      let diffSecs = parseInt((now - time) / 1000);
+      if (diffSecs < 60) return `${diffSecs}s`;
+
+      let diffMin = parseInt(diffSecs / 60)
+      if (diffMin < 60) return `${diffMin}m${diffSecs % 60}s`
+
+      let diffHours = parseInt(diffMin / 60)
+      return `${diffHours}h${diffMin % 60}m${diffSecs % 60}s`
+    },
     getEquipments() {
       return axios
         .get(`/users/${this.userId}/equipments`)
         .then((response) => {
           this.equipments = response.data.data;
+          this.equipments = this.equipments.map((item) => {
+            if (item.init_status_on == null) return item;
+
+            let currStatus = this.timeDiff(item.init_status_on);
+            return {
+              ...item,
+              status: currStatus
+            }
+          })
         })
         .catch((error) => {
           return Promise.reject(error);
@@ -305,7 +316,6 @@ export default {
           activity: this.equipment.activity,
           division_id: this.equipment.division,
           equipment_type_id: this.equipment.type,
-          standby: this.equipment.standby,
         })
         .then(() => {
           this.$socket.emit("equipmentUpdate",this.userId);
@@ -335,7 +345,6 @@ export default {
           activity: this.newEquipment.activity,
           division_id: this.newEquipment.division,
           equipment_type_id: this.newEquipment.type,
-          standby: this.newEquipment.standby,
         })
         .then(() => {
           this.$socket.emit("equipmentUpdate",this.userId);
