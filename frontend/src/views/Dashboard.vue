@@ -422,7 +422,7 @@ export default {
           this.kWhs = response.data.reverse();
 
           this.kWh = this.kWhs[this.kWhs.length - 1];
-          this.kWh.value = Math.round(this.kWh.value * 100) / 100;
+          this.kWh.value = Math.round(parseFloat(this.kWh.value.replaceAll(',','')) * 100) / 100;
         })
         .catch((error) => {
           return Promise.reject(error);
