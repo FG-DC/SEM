@@ -40,7 +40,7 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 
 const socketIO = new VueSocketIO({
   debug: true,
-  connection: "http://127.0.0.1:8080",
+  connection: "http://127.0.0.1:8585",
   vuex: {
     store,
     actionPrefix: 'SOCKET_',

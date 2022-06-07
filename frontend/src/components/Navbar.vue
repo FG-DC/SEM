@@ -1,65 +1,73 @@
 <template>
-  <v-bottom-navigation height="" :background-color="'#191645'">
-    <router-link
-      :to="{ name: 'dashboard' }"
-      class="m-4 notification"
-    >
-      <font-awesome-icon
-        class="notSelected"
-        :class="{ selected: $route.name == 'dashboard' }"
-        icon="fa-solid fa-house"
-        size="2x"
-      />
-    </router-link>
+  <div>
+    <v-bottom-navigation height="" :background-color="'#191645'">
+      <router-link :to="{ name: 'dashboard' }" class="m-4 notification">
+        <font-awesome-icon
+          class="notSelected"
+          :class="{ selected: $route.name == 'dashboard' }"
+          icon="fa-solid fa-house"
+          size="2x"
+        />
+      </router-link>
 
-    <router-link
-      :to="{ name: 'read' }"
-      class="m-4 notification"
-      :title="'There is ' + equipsNoTrain.length + ' equipments that has not been analyzed'"
-    >
-      <font-awesome-icon
-        class="notSelected"
-        :class="{ selected: $route.name == 'read' }"
-        icon="fa-solid fa-magnifying-glass-chart"
-        size="2x"
-      />
-      <div class="badge" v-if="equipsNoTrain.length">{{equipsNoTrain.length}}</div>
-    </router-link>
+      <router-link
+        :to="{ name: 'read' }"
+        class="m-4 notification"
+        :title="
+          'There is ' +
+          equipsNoTrain.length +
+          ' equipments that has not been analyzed'
+        "
+      >
+        <font-awesome-icon
+          class="notSelected"
+          :class="{ selected: $route.name == 'read' }"
+          icon="fa-solid fa-magnifying-glass-chart"
+          size="2x"
+        />
+        <div class="badge" v-if="equipsNoTrain.length">
+          {{ equipsNoTrain.length }}
+        </div>
+      </router-link>
 
-    <router-link
-      :to="{ name: 'settings' }"
-      class="m-4 notification"
-      v-if="this.get_started >= 0"
-    >
-      <font-awesome-icon
-        @click="$router.push({ name: 'settings' })"
-        class="notSelected"
-        :class="{ selected: $route.path.startsWith('/settings') }"
-        icon="fa-solid fa-gear"
-        size="2x"
-      />
-      <div class="badge" v-if="stats.divisions == 0 || stats.equipments == 0">
-        !
+      <router-link
+        :to="{ name: 'settings' }"
+        class="m-4 notification"
+        v-if="this.get_started >= 0"
+      >
+        <font-awesome-icon
+          @click="$router.push({ name: 'settings' })"
+          class="notSelected"
+          :class="{ selected: $route.path.startsWith('/settings') }"
+          icon="fa-solid fa-gear"
+          size="2x"
+        />
+        <div class="badge" v-if="stats.divisions == 0 || stats.equipments == 0">
+          !
+        </div>
+      </router-link>
+      <div class="m-3">
+        <b-dropdown variant="link" right no-caret>
+          <template #button-content>
+            <font-awesome-icon
+              icon="fa-solid fa-circle-chevron-down"
+              size="2x"
+              style="color: white !important"
+            />
+          </template>
+
+          <b-dropdown-item :to="{ name: 'alerts' }"
+            >Alerts</b-dropdown-item
+          >
+          <b-dropdown-item :to="{ name: 'profile' }">Profile</b-dropdown-item>
+          <b-dropdown-divider></b-dropdown-divider>
+
+          <b-dropdown-item @click="logout()">Log Out</b-dropdown-item>
+        </b-dropdown>
       </div>
-    </router-link>
-    <div class="m-3">
-      <b-dropdown variant="link" right no-caret>
-        <template #button-content>
-          <font-awesome-icon
-            icon="fa-solid fa-circle-chevron-down"
-            size="2x"
-            style="color: white !important"
-          />
-        </template>
-
-        <b-dropdown-item :to="{ name: 'profile' }">Profile</b-dropdown-item>
-
-        <b-dropdown-divider></b-dropdown-divider>
-
-        <b-dropdown-item @click="logout()">Log Out</b-dropdown-item>
-      </b-dropdown>
-    </div>
-  </v-bottom-navigation>
+    </v-bottom-navigation>
+   
+  </div>
 </template>
 
 <script>
@@ -93,7 +101,7 @@ export default {
       edit: false,
       equipments: null,
       stats: {},
-      equipsNoTrain:[]
+      equipsNoTrain: [],
     };
   },
   methods: {
@@ -153,9 +161,11 @@ export default {
         .get(`/users/${this.userId}/stats`)
         .then((response) => {
           this.stats = response.data;
-          this.equipsNoTrain = this.stats.training_examples.filter(function(item){
-            return item.count == 0
-          })
+          this.equipsNoTrain = this.stats.training_examples.filter(function (
+            item
+          ) {
+            return item.count == 0;
+          });
         })
         .catch((error) => {
           console.log(error);
@@ -166,6 +176,11 @@ export default {
 </script>
 
 <style scoped>
+.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .modalText {
   font-size: 20px;
 }

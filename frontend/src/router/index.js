@@ -10,6 +10,8 @@ import Settings from '../views/Settings.vue'
 import Affiliates from '../views/Affiliates.vue'
 import Equipments from '../views/Equipments.vue'
 import Divisions from '../views/Divisions.vue'
+import Alerts from '../views/Alerts.vue'
+
 
 Vue.use(VueRouter)
 
@@ -63,6 +65,11 @@ const routes = [
     path: '/settings/equipments',
     name: 'equipments',
     component: Equipments
+  },
+  {
+    path: '/alerts',
+    name: 'alerts',
+    component: Alerts
   }
 ]
 

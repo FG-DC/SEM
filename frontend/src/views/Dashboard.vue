@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-2 text-center">
+  <div class="container mt-2 text-center" style="user-select:none">
     <v-card elevation="20" class="flex-grow-1 card-selectable" style="border-radius: 10px" @click="showDashboardModal">
       <span style="font-size:2rem;font-weight: 400;color:#191645'">{{'Dashboard of ' + user.name}}</span>
     </v-card>

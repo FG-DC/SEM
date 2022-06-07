@@ -72,6 +72,8 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('users/{user}/equipments', [EquipmentController::class, 'postUserEquipment'])->middleware('can:create,App\Models\Equipment');
     Route::put('users/{user}/equipments/{equipment}', [EquipmentController::class, 'putUserEquipment'])->middleware('can:update,equipment');
     Route::delete('users/{user}/equipments/{equipment}', [EquipmentController::class, 'deleteUserEquipment'])->middleware('can:delete,equipment');
+    Route::patch('users/{user}/equipments/{equipment}', [EquipmentController::class, 'patchNotifications'])->middleware('can:delete,equipment');
+
 
     //EquipmentType
     Route::get('equipment-types', [EquipmentTypeController::class, 'getEquipmentTypes'])->middleware('can:viewAny,App\Models\EquipmentType');

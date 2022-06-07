@@ -57,7 +57,7 @@ void setup() {
   mqttClient.onMessage(onMqttMessage);
 
   pinMode(PIN_SCT, INPUT);
-  SCT013.current(PIN_SCT, 15); //calibration value
+  SCT013.current(PIN_SCT, 2.85); //calibration value
 
   login(client, API_ENDPOINT + "/login", username, password);
   id = getId(client, API_ENDPOINT + "/user");
@@ -190,7 +190,7 @@ void readAuthFromFlashMemory() {
 
 void startWiFiManager() {
   WiFiManager wifiManager;
-  wifiManager.resetSettings();
+  //wifiManager.resetSettings();
   wifiManager.setSaveConfigCallback(saveConfigCallback);
   wifiManager.setClass("invert"); // dark theme
 

@@ -1,5 +1,5 @@
 <template>
-  <b-container class="container mt-2 text-center">
+  <b-container class="container mt-2 text-center" style="user-select:none">
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
 
     <!-- SELECT BOX -->

@@ -1,5 +1,5 @@
 <template>
-  <v-container class="text-center mt-2" style="color: black">
+  <v-container class="text-center mt-2" style="color: black; user-select:none" >
     <v-card
       @click="$router.push({ name: 'divisions' })"
       elevation="6"

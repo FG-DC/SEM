@@ -9,6 +9,7 @@ use App\Models\Equipment;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EquipmentPost;
 use App\Http\Resources\EquipmentResource;
+use Illuminate\Http\Request;
 
 class EquipmentController extends Controller
 {
@@ -75,5 +76,16 @@ class EquipmentController extends Controller
         }
         EquipmentResource::$detail = true;
         return new EquipmentResource($equipment);
+    }
+
+    public function patchNotifications(Request $request,User $user, Equipment $equipment){
+            $equipment->notify_when_passed = $request["notify_when_passed"];
+            try {
+                $equipment->save();
+            } catch (Exception $e) {
+                return response(['error' => 'Something went wrong when changing notification'], 500);
+            }
+        
+        return response(['msg' => 'Notification changed with success']);
     }
 }

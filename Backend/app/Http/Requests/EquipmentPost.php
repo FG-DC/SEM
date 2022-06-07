@@ -28,7 +28,6 @@ class EquipmentPost extends FormRequest
             'division_id' => 'required|integer',
             'equipment_type_id' => 'required|integer',
             'consumption' => 'required|numeric|min:0.01|max:9999.99',
-            'standby' => 'required|numeric|min:0.01|max:9999.99',
             'activity' => 'required|string|max:3',
             'notify_when_passed' => 'nullable|integer|min:0'
         ];
@@ -48,10 +47,6 @@ class EquipmentPost extends FormRequest
             'consumption.numeric' => 'Consumption must be a number',
             'consumption.min' => 'Consumption minimum value is 0.01',
             'consumption.max' => 'Consumption maximum value is 9999.99',
-            'standby.required' => 'Standby value is mandatory',
-            'standby.numeric' => 'Standby must be a number',
-            'standby.min' => 'Standby minimum value is 0.01',
-            'standby.max' => 'Standby maximum value is 9999.99',
             'activity.required' => 'Activity is mandatory',
             'activity.string' => 'Activity must contain only letters',
             'activity.max' => 'Activity cannot have more than 3 characters',
