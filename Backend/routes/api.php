@@ -38,10 +38,11 @@ Route::middleware(['auth:api'])->group(function () {
     Route::patch('users/{user}/password', [UserController::class, 'patchUserPassword'])->middleware('can:update,user');
     Route::patch('users/{user}/price', [UserController::class, 'patchUserEnergyPrice'])->middleware('can:update,user');
     Route::patch('users/{user}/status', [UserController::class, 'patchGetStarted'])->middleware('can:update,user');
-    Route::patch('users/{user}/notifications/ON', [UserController::class, 'patchUserNotificationsON'])->middleware('can:update,user');
-    Route::patch('users/{user}/notifications/OFF', [UserController::class, 'patchUserNotificationsOFF'])->middleware('can:update,user');
+    Route::patch('users/{user}/notifications', [UserController::class, 'patchUserNotifications'])->middleware('can:update,user');
     Route::delete('users/{user}', [UserController::class, 'deleteUser'])->middleware('can:delete,user');
     Route::get('users/{user}/stats', [UserController::class, 'getUserStats'])->middleware('can:update,user');
+    Route::get('users/{user}/notifications', [UserController::class, 'getNotifications'])->middleware('can:update,user');
+
 
 
     //Affiliate

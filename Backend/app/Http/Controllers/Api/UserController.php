@@ -103,18 +103,15 @@ class UserController extends Controller
         return response(['error' => 'Energy price is not in a valid format'], 400);
     }
 
-    public function patchUserNotificationsON(Request $request, User $user)
+    public function patchUserNotifications(User $user)
     {
-        $user->notifications = 1;
-        $user->save();
-        return response(['msg' => 'Notifications are turned ON']);
-    }
-
-    public function patchUserNotificationsOFF(Request $request, User $user)
-    {
-        $user->notifications = 0;
-        $user->save();
-        return response(['msg' => 'Notifications are turned ON']);
+        $user->notifications = !$user->notifications;
+        try {
+            $user->save();
+        } catch (Exception $e) {
+            return $e;
+        }
+        return $user->notifications == 0 ? 'OFF' : 'ON';
     }
 
     public function deleteUser(User $user)
@@ -142,6 +139,7 @@ class UserController extends Controller
     }
 
 
+
     public function getUserStats(User $user)
     {
         $equipments = $user->equipments;
@@ -158,4 +156,11 @@ class UserController extends Controller
         $stats->training_examples = $trainCount;
         return $stats;
     }
+
+
+    public function getNotifications(User $user){
+        return $user->notifications == 0 ? 'OFF' : 'ON';
+    }
+
+
 }

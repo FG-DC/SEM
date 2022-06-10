@@ -2,10 +2,25 @@
   <b-container class="mt-2">
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
     <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
-      <div class="mb-3"><b style="color: #191645">Alerts</b></div>
+      <div class="mb-3 d-flex justify-content-between mb-4">
+        <b style="color: #191645">Alerts</b>
+        <v-chip
+          class="ma-2"
+          dark
+          large
+          :color="userNotifications == 'OFF' ? '#f44336' : '#4caf50'"
+          @click="changeUserNotification()"
+        >
+          <span class="p-2">Notifications {{ userNotifications }}</span>
+        </v-chip>
+      </div>
       <v-data-table :headers="headers" :items="equipments" :items-per-page="10">
         <template class="d-flex" v-slot:item.state="{ item }">
-          {{item.notify_when_passed != null ?  item.notify_when_passed + ' minutes' : '' }}
+          {{
+            item.notify_when_passed != null
+              ? item.notify_when_passed + " minutes"
+              : ""
+          }}
         </template>
         <template class="d-flex" v-slot:item.actions="{ item }">
           <b-button
@@ -21,16 +36,14 @@
     <b-modal ref="modalAlert" centered title="Edit email preferences">
       <h6>Equipment: {{ equipment.name }}</h6>
       <div class="d-flex justify-content-center">
-        <span class="m-3"
-          >Alerts
-          <v-chip
-            dark
-            :color="equipment.notify_when_passed > 0 ? '#4caf50' : '#f44336'"
-            @click="changeState(equipment.notify_when_passed )"
-          >
-            {{ equipment.notify_when_passed > 0 ? "ON" : "OFF" }}
-          </v-chip>
-        </span>
+        <v-chip
+          class="m-3"
+          dark
+          :color="equipment.notify_when_passed > 0 ? '#4caf50' : '#f44336'"
+          @click="changeState(equipment.notify_when_passed)"
+        >
+          {{ equipment.notify_when_passed > 0 ? "ON" : "OFF" }}
+        </v-chip>
       </div>
 
       <div v-if="equipment.notify_when_passed" class="mt-3">
@@ -44,7 +57,7 @@
       </div>
       <template #modal-footer class="d-flex">
         <b-button
-          @click="changeNotification()"
+          @click="changeEquipmentNotifications()"
           :disabled="equipment.notify_when_passed && !notificationTime"
         >
           Save
@@ -72,6 +85,7 @@ export default {
   },
   created() {
     this.getEquipments();
+    this.getNotifications();
   },
   data() {
     return {
@@ -79,6 +93,7 @@ export default {
         state: false,
         message: "",
       },
+      userNotifications: "",
       equipment: "",
       notificationTime: "",
       equipments: [],
@@ -90,6 +105,27 @@ export default {
     };
   },
   methods: {
+    getNotifications() {
+      axios
+        .get(`/users/${this.userId}/notifications`)
+        .then((response) => {
+          this.userNotifications = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    changeUserNotification(){
+      axios
+        .patch(`/users/${this.userId}/notifications`)
+        .then((response) => {
+          this.userNotifications = response.data;
+          this.showToastMessage("Notifications " + this.userNotifications) ;
+        })
+        .catch((error) => {
+           this.showToastMessage(response.data.msg);
+        }); 
+    },
     getEquipments() {
       return axios
         .get(`/users/${this.userId}/equipments`)
@@ -100,7 +136,7 @@ export default {
           return Promise.reject(error);
         });
     },
-    changeNotification() {
+    changeEquipmentNotifications() {
       this.hideModal("modalAlert");
       let state = this.equipment.notify_when_passed
         ? this.notificationTime
@@ -111,26 +147,32 @@ export default {
         })
         .then((response) => {
           this.$socket.emit("equipmentUpdate", this.userId);
-          this.toast.message = response.data.msg;
-          this.toast.state = true;
+          this.showToastMessage(response.data.msg);
         })
         .catch((error) => {
-          this.toast.message = response.data.msg;
-          this.toast.state = true;
+          this.showToastMessage(response.data.msg);
           return Promise.reject(error);
         });
     },
     showModal(modal, item) {
-      this.equipment = {...item};
-      this.notificationTime = this.equipment.notify_when_passed ? this.equipment.notify_when_passed : '';
+      this.equipment = { ...item };
+      this.notificationTime = this.equipment.notify_when_passed
+        ? this.equipment.notify_when_passed
+        : "";
       this.$refs[modal].show();
     },
     hideModal(modal) {
       this.$refs[modal].hide();
     },
-    changeState(state){
-        this.equipment.notify_when_passed = this.equipment.notify_when_passed ? false : true
-    }
+    changeState(state) {
+      this.equipment.notify_when_passed = this.equipment.notify_when_passed
+        ? false
+        : true;
+    },
+    showToastMessage(message) {
+      this.toast.message = message;
+      this.toast.state = true;
+    },
   },
 };
 </script>
