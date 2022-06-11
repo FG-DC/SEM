@@ -1,13 +1,16 @@
 <template>
   <v-container class="mt-2">
-
-    <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
-
+    <v-snackbar
+      style="margin-top: 5%"
+      :color="toast.color"
+      top
+      v-model="toast.state"
+      >{{ toast.message }}</v-snackbar
+    >
     <!-- MAIN CARD -->
     <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
-
       <!-- TITLE -->
-      <div class="mb-3"><b style="color:#191645">Equipments</b></div>
+      <div class="mb-3"><b style="color: #191645">Equipments</b></div>
 
       <!-- CREATE EQUIPMENT -->
       <b-button variant="success" @click="showModal('modalAdd', {})">
@@ -31,11 +34,19 @@
         :search="search"
       >
         <template class="d-flex" v-slot:item.actions="{ item }">
-          <b-button variant="primary" style="margin: 2px" @click="showModal('modalEdit', item)">
+          <b-button
+            variant="primary"
+            style="margin: 2px"
+            @click="showModal('modalEdit', item)"
+          >
             <font-awesome-icon icon="fa-solid fa-pen" />
           </b-button>
-          
-          <b-button variant="danger" style="margin: 2px" @click="showModal('modalRemove', item)">
+
+          <b-button
+            variant="danger"
+            style="margin: 2px"
+            @click="showModal('modalRemove', item)"
+          >
             <font-awesome-icon icon="fa-solid fa-trash" size="lg" />
           </b-button>
         </template>
@@ -59,18 +70,25 @@
         centered
         @ok="editEquipment"
       >
+        <template #modal-footer class="d-flex">
+          <b-button
+            variant="primary"
+            :disabled="validateCreate('edit')"
+            @click="editEquipment()"
+          >
+            Save
+          </b-button>
+        </template>
         <div data-app />
-        
+
         <!-- INPUT NAME -->
         <span>Name</span>
-        <v-text-field
-            v-model="equipment.name"
-            solo
-        />
+        <v-text-field v-model="equipment.name" :rules="fieldRequired" solo />
 
         <!-- INPUT TYPE -->
         <span>Type</span>
         <v-select
+          :rules="fieldRequired"
           v-model="equipment.type"
           :items="equipmentTypes"
           item-text="name"
@@ -81,6 +99,7 @@
         <!-- INPUT DIVISION -->
         <span>Division</span>
         <v-select
+          :rules="fieldRequired"
           v-model="equipment.division"
           :items="divisions"
           item-text="name"
@@ -91,41 +110,49 @@
         <!-- INPUT CONSUMPTION -->
         <span>Consumption</span>
         <v-text-field
-            v-model="equipment.consumption"
-            type="number"
-            solo
+          v-model="equipment.consumption"
+          :rules="fieldRequired"
+          type="number"
+          solo
         />
 
         <!-- INPUT ACTIVITY -->
         <span>Activity</span>
         <v-select
           v-model="equipment.activity"
+          :rules="fieldRequired"
           :items="['Yes', 'No']"
           solo
         />
-
       </b-modal>
 
       <!-- MODAL CREATE EQUIPMENT -->
-      <b-modal
-        id="modalAdd"
-        ref="modalAdd"
-        title="Create Equipment"
-        centered
-        @ok="addEquipment"
-      >
+      <b-modal id="modalAdd" ref="modalAdd" title="Create Equipment" centered>
+        <template #modal-footer class="d-flex">
+          <b-button
+            variant="primary"
+            :disabled="validateCreate('create')"
+            @click="addEquipment()"
+          >
+            Create
+          </b-button>
+        </template>
         <div data-app />
 
         <!-- INPUT NAME -->
         <span>Name</span>
         <v-text-field
-            v-model="newEquipment.name"
-            solo
+          label="Ex: Toaster"
+          :rules="fieldRequired"
+          v-model="newEquipment.name"
+          solo
         />
 
         <!-- INPUT TYPE -->
-        <span>Type</span>
+        <span class="p-3">Type</span>
         <v-select
+          :rules="fieldRequired"
+          label="Select a type"
           v-model="newEquipment.type"
           :items="equipmentTypes"
           item-text="name"
@@ -136,6 +163,8 @@
         <!-- INPUT DIVISION -->
         <span>Division</span>
         <v-select
+          :rules="fieldRequired"
+          label="Select a division"
           v-model="newEquipment.division"
           :items="divisions"
           item-text="name"
@@ -146,14 +175,18 @@
         <!-- INPUT CONSUMPTION -->
         <span>Consumption</span>
         <v-text-field
-            v-model="newEquipment.consumption"
-            type="number"
-            solo
+          :rules="fieldRequired"
+          label="Equipment consumption (watts)"
+          v-model="newEquipment.consumption"
+          type="number"
+          solo
         />
 
         <!-- INPUT ACTIVITY -->
         <span>Activity</span>
         <v-select
+          :rules="fieldRequired"
+          label="Equipment needs human intervention?"
           v-model="newEquipment.activity"
           :items="['Yes', 'No']"
           solo
@@ -203,9 +236,11 @@ export default {
         id: null,
       },
       toast: {
-        message: null,
         state: false,
+        message: "",
+        color: "",
       },
+      fieldRequired: [(v) => !!v || "Field required"],
     };
   },
   computed: {
@@ -229,45 +264,51 @@ export default {
   methods: {
     showModal(modal, item) {
       this.newEquipment = {
-        name: '',
-        consumption: '',
-        activity: '',
-        division_id: '',
-        equipment_type_id: '',
-        type: '',
-        division: '',
+        name: "",
+        consumption: "",
+        activity: "",
+        division_id: "",
+        equipment_type_id: "",
+        type: "",
+        division: "",
       };
-      
+
       this.equipment = { ...item };
-      
+
       this.$refs[modal].show();
     },
     formatDate(dateStr, withFullDate) {
-      if (dateStr == null || dateStr == "")
-        return "";
+      if (dateStr == null || dateStr == "") return "";
 
-      let date = new Date(dateStr.toString().length == 10 ? dateStr * 1000 : dateStr);
+      let date = new Date(
+        dateStr.toString().length == 10 ? dateStr * 1000 : dateStr
+      );
       let formatedDate = "";
 
-      formatedDate = date.toLocaleDateString('pt', { timeZone: 'Europe/Lisbon' });
+      formatedDate = date.toLocaleDateString("pt", {
+        timeZone: "Europe/Lisbon",
+      });
 
-      if (!withFullDate)
-        return formatedDate;
-      
-      return formatedDate + " " + date.toLocaleTimeString('pt-PT', { timeZone: 'Europe/Lisbon' });
+      if (!withFullDate) return formatedDate;
+
+      return (
+        formatedDate +
+        " " +
+        date.toLocaleTimeString("pt-PT", { timeZone: "Europe/Lisbon" })
+      );
     },
     timeDiff(timeStr) {
-      let time = (new Date(timeStr)).getTime();
-      let now = (new Date()).getTime() - 3600000;
+      let time = new Date(timeStr).getTime();
+      let now = new Date().getTime() - 3600000;
 
       let diffSecs = parseInt((now - time) / 1000);
       if (diffSecs < 60) return `${diffSecs}s`;
 
-      let diffMin = parseInt(diffSecs / 60)
-      if (diffMin < 60) return `${diffMin}m${diffSecs % 60}s`
+      let diffMin = parseInt(diffSecs / 60);
+      if (diffMin < 60) return `${diffMin}m${diffSecs % 60}s`;
 
-      let diffHours = parseInt(diffMin / 60)
-      return `${diffHours}h${diffMin % 60}m${diffSecs % 60}s`
+      let diffHours = parseInt(diffMin / 60);
+      return `${diffHours}h${diffMin % 60}m${diffSecs % 60}s`;
     },
     getEquipments() {
       return axios
@@ -280,9 +321,9 @@ export default {
             let currStatus = this.timeDiff(item.init_status_on);
             return {
               ...item,
-              status: currStatus
-            }
-          })
+              status: currStatus,
+            };
+          });
         })
         .catch((error) => {
           return Promise.reject(error);
@@ -309,6 +350,15 @@ export default {
         });
     },
     editEquipment() {
+      this.hideModal("modalEdit");
+
+      if (this.equipment.name.trim() == "") {
+        this.showToastMessage(
+          "To add a division please provide the required fields",
+          "#333333"
+        );
+        return;
+      }
       axios
         .put(`/users/${this.userId}/equipments/${this.equipment.id}`, {
           name: this.equipment.name,
@@ -318,11 +368,14 @@ export default {
           equipment_type_id: this.equipment.type,
         })
         .then(() => {
-          this.$socket.emit("equipmentUpdate",this.userId);
-          this.showToastMessage('Equipment was edited successfully');
+          this.$socket.emit("equipmentUpdate", this.userId);
+          this.showToastMessage("Equipment was edited successfully", "#0d6efd");
         })
         .catch((error) => {
-          this.showToastMessage('There was an error editing the device');
+          this.showToastMessage(
+            "There was an error editing the device",
+            "#333333"
+          );
           console.log(error);
         });
     },
@@ -330,14 +383,22 @@ export default {
       axios
         .delete(`/users/${this.userId}/equipments/${this.equipment.id}`)
         .then(() => {
-          this.$socket.emit("equipmentUpdate",this.userId);
-          this.showToastMessage(`${this.equipment.name} was deleted successfully`);
+          this.$socket.emit("equipmentUpdate", this.userId);
+          this.showToastMessage(
+            `${this.equipment.name} was deleted successfully`,
+            "#dd2929"
+          );
         })
         .catch((error) => {
-          this.showToastMessage('There was an error removing the device');
+          this.showToastMessage(
+            "There was an error removing the device",
+            "#333333"
+          );
         });
     },
     addEquipment() {
+      this.hideModal("modalAdd");
+
       axios
         .post(`/users/${this.userId}/equipments`, {
           name: this.newEquipment.name,
@@ -347,17 +408,37 @@ export default {
           equipment_type_id: this.newEquipment.type,
         })
         .then(() => {
-          this.$socket.emit("equipmentUpdate",this.userId);
-          this.showToastMessage('Equipment was added successfully');
+          this.$socket.emit("equipmentUpdate", this.userId);
+          this.showToastMessage("Equipment was added successfully", "#4caf50");
         })
         .catch((error) => {
-          this.showToastMessage('There was an error adding the device');
+          this.showToastMessage(
+            "There was an error adding the device",
+            "#333333"
+          );
         });
     },
-    showToastMessage(message) {
+    showToastMessage(message, color) {
+      this.toast.color = color;
       this.toast.message = message;
       this.toast.state = true;
-    }
+    },
+    validateCreate(type) {
+      let item = type == "create" ? this.newEquipment : this.equipment;
+      if (
+        item.name == "" ||
+        item.consumption == "" ||
+        item.activity == "" ||
+        item.division == "" ||
+        item.type == ""
+      ) {
+        return true;
+      }
+      return false;
+    },
+    hideModal(modal) {
+      this.$refs[modal].hide();
+    },
   },
 };
 </script>

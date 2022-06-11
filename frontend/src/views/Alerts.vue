@@ -1,6 +1,12 @@
 <template>
   <b-container class="mt-2">
-    <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
+    <v-snackbar
+      style="margin-top: 5%"
+      :color="toast.color"
+      top
+      v-model="toast.state"
+      >{{ toast.message }}</v-snackbar
+    >
     <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
       <div class="mb-3 d-flex justify-content-between mb-4">
         <b style="color: #191645">Alerts</b>
@@ -92,6 +98,7 @@ export default {
       toast: {
         state: false,
         message: "",
+        color: "",
       },
       userNotifications: "",
       equipment: "",
@@ -115,16 +122,20 @@ export default {
           console.log(error);
         });
     },
-    changeUserNotification(){
+    changeUserNotification() {
       axios
         .patch(`/users/${this.userId}/notifications`)
         .then((response) => {
           this.userNotifications = response.data;
-          this.showToastMessage("Notifications " + this.userNotifications) ;
+
+          this.showToastMessage(
+            "Notifications " + this.userNotifications,
+            this.userNotifications == "ON" ? "#4caf50" : "#dd2929"
+          );
         })
         .catch((error) => {
-           this.showToastMessage(response.data.msg);
-        }); 
+          this.showToastMessage(response.data.msg, "#333333");
+        });
     },
     getEquipments() {
       return axios
@@ -146,11 +157,15 @@ export default {
           notify_when_passed: state,
         })
         .then((response) => {
+          console.log(state)
           this.$socket.emit("equipmentUpdate", this.userId);
-          this.showToastMessage(response.data.msg);
+          this.showToastMessage(
+            response.data.msg,
+            state == null ? "#dd2929" : "#4caf50"
+          );
         })
         .catch((error) => {
-          this.showToastMessage(response.data.msg);
+          this.showToastMessage(error, "#333333");
           return Promise.reject(error);
         });
     },
@@ -169,7 +184,8 @@ export default {
         ? false
         : true;
     },
-    showToastMessage(message) {
+    showToastMessage(message, color) {
+      this.toast.color = color;
       this.toast.message = message;
       this.toast.state = true;
     },

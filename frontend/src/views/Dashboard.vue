@@ -9,7 +9,7 @@
           <span>{{consumptionValue}}</span>
           <span style="font-size:3vw">W</span>
         </div>
-        <div class="text-footer">{{consumptionTime}}</div>
+      <div class="text-footer ">{{consumptionTime}}</div>
       </v-card>
       <v-card elevation="6" class="flex-grow-1 card-selectable" style="border-radius: 10px;margin-left: 20px; padding-right: 2vw" @click="showModal(3)">
         <div class="text-card">

@@ -1,6 +1,12 @@
 <template>
   <v-container class="mt-2">
-    <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
+    <v-snackbar
+      style="margin-top: 5%"
+      :color="toast.color"
+      top
+      v-model="toast.state"
+      >{{ toast.message }}</v-snackbar
+    >
     <!-- MAIN CARD -->
     <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
       <!-- TITLE -->
@@ -11,7 +17,8 @@
           class="flex-grow-1"
           solo
           v-model="newDivisionName"
-          label="New Division"
+          label="Ex: Office"
+          :rules="nameRules"
         />
         <b-button class="action-button" variant="success" @click="addDivision">
           <font-awesome-icon icon="fa-solid fa-plus" size="lg" />
@@ -70,12 +77,12 @@
       ref="modalEdit"
       :title="'Edit Division ' + division.name"
       centered
-      @ok="editDivision(newDivisionName)"
+      @ok="editDivision(editDivisionName)"
     >
       <v-text-field
-        v-model="newDivisionName"
-        label="New Division Name"
-        hide-details="auto"
+        :rules="nameRules"
+        v-model="editDivisionName"
+        label="New division Name"
         solo
       ></v-text-field>
     </b-modal>
@@ -101,6 +108,10 @@ export default {
   },
   data() {
     return {
+      nameRules: [
+        (v) => !!v || "Name is required",
+        (v) => (v && v.length <= 255) || "Name must be less than 10 characters",
+      ],
       headers: [
         { text: "Name", value: "name" },
         { text: "", value: "actions", sortable: false },
@@ -108,11 +119,14 @@ export default {
       search: "",
       divisions: [],
       newDivisionName: "",
+      editDivisionName: "",
       division: { name: "", id: null },
       toast: {
-        message: null,
         state: false,
+        message: "",
+        color: "",
       },
+      valid: true,
     };
   },
   created() {
@@ -137,14 +151,17 @@ export default {
     editDivision() {
       return axios
         .put(`/users/${this.userId}/divisions/${this.division.id}`, {
-          name: this.newDivisionName,
+          name: this.editDivisionName,
         })
         .then(() => {
-          this.$socket.emit("divisionUpdate",this.userId);
-          this.showToastMessage("Division was renamed successfully");
+          this.$socket.emit("divisionUpdate", this.userId);
+          this.showToastMessage("Division was renamed successfully", "#0d6efd");
         })
         .catch((error) => {
-          this.showToastMessage("Error trying to edit this division");
+          this.showToastMessage(
+            "Error trying to edit this division",
+            "#333333"
+          );
           return Promise.reject(error);
         });
     },
@@ -152,32 +169,42 @@ export default {
       return axios
         .delete(`/users/${this.userId}/divisions/${this.division.id}`)
         .then(() => {
-          this.$socket.emit("divisionUpdate",this.userId);
+          this.$socket.emit("divisionUpdate", this.userId);
           this.showToastMessage(
-            `${this.division.name} was deleted successfully`
+            `${this.division.name} was deleted successfully`,
+            "#dd2929"
           );
         })
         .catch((e) => {
-          this.showToastMessage(e.response.data.error);
+          this.showToastMessage(e.response.data.error, "#333333");
           return Promise.reject(e);
         });
     },
     addDivision() {
+      if (this.newDivisionName.trim() == "") {
+        this.showToastMessage(
+          "To add a division please provide a name to it",
+          "#333333"
+        );
+        return;
+      }
       return axios
         .post(`/users/${this.userId}/divisions`, { name: this.newDivisionName })
         .then(() => {
-          this.$socket.emit("divisionUpdate",this.userId);
+          this.$socket.emit("divisionUpdate", this.userId);
           this.showToastMessage(
-            `${this.newDivisionName} was added successfully`
+            `${this.newDivisionName} was added successfully`,
+            "#4caf50"
           );
           this.newDivisionName = "";
         })
         .catch((error) => {
-          this.showToastMessage("Error trying to add this division");
+          this.showToastMessage("Error trying to add this division", "#333333");
           return Promise.reject(error);
         });
     },
-    showToastMessage(message) {
+    showToastMessage(message, color) {
+      this.toast.color = color;
       this.toast.message = message;
       this.toast.state = true;
     },

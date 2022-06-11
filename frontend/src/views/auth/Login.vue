@@ -1,11 +1,13 @@
 <template>
   <b-container class="top">
+    <v-snackbar style="margin-top: 5%" top v-model="toast.state">{{
+      toast.message
+    }}</v-snackbar>
     <v-card class="center card">
       <div class="text-center center w-75 mt-5">
         <img src="../../assets/logo3.png" class="mb-5 img" />
 
-        <v-text-field v-model="email" label="Email" required solo>
-        </v-text-field>
+        <v-text-field v-model="email" label="Email" solo> </v-text-field>
 
         <v-text-field
           solo
@@ -42,9 +44,14 @@ export default {
     return {
       email: "",
       password: "",
-      errors: null,
+      errors: { username: "", password: "" },
       showPassw: false,
       password: "",
+      toast: {
+        state: false,
+        message: "",
+        color: "",
+      },
     };
   },
   methods: {
@@ -60,11 +67,23 @@ export default {
           });
         })
         .catch((error) => {
+          if ("username" in error.response.data) {
+            this.showToastMessage(error.response.data.username, "#333333");
+          } else if ("password" in error.response.data) {
+            this.showToastMessage(error.response.data.password, "#333333");
+          } else {
+            this.showToastMessage(error.response.data.error, "#333333");
+          }
           localStorage.removeItem("access_token");
           localStorage.removeItem("username");
           delete axios.defaults.headers.common.Authorization;
-          this.errors = error;
+          console.log(error);
         });
+    },
+    showToastMessage(message, color) {
+      this.toast.color = color;
+      this.toast.message = message;
+      this.toast.state = true;
     },
     onReset() {
       this.email = null;

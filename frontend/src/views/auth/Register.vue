@@ -1,5 +1,8 @@
 <template>
   <b-container class="top">
+    <v-snackbar :color="toast.color" top v-model="toast.state">{{
+      toast.message
+    }}</v-snackbar>
     <v-card class="center card">
       <div class="text-center center w-75 mt-5">
         <img src="../../assets/logo3.png" class="mb-5 img" />
@@ -49,6 +52,11 @@ export default {
       password: "",
       errors: null,
       showPassw: false,
+      toast: {
+        state: false,
+        message: "",
+        color: "",
+      },
     };
   },
   methods: {
@@ -57,7 +65,7 @@ export default {
         .post("users", {
           name: this.name,
           email: this.email,
-          birthdate: this.formatDate(this.birthdate), //String(this.birthdate).replaceAll(/-/g,"/"),
+          birthdate: this.formatDate(this.birthdate),
           password: this.password,
         })
         .then(async () => {
@@ -70,7 +78,32 @@ export default {
           });
         })
         .catch((error) => {
-          console.log("Error");
+          if ("name" in error.response.data.errors) {
+            this.showToastMessage(
+              error.response.data.errors.name[0],
+              "#333333"
+            );
+          } else if ("email" in error.response.data.errors) {
+            this.showToastMessage(
+              error.response.data.errors.email[0],
+              "#333333"
+            );
+          } else if ("password" in error.response.data.errors) {
+            this.showToastMessage(
+              error.response.data.errors.password[0],
+              "#333333"
+            );
+          } else if ("birthdate" in error.response.data.errors) {
+            this.showToastMessage(
+              error.response.data.errors.birthdate[0],
+              "#333333"
+            );
+          } else {
+            this.showToastMessage(
+              "There has been a problem signing up",
+              "#333333"
+            );
+          }
         });
     },
     formatDate(date) {
@@ -79,6 +112,11 @@ export default {
     onReset() {
       this.email = null;
       this.password = null;
+    },
+    showToastMessage(message, color) {
+      this.toast.color = color;
+      this.toast.message = message;
+      this.toast.state = true;
     },
   },
 };

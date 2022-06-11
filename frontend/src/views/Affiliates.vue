@@ -1,7 +1,12 @@
 <template>
   <b-container class="mt-2">
-    <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
-
+    <v-snackbar
+      style="margin-top: 5%"
+      :color="toast.color"
+      top
+      v-model="toast.state"
+      >{{ toast.message }}</v-snackbar
+    >
     <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
       <!-- TITLE -->
       <span class="mb-3"><b style="color: #191645">Affiliates</b></span>
@@ -15,10 +20,12 @@
             solo
             v-model="email"
             label="E-mail"
+            :rules="fieldRequired"
           />
           <b-button
             class="action-button"
             variant="success"
+            :disabled="!email"
             @click="buttonAddClicked"
           >
             <b-spinner
@@ -81,10 +88,12 @@ export default {
       toast: {
         state: false,
         message: "",
+        color: "",
       },
       isLoading: {
         btnAdd: false,
       },
+      fieldRequired: [(v) => !!v || "Field required"],
     };
   },
   computed: {
@@ -142,11 +151,12 @@ export default {
           this.isLoading.btnAdd = false;
           this.isLoading = { ...this.isLoading };
           this.email = "";
+          this.showToastMessage("Affiliate added with success", "#4caf50");
         })
         .catch((error) => {
           this.isLoading.btnAdd = false;
           this.isLoading = { ...this.isLoading };
-          this.showToastMessage(error.response.data.errors.email[0]);
+          this.showToastMessage(error.response.data.errors.email[0], "#333333");
         });
     },
     buttonRemoveClicked(id) {
@@ -156,14 +166,16 @@ export default {
         .then(() => {
           this.isLoading[`${id}`] = false;
           this.isLoading = { ...this.isLoading };
+          this.showToastMessage("Affiliate removed with success", "#dd2929");
         })
         .catch((error) => {
           this.isLoading[`${id}`] = false;
           this.isLoading = { ...this.isLoading };
-          this.showToastMessage(error);
+          this.showToastMessage(error, "#333333");
         });
     },
-    showToastMessage(message) {
+    showToastMessage(message, color) {
+      this.toast.color = color;
       this.toast.message = message;
       this.toast.state = true;
     },
