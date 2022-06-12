@@ -1,46 +1,81 @@
 <template>
-  <div class="container mt-2 text-center" style="user-select:none">
-    <v-card elevation="20" class="flex-grow-1 card-selectable" style="border-radius: 10px" @click="showDashboardModal">
-      <span style="font-size:2rem;font-weight: 400;color:#191645'">{{'Dashboard of ' + user.name}}</span>
+  <div class="container mt-2 text-center" style="user-select: none">
+    <v-card
+      elevation="20"
+      class="flex-grow-1 card-selectable"
+      style="border-radius: 10px"
+      @click="showDashboardModal"
+    >
+      <span style="font-size:2rem;font-weight: 400;color:#191645'">{{
+        "Dashboard of " + user.name
+      }}</span>
     </v-card>
     <div class="d-flex flex-wrap mt-4">
-      <v-card elevation="6" class="flex-grow-1 card-selectable" style="border-radius: 10px;" @click="showModal(0)">
+      <v-card
+        elevation="6"
+        class="flex-grow-1 card-selectable"
+        style="border-radius: 10px"
+        @click="showModal(0)"
+      >
         <div class="text-card">
-          <span>{{consumptionValue}}</span>
-          <span style="font-size:3vw">W</span>
+          <span>{{ consumptionValue }}</span>
+          <span style="font-size: 3vw">W</span>
         </div>
-      <div class="text-footer ">{{consumptionTime}}</div>
+        <div class="text-footer">{{ consumptionTime }}</div>
       </v-card>
-      <v-card elevation="6" class="flex-grow-1 card-selectable" style="border-radius: 10px;margin-left: 20px; padding-right: 2vw" @click="showModal(3)">
+      <v-card
+        elevation="6"
+        class="flex-grow-1 card-selectable"
+        style="border-radius: 10px; margin-left: 20px; padding-right: 2vw"
+        @click="showModal(3)"
+      >
         <div class="text-card">
-          <span>{{kWh.value}}</span>
-          <span style="font-size:3vw">kWh</span>
+          <span>{{ kWh.value }}</span>
+          <span style="font-size: 3vw">kWh</span>
         </div>
         <div class="d-flex justify-content-between">
-          <div class="text-footer">{{kWh.timestamp}}</div>
-          <div style="margin-left: 2vw;">{{(user.energy_price * kWh.value).toFixed(2)}}€</div>
+          <div class="text-footer">{{ kWh.timestamp }}</div>
+          <div style="margin-left: 2vw">
+            {{ (user.energy_price * kWh.value).toFixed(2) }}€
+          </div>
         </div>
       </v-card>
     </div>
-    <v-card class="mt-4 card-selectable" elevation="6" style="border-radius: 10px;" @click="showModal(1)">
+    <v-card
+      class="mt-4 card-selectable"
+      elevation="6"
+      style="border-radius: 10px"
+      @click="showModal(1)"
+    >
       <div class="text-card">
-        <font-awesome-icon icon="fa-solid fa-location-dot" style="margin-right: 2vw;" />
-        <span>{{divisionValue}}</span>
+        <font-awesome-icon
+          icon="fa-solid fa-location-dot"
+          style="margin-right: 2vw"
+        />
+        <span>{{ divisionValue }}</span>
       </div>
-      <div class="text-footer">{{divisionTime}}</div>
+      <div class="text-footer">{{ divisionTime }}</div>
     </v-card>
-    <v-card class="mt-4 card-selectable" elevation="3" style="border-radius: 10px" @click="showModal(2)">
+    <v-card
+      class="mt-4 card-selectable"
+      elevation="3"
+      style="border-radius: 10px"
+      @click="showModal(2)"
+    >
       <div class="text-card">
-        <font-awesome-icon icon="fa-solid fa-plug-circle-bolt" style="margin-right: 2vw;" />
-        <span>{{equipmentValue}}</span>
+        <font-awesome-icon
+          icon="fa-solid fa-plug-circle-bolt"
+          style="margin-right: 2vw"
+        />
+        <span>{{ equipmentValue }}</span>
       </div>
-      <div class="text-footer">{{equipmentTime}}</div>
+      <div class="text-footer">{{ equipmentTime }}</div>
     </v-card>
 
     <!-- MODAL -->
     <b-modal ref="graph-modal" hide-footer centered size="xl">
       <template #modal-title>
-        {{modalTitle}}
+        {{ modalTitle }}
       </template>
 
       <div data-app></div>
@@ -66,32 +101,50 @@
 
     <!-- MODAL -->
     <b-modal ref="division-modal" hide-footer centered size="xl">
-
       <template #modal-title>
-        {{modalTitle}}
+        {{ modalTitle }}
       </template>
 
-      <v-card v-for="item,idx in division.value" :key="idx" class="mt-2" elevation="6" style="border-radius: 10px" @click="">
+      <v-card
+        v-for="(item, idx) in division.value"
+        :key="idx"
+        class="mt-2"
+        elevation="6"
+        style="border-radius: 10px"
+        @click=""
+      >
         <div class="text-card-modal text-center p-2">
-          <span>{{item.name}}</span>
+          <span>{{ item.name }}</span>
         </div>
       </v-card>
-
     </b-modal>
 
     <!-- MODAL -->
     <b-modal ref="user-modal" hide-footer centered size="xl">
-    
-      <template #modal-title>
-        Dashboard
-      </template>
+      <template #modal-title> Dashboard </template>
 
-      <v-card v-for="item,idx in users" :key="idx" class="mt-2" elevation="6" style="border-radius: 10px" v-if="item.id != user.id" @click="changeUser(item)">
+      <v-card
+        v-for="(item, idx) in users"
+        :key="idx"
+        class="mt-2"
+        elevation="6"
+        style="border-radius: 10px"
+        v-if="item.id != user.id"
+        @click="changeUser(item)"
+      >
         <div class="text-card-modal text-center p-2">
-          <span>{{(item.id == userId ? '(Me) ' : '') + item.name}}</span>
+          <span>{{ (item.id == userId ? "(Me) " : "") + item.name }}</span>
         </div>
       </v-card>
+    </b-modal>
 
+    <b-modal ref="getStartedModal" title="Get Started" centered>
+      <span class="getStartedModal"
+        >Hi there! <br />You are currently in the dashboard page where you will
+        can see the most varied informations! <br />To start using the system
+        corretly you will have to do its configuration. To do that please
+        access the <b><router-link :to="{name:'settings'}">Settings Page</router-link> </b> marked with a red mark.
+      </span>
     </b-modal>
   </div>
 </template>
@@ -112,19 +165,19 @@ export default {
       //LAST DATA
       consumption: {
         value: 0,
-        timestamp: ""
+        timestamp: "",
       },
       division: {
         value: [],
-        timestamp: ""
+        timestamp: "",
       },
       equipment: {
         value: [],
-        timestamp: "" 
+        timestamp: "",
       },
       kWh: {
         value: 0,
-        timestamp: "" 
+        timestamp: "",
       },
 
       chartOptions: {},
@@ -138,7 +191,7 @@ export default {
       user: {},
 
       users: [],
-      userSelected: {}
+      userSelected: {},
     };
   },
   computed: {
@@ -169,7 +222,7 @@ export default {
     },
     equipmentTime() {
       if (!this.equipment.timestamp) return "";
-      
+
       return this.formatDate(this.equipment.timestamp, true);
     },
     modalTitle() {
@@ -178,16 +231,17 @@ export default {
       if (this.cardClicked === 1) return "Divisions With Activity";
       if (this.cardClicked === 2) return "Equipments Activity";
       if (this.cardClicked === 3) return "Monthly kWh";
-    }
+    },
   },
   async created() {
+    await this.$store.dispatch("fillStore");
+    if(this.get_started == 0)
+      this.showModal(4);
     //MQTT
     //-> Connect to the MQTT Broker
     mqtt.connect(this.onMessage);
     //-> Subscribe to topics
     mqtt.subscribe([this.userId + "/power", this.userId + "/observation"]);
-
-    this.$store.dispatch("fillStore");
 
     await this.getAuthUser();
     this.getAffiliates();
@@ -207,29 +261,29 @@ export default {
       //LAST DATA
       this.consumption = {
         value: 0,
-        timestamp: ""
+        timestamp: "",
       };
       this.division = {
         value: [],
-        timestamp: ""
+        timestamp: "",
       };
       this.equipment = {
         value: [],
-        timestamp: "" 
+        timestamp: "",
       };
       this.kWh = {
         value: 0,
-        timestamp: "" 
+        timestamp: "",
       };
     },
     async onMessage(topic, message) {
-      switch(topic) {
+      switch (topic) {
         //TOPIC: #/POWER
-        case(this.user.id + "/power"):
+        case this.user.id + "/power":
           this.consumption = {
             value: message,
-            timestamp: new Date()
-          }
+            timestamp: new Date(),
+          };
           this.addToArray(this.consumptions, this.consumption);
 
           if (this.cardClicked == 0) {
@@ -238,7 +292,7 @@ export default {
           break;
 
         //TOPIC: #/OBSERVATION
-        case(this.user.id + "/observation"):
+        case this.user.id + "/observation":
           await this.getLastNObservations(1);
 
           if (this.cardClicked == 2) {
@@ -252,18 +306,18 @@ export default {
         chart: {
           id: "chart",
           type: this.cardClicked == 3 ? "bar" : "area",
-          stacked: true
+          stacked: true,
         },
         dataLabels: {
-          enabled: false
+          enabled: false,
         },
         xaxis: {
           categories: [], // TIMESTAMP VALUES
           labels: {
-            show: this.cardClicked == 3
+            show: this.cardClicked == 3,
           },
         },
-      }
+      };
       this.chartSeries = [];
     },
     loadChart(collection) {
@@ -271,19 +325,21 @@ export default {
 
       //LOAD TIMESTAMPS
       this.chartOptions.xaxis.categories = collection.map((item) => {
-        return this.cardClicked == 3 ? item.timestamp : this.formatDate(item.timestamp, true);
+        return this.cardClicked == 3
+          ? item.timestamp
+          : this.formatDate(item.timestamp, true);
       });
 
       //LOAD SERIES
       //-> 1 Serie
       let array = collection.map((item) => {
         return item.value;
-      })
+      });
 
       if (!Array.isArray(collection[0].value)) {
         this.chartSeries.push({
           name: "",
-          data: array
+          data: array,
         });
 
         return;
@@ -295,7 +351,7 @@ export default {
       mapIdToName.forEach((value, key) => {
         const serie = {
           name: value,
-          data: new Array(collection.length).fill(0)
+          data: new Array(collection.length).fill(0),
         };
         this.chartSeries.push(serie);
         mapIdToSerie.set(key, serie);
@@ -305,23 +361,28 @@ export default {
         item.value.forEach((equipment) => {
           const serie = mapIdToSerie.get(equipment.id);
           serie.data[index] = equipment.value;
-        })
+        });
       });
-
     },
     formatDate(dateStr, withFullDate) {
-      if (dateStr == null || dateStr == "")
-        return "";
+      if (dateStr == null || dateStr == "") return "";
 
-      let date = new Date(dateStr.toString().length == 10 ? dateStr * 1000 : dateStr);
+      let date = new Date(
+        dateStr.toString().length == 10 ? dateStr * 1000 : dateStr
+      );
       let formatedDate = "";
 
-      formatedDate = date.toLocaleDateString('pt', { timeZone: 'Europe/Lisbon' });
+      formatedDate = date.toLocaleDateString("pt", {
+        timeZone: "Europe/Lisbon",
+      });
 
-      if (!withFullDate)
-        return formatedDate;
-      
-      return formatedDate + " " + date.toLocaleTimeString('pt-PT', { timeZone: 'Europe/Lisbon' });
+      if (!withFullDate) return formatedDate;
+
+      return (
+        formatedDate +
+        " " +
+        date.toLocaleTimeString("pt-PT", { timeZone: "Europe/Lisbon" })
+      );
     },
     addToArray(array, obj) {
       const MAX_ITEMS_ON_ARRAY = 100;
@@ -340,8 +401,8 @@ export default {
           for (let i = data.length - 1; i >= 0; i--) {
             this.consumption = {
               value: data[i].value,
-              timestamp: data[i].timestamp
-            }
+              timestamp: data[i].timestamp,
+            };
             this.addToArray(this.consumptions, this.consumption);
           }
         })
@@ -364,14 +425,14 @@ export default {
             //DIVISIONS
             this.division = {
               value: observation.expected_divisions,
-              timestamp: consumption.timestamp
-            }
+              timestamp: consumption.timestamp,
+            };
             this.addToArray(this.divisions, this.division);
 
             //EQUIPMENTS
             this.equipment = {
               value: [],
-              timestamp: consumption.timestamp
+              timestamp: consumption.timestamp,
             };
 
             observation.equipments.forEach((item) => {
@@ -381,7 +442,7 @@ export default {
                 id: item.id,
                 name: item.name,
                 value: item.consumption,
-                division: item.division
+                division: item.division,
               });
             });
 
@@ -398,10 +459,9 @@ export default {
         .get(`/user`)
         .then((response) => {
           this.user = response.data;
-          this.users = [ this.user ];
+          this.users = [this.user];
         })
         .catch((error) => {
-          
           return Promise.reject(error);
         });
     },
@@ -409,7 +469,7 @@ export default {
       return axios
         .get(`/users/${this.userId}/affiliates`)
         .then((response) => {
-          this.users = [...this.users, ...response.data]
+          this.users = [...this.users, ...response.data];
         })
         .catch((error) => {
           return Promise.reject(error);
@@ -422,7 +482,9 @@ export default {
           this.kWhs = response.data.reverse();
 
           this.kWh = this.kWhs[this.kWhs.length - 1];
-          this.kWh.value = Math.round(parseFloat(this.kWh.value.replaceAll(',','')) * 100) / 100;
+          this.kWh.value =
+            Math.round(parseFloat(this.kWh.value.replaceAll(",", "")) * 100) /
+            100;
         })
         .catch((error) => {
           return Promise.reject(error);
@@ -433,34 +495,33 @@ export default {
 
       switch (cardNumber) {
         case 0:
-          if (this.consumptions.length == 0)
-            return;
-          
-          this.loadChart(this.consumptions)
-          this.$refs['graph-modal'].show();
+          if (this.consumptions.length == 0) return;
+
+          this.loadChart(this.consumptions);
+          this.$refs["graph-modal"].show();
           break;
 
         case 1:
-          if (this.division.value.length == 0)
-            return;
+          if (this.division.value.length == 0) return;
 
-          this.$refs['division-modal'].show();
+          this.$refs["division-modal"].show();
           break;
 
         case 2:
-          if (this.equipments.length == 0)
-            return;
-          
-          this.loadChart(this.equipments)
-          this.$refs['graph-modal'].show();
+          if (this.equipments.length == 0) return;
+
+          this.loadChart(this.equipments);
+          this.$refs["graph-modal"].show();
           break;
-        
+
         case 3:
-          if (this.kWhs.length == 0)
-            return;
-          
-          this.loadChart(this.kWhs)
-          this.$refs['graph-modal'].show();
+          if (this.kWhs.length == 0) return;
+
+          this.loadChart(this.kWhs);
+          this.$refs["graph-modal"].show();
+          break;
+        case 4:
+          this.$refs["getStartedModal"].show();
           break;
       }
     },
@@ -476,7 +537,7 @@ export default {
       return map;
     },
     refreshDivisionsFilterContent() {
-      const array = ['All Divisions'];
+      const array = ["All Divisions"];
 
       this.equipments.forEach((list) => {
         list.value.forEach((item) => {
@@ -488,28 +549,29 @@ export default {
     },
     getFilteredEquipments() {
       const equipmentsClone = JSON.parse(JSON.stringify(this.equipments));
-      
-      if (this.divisionSelected == 'All Divisions') {
+
+      if (this.divisionSelected == "All Divisions") {
         return equipmentsClone;
       }
-      
+
       //EACH OBSERVATION
       equipmentsClone.forEach((observation) => {
-        
         //EACH OBSERVATION EQUIPMENT
         observation.value = observation.value.filter((obsEquipment) => {
           return obsEquipment.division == this.divisionSelected;
-        })
-
-      })
+        });
+      });
 
       return equipmentsClone;
     },
     changeUser(selected) {
-      mqtt.unsubscribe([this.user.id + "/power", this.user.id + "/observation"]);
+      mqtt.unsubscribe([
+        this.user.id + "/power",
+        this.user.id + "/observation",
+      ]);
       this.initEnv();
-      this.$refs['user-modal'].hide();
-      
+      this.$refs["user-modal"].hide();
+
       this.user = selected;
       mqtt.subscribe([this.user.id + "/power", this.user.id + "/observation"]);
       this.getKWhs();
@@ -517,34 +579,33 @@ export default {
       this.getLastNObservations(12);
     },
     showDashboardModal() {
-      if (this.users.length > 1)
-        this.$refs['user-modal'].show();
-    }
+      if (this.users.length > 1) this.$refs["user-modal"].show();
+    },
   },
   watch: {
     divisionSelected(newVal, oldVal) {
       this.loadChart(this.getFilteredEquipments());
-    } 
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
 .text-card {
   font-size: 5.5vw;
-  color:#191645
+  color: #191645;
 }
 
 .text-card-modal {
   font-size: 30px;
-  color:#191645
+  color: #191645;
 }
 
 .text-footer {
   color: grey;
   text-align: left;
   margin-left: 2vw;
-  padding-bottom: 1vh; 
+  padding-bottom: 1vh;
   font-size: 16px;
 }
 
@@ -578,5 +639,9 @@ h3 {
 .card-selectable:hover {
   transform: scale(1.02);
   z-index: 1;
+}
+
+.getStartedModal{
+  font-size: 20px;
 }
 </style>

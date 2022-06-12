@@ -239,7 +239,6 @@ export default {
     },
   },
   async created() {
-    this.$store.dispatch("fillStore");
 
     //MQTT
     //-> Add topics to subscribe

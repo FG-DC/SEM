@@ -261,7 +261,6 @@ export default {
     };
   },
   created() {
-    this.$store.dispatch("fillStore");
     let divisions = ["Bathroom", "Bedroom", "Living Room", "Kitchen"];
 
     let equipments = [

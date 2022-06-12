@@ -1,5 +1,5 @@
 <template>
-  <v-container class="text-center mt-2" style="color: black; user-select:none" >
+  <v-container class="text-center mt-2" style="color: black; user-select: none">
     <v-card
       @click="$router.push({ name: 'divisions' })"
       elevation="6"
@@ -73,6 +73,13 @@
         </b-row>
       </b-container>
     </v-card>
+    <b-modal ref="getStartedModal" title="Get Started" hide-footer centered>
+      <span class="getStartedModal"
+        >This is the <router-link :to="{name:'divisions'}">Divisions Page</router-link>, here is where you'll start the
+        configuration of your system.<br />
+        Press on the Divisions tab to get started
+      </span>
+    </b-modal>
   </v-container>
 </template>
 
@@ -95,6 +102,7 @@ export default {
   },
   async created() {
     await this.getStats();
+    this.showModal('getStartedModal')
   },
   methods: {
     getStats() {
@@ -106,6 +114,9 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+    },
+     showModal(modal) {
+      this.$refs[modal].show();
     },
   },
 };
@@ -129,6 +140,10 @@ export default {
 .card {
   animation: shake 4.7s ease;
   animation-iteration-count: infinite;
+}
+
+.getStartedModal{
+  font-size: 20px;
 }
 
 @keyframes shake {

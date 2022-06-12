@@ -17,11 +17,12 @@ export default new Vuex.Store({
     affiliateUpdate: false,
     profileUpdate: false,
     navbarUpdate: false,
-    trainingExamples: false
+    trainingExamples: false,
   },
   getters: {
     username: (state) => state.username,
     user_id: (state) => state.user_id,
+    user_type: (state) => state.user_type,
     get_started: (state) => state.get_started,
     divisionUpdate: (state) => state.divisionUpdate,
     equipmentUpdate: (state) => state.equipmentUpdate,
@@ -34,9 +35,9 @@ export default new Vuex.Store({
     mutationAuthOk(state) {
       state.status = true;
       state.username = localStorage.getItem("username");
-      state.userType = localStorage.getItem("user_type");
       state.user_id = localStorage.getItem("user_id");
       state.access_token = localStorage.getItem("access_token");
+      state.user_type = localStorage.getItem("user_type");
       state.get_started = localStorage.getItem("get_started");
     },
     mutationAuthReset(state) {
@@ -46,9 +47,10 @@ export default new Vuex.Store({
         (state.user_id = null),
         (state.access_token = null),
         localStorage.removeItem("username");
-      localStorage.removeItem("user_type");
       localStorage.removeItem("user_id");
       localStorage.removeItem("access_token");
+      localStorage.removeItem("user_type");
+      localStorage.removeItem("get_started");
     },
     async SOCKET_divisionUpdate(state) {
       state.divisionUpdate = !state.divisionUpdate;
@@ -73,10 +75,9 @@ export default new Vuex.Store({
   actions: {
     fillStore(context) {
       context.commit("mutationAuthOk");
-      axios.defaults.headers.common.Authorization =
-        "Bearer " + this.state.access_token;
+      axios.defaults.headers.common.Authorization = "Bearer " + this.state.access_token;
     },
-    logout(context,state) {
+    logout(context, state) {
       this.$socket.emit("logged_out", state);
       context.commit("mutationAuthReset");
     },
@@ -90,17 +91,16 @@ export default new Vuex.Store({
           .then((response) => {
             axios.defaults.headers.common.Authorization = "Bearer " + response.data.access_token;
             localStorage.setItem("access_token", response.data.access_token);
-            localStorage.setItem("username", credentials.username);
 
             axios
               .get("/user")
               .then((response) => {
+                localStorage.setItem("username", response.data.email);
                 localStorage.setItem("user_id", response.data.id);
                 localStorage.setItem("get_started", response.data.get_started);
-
+                localStorage.setItem("user_type", response.data.type);
                 this.$socket.emit("logged_in", response.data.id);
                 context.commit("mutationAuthOk");
-
                 resolve(response);
               })
               .catch((error) => {

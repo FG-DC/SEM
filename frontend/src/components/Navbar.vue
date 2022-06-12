@@ -75,7 +75,6 @@ import axios from "axios";
 
 export default {
   async created() {
-    await this.$store.dispatch("fillStore");
     await this.getStats();
   },
   computed: {
