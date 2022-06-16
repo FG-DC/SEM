@@ -34,6 +34,12 @@ class DivisionController extends Controller
         } catch (Exception $e) {
             return response(['error' => 'Something went wrong when creating the division'], 500);
         }
+
+        if ($user->get_started == 0) {
+            $user->get_started = 1;
+            $user->save();
+        }
+
         return new DivisionResource($division);
     }
 
@@ -50,14 +56,21 @@ class DivisionController extends Controller
 
     public function deleteUserDivision(User $user, Division $division)
     {
+
         try {
-            if($division->equipments()->count() == 0)
+            if ($division->equipments()->count() == 0)
                 $division->delete();
             else
                 return response(['error' => 'Division has equipments associated!'], 400);
         } catch (Exception $e) {
             return response(['error' => 'Something went wrong when deleting the division'], 500);
         }
+
+        if ($user->get_started == 1 && $user->divisions()->count() == 0) {
+            $user->get_started = 0;
+            $user->save();
+        }
+
         return new DivisionResource($division);
     }
 }

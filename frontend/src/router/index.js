@@ -79,4 +79,36 @@ const router = new VueRouter({
   routes
 })
 
+
+import store from '../store'
+
+router.beforeEach((to, from, next) => {
+  //store.dispatch("fillStore");
+  var userType = store.state.userType;
+  var isAuthenticated = store.state.status;
+  if ((to.name == 'login') || (to.name == 'register')) {
+    next()
+    return
+  }
+  if (!isAuthenticated) {
+    next({ name: 'login' })
+    return
+  }
+  if (to.name == 'dashboardAdmin') {
+    if (userType != 'C') {
+      next({ name: 'dashboard' })
+      return
+    }
+  }
+  /*
+  if (to.name == 'dashboard') {
+    if (userType != 'A') {
+      next({ name: 'dashboardAdmin' })
+      return
+    }
+  }
+  */
+  next()
+});
+
 export default router

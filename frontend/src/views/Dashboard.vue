@@ -142,8 +142,15 @@
       <span class="getStartedModal"
         >Hi there! <br />You are currently in the dashboard page where you will
         can see the most varied informations! <br />To start using the system
-        corretly you will have to do its configuration. To do that please
-        access the <b><router-link :to="{name:'settings'}">Settings Page</router-link> </b> marked with a red mark.
+        corretly you will have to do its configuration. To do that please access
+        the
+        <b v-if="get_started == 0 || get_started == 1"
+          ><router-link :to="{ name: 'settings' }">Settings</router-link>
+        </b>
+        <b v-if="get_started == 2"
+          ><router-link :to="{ name: 'read' }">Equipment reads</router-link>
+        </b>
+        page marked with a red mark.
       </span>
     </b-modal>
   </div>
@@ -235,8 +242,10 @@ export default {
   },
   async created() {
     await this.$store.dispatch("fillStore");
-    if(this.get_started == 0)
+    if (this.get_started < 3) {
+      this.$store.dispatch("getAuthUser");
       this.showModal(4);
+    }
     //MQTT
     //-> Connect to the MQTT Broker
     mqtt.connect(this.onMessage);
@@ -641,7 +650,7 @@ h3 {
   z-index: 1;
 }
 
-.getStartedModal{
+.getStartedModal {
   font-size: 20px;
 }
 </style>

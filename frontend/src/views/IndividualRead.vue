@@ -1,5 +1,5 @@
 <template>
-  <b-container class="container mt-2 text-center" style="user-select:none">
+  <b-container class="container mt-2 text-center" style="user-select: none">
     <v-snackbar v-model="toast.state">{{ toast.message }}</v-snackbar>
 
     <!-- SELECT BOX -->
@@ -156,6 +156,15 @@
         </b-button>
       </template>
     </b-modal>
+    <b-modal ref="getStartedModal" title="Get Started" ok-only centered>
+      <span class="getStartedModal"
+        >Now that you have added your habitation divisions and equipments we
+        just need one more step!<br />
+        We will analyze the eletrical information about your equipments, so,
+        please select the equipment that you want to start analyzing, press
+        start and follow the steps!
+      </span>
+    </b-modal>
   </b-container>
 </template>
 
@@ -229,8 +238,14 @@ export default {
         timestamp.toLocaleTimeString("pt-PT")
       );
     },
-     trainingExamples() {
+    trainingExamples() {
       return this.$store.getters.trainingExamples;
+    },
+    equipmentUpdate() {
+      return this.$store.getters.equipmentUpdate;
+    },
+    get_started() {
+      return this.$store.getters.get_started;
     },
   },
   watch: {
@@ -239,13 +254,15 @@ export default {
     },
   },
   async created() {
-
     //MQTT
     //-> Add topics to subscribe
     this.topics.push(this.userId + "/power");
     //-> Connect to MQTT Broker
     mqtt.connect(this.onMessage);
     await this.getStats();
+    if (this.get_started < 3) await this.$store.dispatch("getAuthUser");
+      if (this.get_started == 2) this.showModal("getStartedModal");
+
     await axios
       .get(`/users/${this.userId}/equipments`)
       .then((response) => {
@@ -371,7 +388,7 @@ export default {
               count: x,
             };
           });
-          console.log(this.stats)
+          console.log(this.stats);
         })
         .catch((error) => {
           console.log(error);
@@ -380,11 +397,18 @@ export default {
     hideModal() {
       this.$refs["modalAnalyse"].hide();
     },
+    showModal(modal) {
+      this.$refs[modal].show();
+    },
   },
 };
 </script>
 
 <style scoped>
+.getStartedModal {
+  font-size: 20px;
+}
+
 .timer {
   font-size: 6vw;
 }

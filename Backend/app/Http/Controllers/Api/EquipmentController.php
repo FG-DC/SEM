@@ -41,12 +41,19 @@ class EquipmentController extends Controller
         $equipment->fill($request->validated());
         $equipment->user_id = $user->id;
 
+
+
         try {
             $equipment->save();
         } catch (Exception $e) {
             return response(['error' => 'Something went wrong when creating the equipment'], 500);
         }
         EquipmentResource::$detail = true;
+
+        if ($user->get_started == 1){
+            $user->get_started = 2;
+            $user->save();
+        }
         return new EquipmentResource($equipment);
     }
 
@@ -64,6 +71,8 @@ class EquipmentController extends Controller
             return response(['error' => 'Something went wrong when changing the equipment'], 500);
         }
         EquipmentResource::$detail = true;
+
+
         return new EquipmentResource($equipment);
     }
 
@@ -75,17 +84,24 @@ class EquipmentController extends Controller
             return response(['error' => 'Something went wrong when deleting the equipment'], 500);
         }
         EquipmentResource::$detail = true;
+
+        if ($user->get_started == 2 && $user->equipments()->count() == 0) {
+            $user->get_started = 1;
+            $user->save();
+        }
+
         return new EquipmentResource($equipment);
     }
 
-    public function patchNotifications(Request $request,User $user, Equipment $equipment){
-            $equipment->notify_when_passed = $request["notify_when_passed"];
-            try {
-                $equipment->save();
-            } catch (Exception $e) {
-                return response(['error' => 'Something went wrong when changing notification'], 500);
-            }
-        
+    public function patchNotifications(Request $request, User $user, Equipment $equipment)
+    {
+        $equipment->notify_when_passed = $request["notify_when_passed"];
+        try {
+            $equipment->save();
+        } catch (Exception $e) {
+            return response(['error' => 'Something went wrong when changing notification'], 500);
+        }
+
         return response(['msg' => 'Notification changed with success']);
     }
 }

@@ -168,7 +168,8 @@ export default {
     deleteDivision() {
       return axios
         .delete(`/users/${this.userId}/divisions/${this.division.id}`)
-        .then(() => {
+        .then((response) => {
+          console.log(response)
           this.$socket.emit("divisionUpdate", this.userId);
           this.showToastMessage(
             `${this.division.name} was deleted successfully`,

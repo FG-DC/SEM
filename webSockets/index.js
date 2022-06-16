@@ -3,14 +3,14 @@ const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer, {
   allowEIO3: true,
   cors: {
-    origin: "http://192.168.1.98:8081",
+    origin: "http://192.168.1.98:8080",
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
 httpServer.listen(8585, function () {
-  console.log("listening on *:8080");
+  console.log("listening on *:8585");
 });
 
 io.on("connection", function (socket) {

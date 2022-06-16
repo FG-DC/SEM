@@ -39,6 +39,21 @@ class TrainingExampleController extends Controller
             }
         }
 
+        if ($user->get_started == 2) {
+            $getStartedFinished = true;
+            foreach ($user->equipments() as $equipment) {
+                if ($equipment->examples == 0) {
+                    $getStartedFinished = false;
+                    break;
+                }
+            }
+            if ($getStartedFinished == true) {
+                $user->get_started = 3;
+                $user->save();
+            }
+        }
+
+
         return response(['msg' => $count . ' examples created with success'], 201);
     }
 

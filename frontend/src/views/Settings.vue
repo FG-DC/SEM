@@ -73,11 +73,20 @@
         </b-row>
       </b-container>
     </v-card>
-    <b-modal ref="getStartedModal" title="Get Started" hide-footer centered>
-      <span class="getStartedModal"
-        >This is the <router-link :to="{name:'divisions'}">Divisions Page</router-link>, here is where you'll start the
-        configuration of your system.<br />
-        Press on the Divisions tab to get started
+    <b-modal ref="getStartedModal" title="Get Started" ok-only centered>
+      <span v-if="get_started == 0" class="getStartedModal"
+        >This is the Settings Page, here is where you'll start the configuration
+        of your system.<br />
+        Press on the
+        <router-link :to="{ name: 'divisions' }">Divisions tab</router-link> to
+        get started
+      </span>
+
+      <span v-if="get_started == 1" class="getStartedModal">
+        If you already added all the divisions in your habitation, now let's add
+        the equipments. Please access the
+        <router-link :to="{ name: 'equipments' }">Equipments tab</router-link>
+        to continue
       </span>
     </b-modal>
   </v-container>
@@ -102,7 +111,9 @@ export default {
   },
   async created() {
     await this.getStats();
-    this.showModal('getStartedModal')
+
+    if (this.get_started < 3) await this.$store.dispatch("getAuthUser");
+    if (this.get_started < 2) this.showModal("getStartedModal");
   },
   methods: {
     getStats() {
@@ -115,7 +126,7 @@ export default {
           console.log(error);
         });
     },
-     showModal(modal) {
+    showModal(modal) {
       this.$refs[modal].show();
     },
   },
@@ -142,7 +153,7 @@ export default {
   animation-iteration-count: infinite;
 }
 
-.getStartedModal{
+.getStartedModal {
   font-size: 20px;
 }
 

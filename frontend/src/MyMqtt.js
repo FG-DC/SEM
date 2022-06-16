@@ -56,7 +56,8 @@ export default {
           console.log("Error subscribing to \"" + topic + "\"");
           return;
         }
-        console.log("Subscribed to \"" + topic + "\"");
+        //console.log("Subscribed to \"" + topic + "\"");
+        console.log("Subscribed")
       });
     });
   },

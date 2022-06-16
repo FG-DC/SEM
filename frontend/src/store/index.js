@@ -22,7 +22,7 @@ export default new Vuex.Store({
   getters: {
     username: (state) => state.username,
     user_id: (state) => state.user_id,
-    user_type: (state) => state.user_type,
+    userType: (state) => state.userType,
     get_started: (state) => state.get_started,
     divisionUpdate: (state) => state.divisionUpdate,
     equipmentUpdate: (state) => state.equipmentUpdate,
@@ -37,7 +37,7 @@ export default new Vuex.Store({
       state.username = localStorage.getItem("username");
       state.user_id = localStorage.getItem("user_id");
       state.access_token = localStorage.getItem("access_token");
-      state.user_type = localStorage.getItem("user_type");
+      state.userType = localStorage.getItem("userType");
       state.get_started = localStorage.getItem("get_started");
     },
     mutationAuthReset(state) {
@@ -49,7 +49,7 @@ export default new Vuex.Store({
         localStorage.removeItem("username");
       localStorage.removeItem("user_id");
       localStorage.removeItem("access_token");
-      localStorage.removeItem("user_type");
+      localStorage.removeItem("userType");
       localStorage.removeItem("get_started");
     },
     async SOCKET_divisionUpdate(state) {
@@ -75,45 +75,47 @@ export default new Vuex.Store({
   actions: {
     fillStore(context) {
       context.commit("mutationAuthOk");
-      axios.defaults.headers.common.Authorization = "Bearer " + this.state.access_token;
+      axios.defaults.headers.common.Authorization =
+        "Bearer " + this.state.access_token;
     },
     logout(context, state) {
       this.$socket.emit("logged_out", state);
       context.commit("mutationAuthReset");
     },
-    authRequest(context, credentials) {
-      return new Promise((resolve, reject) => {
-        axios
-          .post("/login", {
-            username: credentials.username,
-            password: credentials.password,
-          })
-          .then((response) => {
-            axios.defaults.headers.common.Authorization = "Bearer " + response.data.access_token;
-            localStorage.setItem("access_token", response.data.access_token);
+    async authRequest(context, credentials) {
+      await axios
+        .post("/login", {
+          username: credentials.username,
+          password: credentials.password,
+        })
+        .then((response) => {
+          axios.defaults.headers.common.Authorization =
+            "Bearer " + response.data.access_token;
+          localStorage.setItem("access_token", response.data.access_token);
+          context.dispatch("getAuthUser");
+          this.$socket.emit("logged_in", response.data.id);
+        })
+        .catch((error) => {
+          context.commit("mutationAuthReset");
+          reject(error);
+        });
+    },
+    async getAuthUser(context) {
+     await axios
+        .get("/user")
+        .then((response) => {
+          localStorage.setItem("username", response.data.email);
+          localStorage.setItem("user_id", response.data.id);
+          localStorage.setItem("get_started", response.data.get_started);
+          localStorage.setItem("userType", response.data.type);
+          context.commit("mutationAuthOk");
+        })
+        .catch((error) => {
+          console.log("eqw");
 
-            axios
-              .get("/user")
-              .then((response) => {
-                localStorage.setItem("username", response.data.email);
-                localStorage.setItem("user_id", response.data.id);
-                localStorage.setItem("get_started", response.data.get_started);
-                localStorage.setItem("user_type", response.data.type);
-                this.$socket.emit("logged_in", response.data.id);
-                context.commit("mutationAuthOk");
-                resolve(response);
-              })
-              .catch((error) => {
-                context.commit("mutationAuthReset");
-                console.log(error);
-                reject(error);
-              });
-          })
-          .catch((error) => {
-            context.commit("mutationAuthReset");
-            reject(error);
-          });
-      });
+          context.commit("mutationAuthReset");
+          console.log(error);
+        });
     },
 
     authLogout(context) {
@@ -123,7 +125,7 @@ export default new Vuex.Store({
           .then((response) => {
             localStorage.removeItem("access_token");
             localStorage.removeItem("username");
-            localStorage.removeItem("user_type");
+            localStorage.removeItem("userType");
             context.commit("mutationAuthReset");
             resolve(response);
           })
