@@ -33,7 +33,7 @@ export default new Vuex.Store({
   },
   mutations: {
     mutationAuthOk(state) {
-      state.status = true;
+      state.status = localStorage.getItem("status");
       state.username = localStorage.getItem("username");
       state.user_id = localStorage.getItem("user_id");
       state.access_token = localStorage.getItem("access_token");
@@ -51,6 +51,7 @@ export default new Vuex.Store({
       localStorage.removeItem("access_token");
       localStorage.removeItem("userType");
       localStorage.removeItem("get_started");
+      localStorage.removeItem("status");
     },
     async SOCKET_divisionUpdate(state) {
       state.divisionUpdate = !state.divisionUpdate;
@@ -88,20 +89,22 @@ export default new Vuex.Store({
           username: credentials.username,
           password: credentials.password,
         })
-        .then((response) => {
+        .then(async (response) => {
           axios.defaults.headers.common.Authorization =
             "Bearer " + response.data.access_token;
           localStorage.setItem("access_token", response.data.access_token);
-          context.dispatch("getAuthUser");
+          localStorage.setItem("status", true);
+
+          await context.dispatch("getAuthUser");
+
           this.$socket.emit("logged_in", response.data.id);
         })
-        .catch((error) => {
+        .catch(() => {
           context.commit("mutationAuthReset");
-          reject(error);
         });
     },
     async getAuthUser(context) {
-     await axios
+      await axios
         .get("/user")
         .then((response) => {
           localStorage.setItem("username", response.data.email);
@@ -111,29 +114,25 @@ export default new Vuex.Store({
           context.commit("mutationAuthOk");
         })
         .catch((error) => {
-          console.log("eqw");
-
           context.commit("mutationAuthReset");
           console.log(error);
         });
     },
 
     authLogout(context) {
-      return new Promise((resolve, reject) => {
-        axios
-          .post("/logout")
-          .then((response) => {
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("username");
-            localStorage.removeItem("userType");
-            context.commit("mutationAuthReset");
-            resolve(response);
-          })
-          .catch((error) => {
-            context.commit("mutationAuthReset");
-            reject(error);
-          });
-      });
+      axios
+        .post("/logout")
+        .then((response) => {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("username");
+          localStorage.removeItem("userType");
+          context.commit("mutationAuthReset");
+          resolve(response);
+        })
+        .catch((error) => {
+          context.commit("mutationAuthReset");
+          reject(error);
+        });
     },
   },
 });

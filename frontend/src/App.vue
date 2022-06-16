@@ -1,5 +1,6 @@
 <template>
   <div>
+    
     <Navbar
       v-if="currentRouteName != 'login' && currentRouteName != 'register'"
     />
@@ -16,7 +17,6 @@
 </template>
 
 <script>
-import axios from "axios";
 import Navbar from "./components/Navbar.vue";
 
 export default {
@@ -31,9 +31,8 @@ export default {
       return this.$store.getters.user_id;
     },
   },
-  created() {
+  async created() {
     this.$store.dispatch("fillStore");
-    this.$socket.emit("logged_in", this.userId);
   },
 };
 </script>

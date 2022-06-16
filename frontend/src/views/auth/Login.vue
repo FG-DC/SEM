@@ -55,7 +55,7 @@ export default {
     };
   },
   methods: {
-    signin() {
+   signin() {
       this.$store
         .dispatch("authRequest", {
           username: this.email,

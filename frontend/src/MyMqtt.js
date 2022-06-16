@@ -53,11 +53,10 @@ export default {
     topics.forEach((topic) => {
       this.client.subscribe(topic, 0, (error, res) => {
         if (error) {
-          console.log("Error subscribing to \"" + topic + "\"");
+          //console.log("Error subscribing to \"" + topic + "\"");
           return;
         }
         //console.log("Subscribed to \"" + topic + "\"");
-        console.log("Subscribed")
       });
     });
   },
@@ -65,7 +64,8 @@ export default {
     topics.forEach((topic) => {
       this.client.unsubscribe(topic, (error) => {
         if (error) {
-          console.log("Error unsubscribing to \"" + topic + "\"");
+          //console.log("Error unsubscribing to \"" + topic + "\"");
+          return;
         }
         this.topics = this.topics.filter((item)=>{
           return item != topic
@@ -76,7 +76,8 @@ export default {
   publish(topic, message) {
     this.client.publish(topic, message, 0, (error) => {
       if (error) {
-        console.log("Error publishing to \"" + topic + "\"");
+        //console.log("Error publishing to \"" + topic + "\"");
+        return;
       }
     });
   },

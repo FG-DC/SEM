@@ -56,9 +56,7 @@
             />
           </template>
 
-          <b-dropdown-item :to="{ name: 'alerts' }"
-            >Alerts</b-dropdown-item
-          >
+          <b-dropdown-item :to="{ name: 'alerts' }">Alerts</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'profile' }">Profile</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
 
@@ -66,7 +64,6 @@
         </b-dropdown>
       </div>
     </v-bottom-navigation>
-   
   </div>
 </template>
 
@@ -74,8 +71,8 @@
 import axios from "axios";
 
 export default {
-  async created() {
-    await this.getStats();
+  created() {
+    this.getStats();
   },
   computed: {
     userId() {
@@ -123,7 +120,6 @@ export default {
         .get(`users/${this.userId}/observations/last`)
         .then((response) => {
           this.analyze = response.data;
-          console.log(this.analyze);
         })
         .catch((error) => {
           console.log(error);
@@ -135,17 +131,11 @@ export default {
         .get(`users/${this.userId}/equipments`)
         .then((response) => {
           this.equipments = response.data.data;
-
-          console.log(this.equipments);
-
           this.equipments.forEach((equipment) => {
-            console.log(equipment.id);
             this.analyze.observation.equipments.forEach(
               (analyzeEquip, index) => {
                 if (equipment.id == analyzeEquip.id) {
-                  console.log("Index" + index);
                   this.equipments.splice(index, 1);
-                  console.log(this.equipments);
                 }
               }
             );

@@ -157,7 +157,6 @@ export default {
           notify_when_passed: state,
         })
         .then((response) => {
-          console.log(state)
           this.$socket.emit("equipmentUpdate", this.userId);
           this.showToastMessage(
             response.data.msg,

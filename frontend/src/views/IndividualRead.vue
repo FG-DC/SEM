@@ -380,7 +380,6 @@ export default {
       axios
         .get(`/users/${this.userId}/stats`)
         .then((response) => {
-          console.log(response.data.training_examples);
           this.stats = response.data.training_examples.map((item) => {
             let x = item.count > 0 ? "No" : "Yes";
             return {
@@ -388,7 +387,6 @@ export default {
               count: x,
             };
           });
-          console.log(this.stats);
         })
         .catch((error) => {
           console.log(error);
