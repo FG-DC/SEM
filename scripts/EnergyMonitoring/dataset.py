@@ -156,8 +156,8 @@ def dataToDataframe(examples, equipments):
 
 
 # ENV
-API_ENDPOINT = 'http://backend.test/api'
-BROKER_ENDPOINT = 'broker.hivemq.com'
+API_ENDPOINT = 'http://smartenergymonitoring.dei.estg.ipleiria.pt/api'
+BROKER_ENDPOINT = 'smartenergymonitoring.dei.estg.ipleiria.pt'
 BROKER_PORT = 1883
 
 # GLOBAL VARIABLES

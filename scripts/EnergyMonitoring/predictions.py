@@ -115,9 +115,9 @@ class Broker:
 
 
 # ENV
-API_ENDPOINT = 'http://backend.test/api'
-BROKER_ENDPOINT = 'broker.hivemq.com'
-BROKER_PORT = 1883
+API_ENDPOINT = 'http://smartenergymonitoring.dei.estg.ipleiria.pt/api'
+BROKER_ENDPOINT = 'smartenergymonitoring.dei.estg.ipleiria.pt'
+BROKER_PORT = 80
 
 # GLOBAL VARIABLES
 x_axis = []
