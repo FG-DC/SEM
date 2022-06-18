@@ -19,10 +19,10 @@
         />
       </router-link>
 
-      <router-link :to="{ name: 'userTypes' }" class="m-4 notification">
+      <router-link :to="{ name: 'users' }" class="m-4 notification">
         <font-awesome-icon
           class="notSelected"
-          :class="{ selected: $route.name == 'userTypes' }"
+          :class="{ selected: $route.name == 'users' }"
           icon="fa-solid fa-users"
           size="2x"
         />

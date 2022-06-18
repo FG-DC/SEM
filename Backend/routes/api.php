@@ -103,4 +103,6 @@ Route::middleware(['auth:api'])->group(function () {
     //Statistic
     Route::get('users/{user}/statistics/kwh', [StatisticController::class, 'getUserEnergyStatistics']);
     Route::get('statistics', [StatisticController::class, 'getAdminStatistics']);
+    Route::get('statistics/users', [StatisticController::class, 'getAdminUsersStatistics']);
+
 });

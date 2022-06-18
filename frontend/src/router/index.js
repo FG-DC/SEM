@@ -13,9 +13,7 @@ import Divisions from "../views/Divisions.vue";
 import Alerts from "../views/Alerts.vue";
 import AdminDashboard from "../views/DashboardAdmin.vue";
 import EquipmentTypes from "../views/EquipmentTypes.vue";
-import UserTypes from "../views/UserTypes.vue";
 import Users from "../views/Users.vue";
-import Admins from "../views/Admins.vue";
 
 
 Vue.use(VueRouter);
@@ -91,17 +89,6 @@ const routes = [
     name: "users",
     component: Users,
   },
-  {
-    path: "/admin/administrators",
-    name: "admins",
-    component: Admins,
-  },
-  {
-    path: "/admin/userTypes",
-    name: "userTypes",
-    component: UserTypes,
-  },
-  
   {
     path: "*",
     redirect: "/dashboard",

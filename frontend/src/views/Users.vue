@@ -7,16 +7,30 @@
       v-model="toast.state"
       >{{ toast.message }}</v-snackbar
     >
+
     <!-- MAIN CARD -->
     <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
       <!-- TITLE -->
       <div class="mb-3"><b style="color: #191645">Users</b></div>
 
       <!-- CREATE -->
-      <b-button variant="success">
-        + Create
-      </b-button>
-
+      <div class="mt-3 d-flex">
+        <v-select
+          v-model="type"
+          :items="types"
+          item-text="text"
+          item-value="value"
+          solo
+        ></v-select>
+        <b-button
+          class="action-button"
+          variant="success"
+          @click="showModal('modalAdd', {})"
+        >
+          <font-awesome-icon icon="fa-solid fa-plus" size="lg" />
+        </b-button>
+      </div>
+      <div data-app />
       <!-- SEARCH -->
       <v-text-field
         v-model="search"
@@ -34,16 +48,105 @@
         :search="search"
       >
         <template class="d-flex" v-slot:item.actions="{ item }">
-          <b-button variant="primary" style="margin: 2px">
+          <b-button
+            variant="primary"
+            style="margin: 2px"
+            @click="showModal('modalEdit', item)"
+          >
             <font-awesome-icon icon="fa-solid fa-pen" />
           </b-button>
 
-          <b-button variant="danger" style="margin: 2px">
+          <b-button
+            variant="danger"
+            style="margin: 2px"
+            @click="showModal('modalRemove', item)"
+          >
             <font-awesome-icon icon="fa-solid fa-trash" size="lg" />
           </b-button>
         </template>
       </v-data-table>
     </v-card>
+
+    <b-modal id="modalAdd" ref="modalAdd" title="Create User" centered>
+      <template #modal-footer class="d-flex">
+        <b-button
+          variant="primary"
+          :disabled="validateCreate('create')"
+          @click="createUser"
+        >
+          Create
+        </b-button>
+      </template>
+      <div data-app />
+      <span>Type</span>
+
+      <v-select
+        v-model="typeCreate"
+        :items="typesCreate"
+        item-text="text"
+        item-value="value"
+        :rules="fieldRequired"
+        solo
+      ></v-select>
+
+      <!-- INPUT NAME -->
+      <span>Name</span>
+      <v-text-field
+        label="Name"
+        :rules="fieldRequired"
+        v-model="user.name"
+        solo
+      />
+
+      <!-- INPUT EMAIL -->
+      <span class="p-3">Email</span>
+      <v-text-field
+        :rules="emailRules"
+        label="Email"
+        v-model="user.email"
+        solo
+      />
+
+      <!-- INPUT BIRTHDATE -->
+      <span>Birthdate</span>
+      <v-text-field
+        :rules="fieldRequired"
+        label="Birthdate"
+        v-model="user.birthdate"
+        type="date"
+        solo
+      />
+
+      <!-- INPUT PASSWORD -->
+      <span>Password</span>
+      <v-text-field
+        :rules="fieldRequired"
+        label="Password"
+        v-model="user.password"
+        type="password"
+        solo
+      />
+    </b-modal>
+
+    <b-modal
+      id="modalEdit"
+      ref="modalEdit"
+      title="Edit Administrator"
+      ok-only
+      centered
+    >
+      <div class="d-flex justify-content-center">
+        <b-button variant="primary" @click="passwReset">Reset Password</b-button>
+      </div>
+    </b-modal>
+    <b-modal
+      id="modalRemove"
+      ref="modalRemove"
+      :title="'Do you want to delete user ' + user.name + '?'"
+      centered
+      @ok="deleteUser"
+    >
+    </b-modal>
   </v-container>
 </template>
 
@@ -55,6 +158,17 @@ export default {
   },
   data() {
     return {
+      types: [
+        { text: "All", value: "All" },
+        { text: "Administrators", value: "A" },
+        { text: "Clients", value: "C" },
+        { text: "Producers", value: "P" },
+      ],
+      typesCreate: [
+        { text: "Administrators", value: "A" },
+        { text: "Clients", value: "C" },
+        { text: "Producers", value: "P" },
+      ],
       headers: [
         {
           text: "Name",
@@ -73,29 +187,146 @@ export default {
           value: "birthdate",
         },
         {
-          text: "Type",
-          value: "type",
+          text: "",
+          value: "actions",
+          sortable: false,
         },
       ],
+      user: {
+        id: "",
+        name: "",
+        email: "",
+        password: "",
+        birthdate: "",
+      },
       toast: {
         state: false,
         message: "",
         color: "",
       },
-      search: "",
+      fieldRequired: [(v) => !!v || "Field required"],
+      emailRules: [
+        (v) => !!v || "E-mail is required",
+        (v) => /.+@.+/.test(v) || "E-mail must be valid",
+      ],
+      type: "All",
+      typeCreate: "C",
       users: [],
+      search: "",
+      allUsers: [],
     };
+  },
+  watch: {
+    type() {
+      if (this.type == "All") {
+        this.users = this.allUsers;
+        return;
+      }
+      this.users = this.allUsers.filter((item) => {
+        return item.type == this.type;
+      });
+    },
   },
   methods: {
     getUsers() {
       return axios
         .get(`/users`)
         .then((response) => {
+          this.allUsers = response.data.data;
           this.users = response.data.data;
         })
         .catch((error) => {
           return Promise.reject(error);
         });
+    },
+    validateCreate(type) {
+      let item = type == "create" ? this.user : this.user;
+      if (
+        item.name == "" ||
+        item.email == "" ||
+        item.birthdate == "" ||
+        item.password == ""
+      ) {
+        return true;
+      }
+      return false;
+    },
+
+    showModal(modal, item) {
+      this.user = {
+        name: "",
+        email: "",
+        password: "",
+        birthdate: "",
+      };
+
+      if (modal != "modalAdd") this.user = { ...item };
+      this.$refs[modal].show();
+    },
+    hideModal(modal) {
+      this.$refs[modal].hide();
+    },
+    createUser() {
+      this.hideModal("modalAdd");
+      axios
+        .post(`/users`, {
+          name: this.user.name,
+          email: this.user.email,
+          password: this.user.password,
+          birthdate: this.user.birthdate.split("-").reverse().join("/"),
+          type: this.typeCreate,
+        })
+        .then(() => {
+          //this.$socket.emit("equipmentUpdate", this.userId);
+          this.showToastMessage(
+            "Administrator was created successfully",
+            "#4caf50"
+          );
+        })
+        .catch((error) => {
+          console.log(error);
+          this.showToastMessage(error, "#333333");
+        });
+    },
+    deleteUser() {
+      this.hideModal("modalRemove");
+      axios
+        .delete(`/users/${this.user.id}`)
+        .then(() => {
+          //this.$socket.emit("equipmentUpdate", this.userId);
+          this.showToastMessage(
+            `${this.user.name} was deleted successfully`,
+            "#dd2929"
+          );
+        })
+        .catch((error) => {
+          this.showToastMessage(
+            "There was an error removing the user",
+            "#333333"
+          );
+        });
+    },
+    passwReset(){
+       this.hideModal("modalRemove");
+      axios
+        .patch(`/users/${this.user.id}/password/reset`)
+        .then(() => {
+          this.showToastMessage(
+            `${this.user.name} was notified with password reset`,
+            "#4caf50"
+          );
+        })
+        .catch(() => {
+          this.showToastMessage(
+            "There was an error trying to reset password",
+            "#333333"
+          );
+        });
+    },
+    showToastMessage(message, color) {
+      this.toast.color = color;
+      this.toast.message = message;
+      this.toast.state = true;
     },
   },
 };
