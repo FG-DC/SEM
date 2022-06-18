@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\Equipment;
 use App\Models\Observation;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ObservationPolicy
@@ -19,12 +20,12 @@ class ObservationPolicy
      */
     public function viewAny(User $user)
     {
-        return true;
+        return Auth::user()->id === $user->id;
     }
 
     public function viewAnyObs(User $user, Equipment $equipment)
     {
-        return $user->id === $equipment->user_id;
+        return $user->id === $equipment->user_id && Auth::user()->id === $user->id;
     }
 
     /**
@@ -36,7 +37,7 @@ class ObservationPolicy
      */
     public function view(User $user, Observation $observation)
     {
-        return $user->id === $observation->user_id;
+        return $user->id === $observation->user_id && Auth::user()->id === $user->id;
     }
 
     /**
@@ -48,7 +49,7 @@ class ObservationPolicy
      */
     public function viewLast(User $user)
     {
-        return true;
+        return Auth::user()->id === $user->id;
     }
 
     /**
@@ -71,7 +72,7 @@ class ObservationPolicy
      */
     public function update(User $user, Observation $observation)
     {
-        return $user->type === 'P' || $user->id === $observation->user_id;
+        return $user->type === 'P' || ($user->id === $observation->user_id && Auth::user()->id === $user->id);
     }
 
     /**
@@ -83,30 +84,6 @@ class ObservationPolicy
      */
     public function delete(User $user, Observation $observation)
     {
-        return $user->type === 'P' || $user->id === $observation->user_id;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Observation  $observation
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function restore(User $user, Observation $observation)
-    {
-        return $user->id === $observation->user_id;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Observation  $observation
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function forceDelete(User $user, Observation $observation)
-    {
-        return false;
+        return $user->type === 'P' || ($user->id === $observation->user_id && Auth::user()->id === $user->id);
     }
 }

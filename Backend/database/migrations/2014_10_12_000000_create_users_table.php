@@ -22,6 +22,7 @@ class CreateUsersTable extends Migration
             $table->timestamp('birthdate');
             $table->integer('get_started')->default(0);
             $table->unsignedTinyInteger('notifications')->default(0);
+            $table->unsignedTinyInteger('locked')->default(0);
             $table->timestamp('no_activity_start')->default(new Carbon('22:00:00'));
             $table->timestamp('no_activity_end')->default(new Carbon('07:00:00'));
             $table->timestamp('email_verified_at')->nullable();

@@ -2,8 +2,9 @@
 
 namespace App\Policies;
 
-use App\Models\Division;
 use App\Models\User;
+use App\Models\Division;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class DivisionPolicy
@@ -18,7 +19,7 @@ class DivisionPolicy
      */
     public function viewAny(User $user)
     {
-        return true;
+        return $user->type === 'P' || Auth::user()->id === $user->id;
     }
 
     /**
@@ -30,7 +31,7 @@ class DivisionPolicy
      */
     public function view(User $user, Division $division)
     {
-        return $user->id === $division->user_id;
+        return $user->type === 'P' || ($user->id === $division->user_id && Auth::user()->id === $user->id);
     }
 
     /**
@@ -53,7 +54,7 @@ class DivisionPolicy
      */
     public function update(User $user, Division $division)
     {
-        return $user->id === $division->user_id;
+        return $user->id === $division->user_id && Auth::user()->id === $user->id;
     }
 
     /**
@@ -65,30 +66,6 @@ class DivisionPolicy
      */
     public function delete(User $user, Division $division)
     {
-        return $user->id === $division->user_id;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Division  $division
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function restore(User $user, Division $division)
-    {
-        return $user->id === $division->user_id;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Division  $division
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function forceDelete(User $user, Division $division)
-    {
-        return false;
+        return $user->id === $division->user_id && Auth::user()->id === $user->id;
     }
 }

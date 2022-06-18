@@ -4,7 +4,7 @@ long Auth::expiresIn = 0;
 char* Auth::accessToken = (char*)malloc(2048 * sizeof(char));
 char* Auth::refreshToken = (char*)malloc(1024 * sizeof(char));
 
-void login(WiFiClient client, String endpoint, const char* username, const char* password) {
+int login(WiFiClient client, String endpoint, const char* username, const char* password) {
 	
   Serial.print("LOGIN: ");
   HTTPClient http;
@@ -22,7 +22,7 @@ void login(WiFiClient client, String endpoint, const char* username, const char*
   int responseCode = http.POST(requestPtr);
 
   String payload;
-  if (responseCode > 0) {
+  if (responseCode == 200) {
 	payload = http.getString();
 
 	DynamicJsonDocument responseDoc(AUTH_SIZE);
@@ -42,6 +42,7 @@ void login(WiFiClient client, String endpoint, const char* username, const char*
 	Serial.println("Error");
   }
   http.end();
+  return responseCode;
 }
 
 void refresh(WiFiClient client, String endpoint, const char* token) {

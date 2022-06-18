@@ -19,6 +19,7 @@
 WiFiServer server(80);
 WiFiClient client = server.available();
 MqttClient mqttClient(client);
+WiFiManager wifiManager;
 
 EnergyMonitor SCT013;
 
@@ -30,6 +31,8 @@ bool shouldSaveConfig = false;
 float calibrationValue = 0;
 float lastMeanPower = 0;
 int SIZE_CONSUMPTION_BUFFER = 12;
+double calibrationBaseValue = 0;
+float lastPower = 0;
 
 // FUNCTIONS
 float getConsumption();
@@ -57,9 +60,21 @@ void setup() {
   mqttClient.onMessage(onMqttMessage);
 
   pinMode(PIN_SCT, INPUT);
-  SCT013.current(PIN_SCT, 2.85); //calibration value
+  SCT013.current(PIN_SCT, 15); //calibration value
 
-  login(client, API_ENDPOINT + "/login", username, password);
+  File file = SPIFFS.open("/data.txt", FILE_READ);
+  String message = "";
+  while (file.available()) {
+    message += (char)file.read();
+  }
+  calibrationBaseValue = message.toDouble();
+  file.close();
+
+  int response = login(client, API_ENDPOINT + "/login", username, password);
+  if (response != 200) {
+    wifiManager.resetSettings();
+    esp_restart();
+  }
   id = getId(client, API_ENDPOINT + "/user");
 }
 
@@ -85,13 +100,15 @@ void loop() {
         unsigned long publishTime = millis() + TIME_BETWEEN_PUBLISHES;
         
         while (publishTime > millis()) {
-          values[n] = getConsumption() - calibrationValue;
+          lastPower = getConsumption();
+          values[n] = lastPower - calibrationValue + calibrationBaseValue;
           if (values[n] < 0) {
             values[n] = 0;
           }
           
           mqttClient.subscribe(String(id) + "/tare");
           mqttClient.subscribe(String(id) + "/reset");
+          mqttClient.subscribe(String(id) + "/calibration");
           
           n++;
         }
@@ -171,6 +188,7 @@ void readAuthFromFlashMemory() {
         std::unique_ptr<char[]> buf(new char[size]);
 
         configFile.readBytes(buf.get(), size);
+        configFile.close();
         DynamicJsonDocument doc(CREDENTIALS_SIZE);
         auto error = deserializeJson(doc, buf.get());
         serializeJson(doc, Serial);
@@ -189,14 +207,11 @@ void readAuthFromFlashMemory() {
 }
 
 void startWiFiManager() {
-  WiFiManager wifiManager;
-  //wifiManager.resetSettings();
   wifiManager.setSaveConfigCallback(saveConfigCallback);
   wifiManager.setClass("invert"); // dark theme
 
   WiFiManagerParameter custom_text("<p>User Credentials</p>");
   wifiManager.addParameter(&custom_text);
-
 
   WiFiManagerParameter custom_username("username", "Username", "", 40);
   wifiManager.addParameter(&custom_username);
@@ -217,16 +232,16 @@ void writeAuthToFlashMemory(const char* _username, const char* _password) {
     doc["username"] = _username;
     doc["password"] = _password;
 
-
     File configFile = SPIFFS.open("/config.json", "w");
     if (!configFile) {
       Serial.println("failed to open config file for writing");
+      return;
     }
 
-    configFile.close();
+    serializeJson(doc, configFile);
+    Serial.println("Credentials saved!");
 
-    strcpy(username, _username);
-    strcpy(password, _password);
+    configFile.close();
 }
 
 void connectToWiFi() {
@@ -273,9 +288,29 @@ void onMqttMessage(int messageSize) {
   if (mqttClient.messageTopic().equals(String(id) + "/tare")) {
     SIZE_CONSUMPTION_BUFFER = 1;
     calibrationValue += lastMeanPower;
+    return;
   }
   if (mqttClient.messageTopic().equals(String(id) + "/reset")) {
     SIZE_CONSUMPTION_BUFFER = 12;
     calibrationValue = 0;
+    return;
+  }
+  if (mqttClient.messageTopic().equals(String(id) + "/calibration")) {
+    String message = "";
+
+    while (mqttClient.available()) {
+      message += (char)mqttClient.read();
+    }
+
+    if (message == "default") {
+      calibrationBaseValue = 0;
+    }
+    else {
+      calibrationBaseValue = message.toDouble() - lastPower;
+    }
+    
+    File file = SPIFFS.open("/data.txt", FILE_WRITE);
+    file.print(calibrationBaseValue);
+    file.close();
   }
 }

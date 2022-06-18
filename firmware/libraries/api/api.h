@@ -16,7 +16,7 @@ struct Auth {
 };
 
 // @POST /login
-void login(WiFiClient client, String endpoint, const char* username, const char* password);
+int login(WiFiClient client, String endpoint, const char* username, const char* password);
 
 // @POST /refresh
 void refresh(WiFiClient client, String endpoint, const char* token);

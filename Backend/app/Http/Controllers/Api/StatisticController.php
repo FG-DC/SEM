@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\Consumption;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Alert;
+use App\Models\Observation;
 
 class StatisticController extends Controller
 {
@@ -67,5 +69,39 @@ class StatisticController extends Controller
         }
         $time->year--;
         $time->month = 12;
+    }
+
+    public function getAdminStatistics(Request $request)
+    {
+        $date = null;
+        if ($request->query('timestamp')) {
+            $date = strtotime($request->query('timestamp'));
+        } else {
+            $date = time();
+        }
+
+        $day = date("d", $date);
+        $month = date("m", $date);
+        $year = date("Y", $date);
+
+        $timeStart = mktime(0, 0, 0, $month, $day, $year);
+        $timeEnd = mktime(23, 59, 59, $month, $day, $year);
+
+        $stats = new \stdClass();
+        $stats->clients = 0;
+        $stats->producers = 0;
+        $stats->admins = 0;
+
+        $stats->observations = Observation::whereRaw('created_at >= FROM_UNIXTIME(' . $timeStart . ')')
+            ->whereRaw('created_at <= FROM_UNIXTIME(' . $timeEnd . ')')
+            ->count();
+
+        $stats->consumptions = Consumption::whereRaw('timestamp >= FROM_UNIXTIME(' . $timeStart . ')')
+            ->whereRaw('timestamp <= FROM_UNIXTIME(' . $timeEnd . ')')
+            ->avg();
+
+        $stats->alerts = Alert::whereRaw('created_at >= FROM_UNIXTIME(' . $timeStart . ')')
+            ->whereRaw('created_at <= FROM_UNIXTIME(' . $timeEnd . ')')
+            ->count();
     }
 }

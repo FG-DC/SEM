@@ -25,9 +25,17 @@ class UserController extends Controller
         return Auth::user();
     }
 
-    public function getUsers()
+    public function getUsers(Request $request)
     {
-        return  UserResource::collection(User::all());
+        $hasType = $request->query('type') != null;
+        $type = $request->query('type');
+
+        if (!$hasType) {
+            return UserResource::collection(User::all());
+        }
+
+        $users = User::where('type', $type);
+        return UserResource::collection($users);
     }
 
     public function getUser(User $user)
@@ -114,6 +122,17 @@ class UserController extends Controller
         return $user->notifications == 0 ? 'OFF' : 'ON';
     }
 
+    public function patchUserLocked(User $user)
+    {
+        $user->locked = !$user->locked;
+        try {
+            $user->save();
+        } catch (Exception $e) {
+            return $e;
+        }
+        return $user->locked == 0 ? 'Unlocked' : 'Locked';
+    }
+
     public function deleteUser(User $user)
     {
         try {
@@ -158,9 +177,8 @@ class UserController extends Controller
     }
 
 
-    public function getNotifications(User $user){
+    public function getNotifications(User $user)
+    {
         return $user->notifications == 0 ? 'OFF' : 'ON';
     }
-
-
 }

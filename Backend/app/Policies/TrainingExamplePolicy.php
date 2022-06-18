@@ -2,8 +2,9 @@
 
 namespace App\Policies;
 
-use App\Models\TrainingExample;
 use App\Models\User;
+use App\Models\TrainingExample;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class TrainingExamplePolicy
@@ -19,7 +20,7 @@ class TrainingExamplePolicy
      */
     public function viewAny(User $user, User $model)
     {
-        return $user->type === 'P' || $user->id === $model->id;
+        return $user->type === 'P' || ($user->id === $model->id && Auth::user()->id === $user->id);
     }
 
     /**
@@ -31,6 +32,6 @@ class TrainingExamplePolicy
      */
     public function create(User $user, User $model)
     {
-        return $user->type === 'P' || $user->id === $model->id;
+        return $user->type === 'P' || ($user->id === $model->id && Auth::user()->id === $user->id);
     }
 }
