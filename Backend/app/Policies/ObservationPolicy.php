@@ -20,6 +20,7 @@ class ObservationPolicy
      */
     public function viewAny(User $user)
     {
+        return false;
         return Auth::user()->id === $user->id;
     }
 

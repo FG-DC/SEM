@@ -3,16 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
+use App\Models\Alert;
 use App\Models\Consumption;
+use App\Models\Observation;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Alert;
-use App\Models\Observation;
+use Illuminate\Support\Facades\Auth;
 
 class StatisticController extends Controller
 {
     public function getUserEnergyStatistics(Request $request, User $user)
     {
+        if (Auth::user()->id !== $user->id) {
+            return response(['message' => "This action is unauthorized."], 403);
+        }
+
         $n = $request->query('months') ?? 1;
         $times = [];
 
@@ -73,9 +78,13 @@ class StatisticController extends Controller
 
     public function getAdminStatistics(Request $request)
     {
+        if (Auth::user()->type !== 'A') {
+            return response(['message' => "This action is unauthorized."], 403);
+        }
+
         $date = null;
         if ($request->query('timestamp')) {
-            $date = strtotime($request->query('timestamp'));
+            $date = date($request->query('timestamp'));
         } else {
             $date = time();
         }
@@ -88,20 +97,22 @@ class StatisticController extends Controller
         $timeEnd = mktime(23, 59, 59, $month, $day, $year);
 
         $stats = new \stdClass();
-        $stats->clients = 0;
-        $stats->producers = 0;
-        $stats->admins = 0;
+        $stats->clients = User::where('type', 'C')->count();
+        $stats->producers = User::where('type', 'P')->count();
+        $stats->admins = User::where('type', 'A')->count();
 
         $stats->observations = Observation::whereRaw('created_at >= FROM_UNIXTIME(' . $timeStart . ')')
             ->whereRaw('created_at <= FROM_UNIXTIME(' . $timeEnd . ')')
             ->count();
 
-        $stats->consumptions = Consumption::whereRaw('timestamp >= FROM_UNIXTIME(' . $timeStart . ')')
+        $stats->consumptions = floatval(number_format(floatval(Consumption::whereRaw('timestamp >= FROM_UNIXTIME(' . $timeStart . ')')
             ->whereRaw('timestamp <= FROM_UNIXTIME(' . $timeEnd . ')')
-            ->avg();
+            ->avg('value')), 2));
 
         $stats->alerts = Alert::whereRaw('created_at >= FROM_UNIXTIME(' . $timeStart . ')')
             ->whereRaw('created_at <= FROM_UNIXTIME(' . $timeEnd . ')')
             ->count();
+
+        return $stats;
     }
 }

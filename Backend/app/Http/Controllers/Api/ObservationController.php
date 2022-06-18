@@ -18,7 +18,6 @@ use App\Http\Resources\ConsumptionResource;
 use App\Http\Resources\ObservationResource;
 
 
-
 class ObservationController extends Controller
 {
     public function getUserObservations(User $user, Request $request)

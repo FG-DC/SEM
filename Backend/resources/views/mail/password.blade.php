@@ -89,9 +89,9 @@
                         style="padding: 30px 30px 30px 60px;">
                         <tr>
                             <td>
-                                <h2>Notification</h2>
+                                <h2>Temporary Password</h2>
                                 <p>
-                                    {{ $alert->alert }}
+                                    {{ $password }}
                                 </p>
                             </td>
                         </tr>

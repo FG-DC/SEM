@@ -36,7 +36,7 @@ class AuthServiceProvider extends ServiceProvider
         Equipment::class => EquipmentPolicy::class,
         Observation::class => ObservationPolicy::class,
         TrainingExample::class => TrainingExamplePolicy::class,
-        Alert::class => AlertPolicy::class,
+        Alert::class => AlertPolicy::class
     ];
 
     /**

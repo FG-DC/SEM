@@ -8,14 +8,16 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\UserPut;
 use App\Http\Requests\UserPost;
+use App\Models\TrainingExample;
 use App\Http\Requests\UserPatch;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Resources\EquipmentResource;
-use App\Models\TrainingExample;
+use App\Mail\PasswordResetMail;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -34,7 +36,7 @@ class UserController extends Controller
             return UserResource::collection(User::all());
         }
 
-        $users = User::where('type', $type);
+        $users = User::where('type', $type)->get();
         return UserResource::collection($users);
     }
 
@@ -96,6 +98,32 @@ class UserController extends Controller
             return response(['error' => 'Something went wrong when changing the user'], 500);
         }
         return new UserResource($user);
+    }
+
+    public function patchUserPasswordReset(Request $request, User $user)
+    {
+        $generatedPassword = $this->randomPassword();
+        $user->password = Hash::make($generatedPassword);
+        try {
+            $user->save();
+
+            Mail::to($user->email)->send(new PasswordResetMail($generatedPassword));
+        } catch (Exception $e) {
+            return response(['error' => 'Something went wrong when changing the user'], 500);
+        }
+        return new UserResource($user);
+    }
+
+    private function randomPassword()
+    {
+        $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        $pass = array(); //remember to declare $pass as an array
+        $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
+        for ($i = 0; $i < 12; $i++) {
+            $n = rand(0, $alphaLength);
+            $pass[] = $alphabet[$n];
+        }
+        return implode($pass); //turn the array into a string
     }
 
     public function patchUserEnergyPrice(Request $request, User $user)

@@ -50,6 +50,11 @@ class UserPolicy
         return Auth::user()->type === 'A';
     }
 
+    public function updatePasswordReset(User $user, User $model)
+    {
+        return Auth::user()->type === 'A';
+    }
+
     /**
      * Determine whether the user can delete the model.
      *
