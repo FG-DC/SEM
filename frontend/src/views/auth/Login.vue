@@ -6,9 +6,7 @@
     <v-card class="center card">
       <div class="text-center center w-75 mt-5">
         <img src="../../assets/logo3.png" class="mb-5 img" />
-
         <v-text-field v-model="email" label="Email" solo> </v-text-field>
-
         <v-text-field
           solo
           v-model="password"
@@ -55,16 +53,23 @@ export default {
     };
   },
   methods: {
-   signin() {
+    signin() {
       this.$store
         .dispatch("authRequest", {
           username: this.email,
           password: this.password,
         })
         .then(() => {
-          this.$router.push({
-            name: "dashboard",
-          });
+          let userType = this.$store.getters.userType;
+          if (userType == "C") {
+            this.$router.push({
+              name: "dashboard",
+            });
+          } else if (userType == "A") {
+            this.$router.push({
+              name: "adminDashboard",
+            });
+          }
         })
         .catch((error) => {
           if ("username" in error.response.data) {
@@ -77,7 +82,6 @@ export default {
           localStorage.removeItem("access_token");
           localStorage.removeItem("username");
           delete axios.defaults.headers.common.Authorization;
-          console.log(error);
         });
     },
     showToastMessage(message, color) {

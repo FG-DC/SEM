@@ -11,6 +11,12 @@ import Affiliates from "../views/Affiliates.vue";
 import Equipments from "../views/Equipments.vue";
 import Divisions from "../views/Divisions.vue";
 import Alerts from "../views/Alerts.vue";
+import AdminDashboard from "../views/DashboardAdmin.vue";
+import EquipmentTypes from "../views/EquipmentTypes.vue";
+import UserTypes from "../views/UserTypes.vue";
+import Users from "../views/Users.vue";
+import Admins from "../views/Admins.vue";
+
 
 Vue.use(VueRouter);
 
@@ -71,6 +77,32 @@ const routes = [
     component: Alerts,
   },
   {
+    path: "/admin",
+    name: "adminDashboard",
+    component: AdminDashboard,
+  },
+  {
+    path: "/admin/equipmentTypes",
+    name: "equipmentTypes",
+    component: EquipmentTypes,
+  },
+  {
+    path: "/admin/users",
+    name: "users",
+    component: Users,
+  },
+  {
+    path: "/admin/administrators",
+    name: "admins",
+    component: Admins,
+  },
+  {
+    path: "/admin/userTypes",
+    name: "userTypes",
+    component: UserTypes,
+  },
+  
+  {
     path: "*",
     redirect: "/dashboard",
   },
@@ -94,28 +126,37 @@ router.beforeEach((to, from, next) => {
   store.dispatch("fillStore").then(() => {
     var isAuthenticated = store.state.status;
     var userType = store.state.userType;
-
     if (!isAuthenticated) {
       next({ name: "login" });
       return;
     }
-    if (to.name == "dashboardAdmin") {
-      if (userType != "C") {
-        next({ name: "dashboard" });
+
+
+    if (to.path.split("/")[1] != "admin" && userType == "A") {
+      next({ name: "adminDashboard" });
+      return;
+    }
+
+
+    if (to.path.split("/")[1] == "admin" && userType == "C") {
+      next({ name: "dashboard" });
+      return;
+    }
+    
+    
+    if (to.path.split("/")[1] == "admin" && userType == "C") {
+      next({ name: "dashboard" });
+      return;
+    }
+
+
+    if (to.name == "dashboard") {
+      if (userType == "A") {
+        next({ name: "adminDashboard" });
         return;
       }
     }
-
     next();
-
-    /*
-    if (to.name == 'dashboard') {
-      if (userType != 'A') {
-        next({ name: 'dashboardAdmin' })
-        return
-      }
-    }
-    */
   });
 });
 

@@ -6,7 +6,7 @@ import store from './store'
 import VueSocketIO from 'vue-socket.io'
 
 import axios from 'axios'
-axios.defaults.baseURL = 'http://backend.test/api'
+axios.defaults.baseURL = 'http://smartenergymonitoring.dei.estg.ipleiria.pt/api'
 
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
@@ -36,11 +36,14 @@ import { faPen } from '@fortawesome/free-solid-svg-icons'
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 import { faBan } from '@fortawesome/free-solid-svg-icons'
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
+import { faUserGear } from '@fortawesome/free-solid-svg-icons'
+import { faUser } from '@fortawesome/free-solid-svg-icons'
+import { faUsers } from '@fortawesome/free-solid-svg-icons'
 
 
 const socketIO = new VueSocketIO({
   debug: true,
-  connection: "http://127.0.0.1:8585",
+  connection: "http://172.22.21.131:8080",
   vuex: {
     store,
     actionPrefix: 'SOCKET_',
@@ -50,7 +53,7 @@ const socketIO = new VueSocketIO({
 
 import vuetify from './plugins/vuetify'
 
-library.add(faBan, faFloppyDisk, faPen, faTrash, faPlus, faStop, faPlay, faHouse, faMagnifyingGlassChart, faUserGroup, faGear, faBolt, faWindowMinimize, faCircleChevronDown, faPlugCircleBolt, faLocationDot, faCalendar, faPlug, faHouseChimneyWindow, faCirclePlus,faTriangleExclamation)
+library.add(faBan, faFloppyDisk, faPen, faTrash, faPlus, faStop, faPlay, faHouse, faMagnifyingGlassChart, faUserGroup, faGear, faBolt, faWindowMinimize, faCircleChevronDown, faPlugCircleBolt, faLocationDot, faCalendar, faPlug, faHouseChimneyWindow, faCirclePlus,faTriangleExclamation, faUserGear,faUsers, faUser)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.use(socketIO)
 Vue.use(BootstrapVue)

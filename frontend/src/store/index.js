@@ -91,13 +91,12 @@ export default new Vuex.Store({
         })
         .then(async (response) => {
           axios.defaults.headers.common.Authorization =
-            "Bearer " + response.data.access_token;
+          "Bearer " + response.data.access_token;
           localStorage.setItem("access_token", response.data.access_token);
           localStorage.setItem("status", true);
-
           await context.dispatch("getAuthUser");
-
           this.$socket.emit("logged_in", response.data.id);
+
         })
         .catch(() => {
           context.commit("mutationAuthReset");
@@ -112,6 +111,7 @@ export default new Vuex.Store({
           localStorage.setItem("get_started", response.data.get_started);
           localStorage.setItem("userType", response.data.type);
           context.commit("mutationAuthOk");
+
         })
         .catch((error) => {
           context.commit("mutationAuthReset");
