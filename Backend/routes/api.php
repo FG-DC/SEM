@@ -19,7 +19,7 @@ Route::post('login', [AuthController::class, 'login']); //checked
 Route::post('refresh', [AuthController::class, 'refresh']); //checked
 
 //User
-Route::post('users', [UserController::class, 'postUser'])->middleware('can:create,App\Models\User'); //checked
+Route::post('users', [UserController::class, 'postUser']); //checked
 
 Route::middleware(['auth:api'])->group(function () {
 
