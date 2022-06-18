@@ -39,12 +39,6 @@ class ObservationController extends Controller
         return response($response, 200);
     }
 
-    public function getUserEquipmentObservations(Equipment $equipment)
-    {
-        ObservationResource::$detail = false;
-        return new ObservationResource($equipment->observations);
-    }
-
     public function getUserLastObservation(User $user)
     {
         $response = new \stdClass();

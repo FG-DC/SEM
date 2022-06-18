@@ -17,9 +17,9 @@ class EquipmentPolicy
      * @param  \App\Models\User $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user, User $model)
     {
-        return $user->type === 'P' || Auth::user()->id === $user->id;
+        return $user->type === 'P' || $model->id === $user->id;
     }
 
     /**
@@ -29,9 +29,9 @@ class EquipmentPolicy
      * @param  \App\Models\Equipment  $equipment
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, Equipment $equipment)
+    public function view(User $user, Equipment $equipment, User $model)
     {
-        return $user->type === 'P' || ($user->id === $equipment->user_id && Auth::user()->id === $user->id);
+        return $user->type === 'P' || ($user->id === $equipment->user_id && $model->id === $user->id);
     }
 
     /**
@@ -52,9 +52,9 @@ class EquipmentPolicy
      * @param  \App\Models\Equipment  $equipment
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Equipment $equipment)
+    public function update(User $user, Equipment $equipment, User $model)
     {
-        return $user->id === $equipment->user_id && Auth::user()->id === $user->id;
+        return $user->id === $equipment->user_id && $model->id === $user->id;
     }
 
     /**
@@ -64,8 +64,8 @@ class EquipmentPolicy
      * @param  \App\Models\Equipment  $equipment
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Equipment $equipment)
+    public function delete(User $user, Equipment $equipment, User $model)
     {
-        return $user->id === $equipment->user_id && Auth::user()->id === $user->id;
+        return $user->id === $equipment->user_id && $model->id === $user->id;
     }
 }

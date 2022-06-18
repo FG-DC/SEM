@@ -18,15 +18,9 @@ class ObservationPolicy
      * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user, User $model)
     {
-        return false;
-        return Auth::user()->id === $user->id;
-    }
-
-    public function viewAnyObs(User $user, Equipment $equipment)
-    {
-        return $user->id === $equipment->user_id && Auth::user()->id === $user->id;
+        return $model->id === $user->id;
     }
 
     /**
@@ -36,9 +30,9 @@ class ObservationPolicy
      * @param  \App\Models\Observation  $observation
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, Observation $observation)
+    public function view(User $user, Observation $observation, User $model)
     {
-        return $user->id === $observation->user_id && Auth::user()->id === $user->id;
+        return $user->id === $observation->user_id && $model->id === $user->id;
     }
 
     /**
@@ -48,9 +42,9 @@ class ObservationPolicy
      * @param  \App\Models\Observation  $observation
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewLast(User $user)
+    public function viewLast(User $user, User $model)
     {
-        return Auth::user()->id === $user->id;
+        return $model->id === $user->id;
     }
 
     /**
@@ -71,9 +65,9 @@ class ObservationPolicy
      * @param  \App\Models\Observation  $observation
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Observation $observation)
+    public function update(User $user, Observation $observation, User $model)
     {
-        return $user->type === 'P' || ($user->id === $observation->user_id && Auth::user()->id === $user->id);
+        return $user->type === 'P' || ($user->id === $observation->user_id && $model->id === $user->id);
     }
 
     /**
@@ -83,8 +77,8 @@ class ObservationPolicy
      * @param  \App\Models\Observation  $observation
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Observation $observation)
+    public function delete(User $user, Observation $observation, User $model)
     {
-        return $user->type === 'P' || ($user->id === $observation->user_id && Auth::user()->id === $user->id);
+        return $user->type === 'P' || ($user->id === $observation->user_id && $model->id === $user->id);
     }
 }

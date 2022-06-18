@@ -24,8 +24,8 @@ Route::post('users', [UserController::class, 'postUser']); //checked
 Route::middleware(['auth:api'])->group(function () {
 
     //Email
-    Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
-    Route::post('email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
+    //Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
+    //Route::post('email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
 
     //Auth
     Route::post('logout', [AuthController::class, 'logout']); //checked
@@ -46,34 +46,33 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('users/{user}/notifications', [UserController::class, 'getNotifications'])->middleware('can:update,user');
 
     //Affiliate
-    Route::get('users/{user}/affiliates', [AffiliateController::class, 'getUserAffiliates']);
-    Route::get('users/{user}/affiliates/my', [AffiliateController::class, 'getUserAffiliatesMy']);
-    Route::post('users/{user}/affiliates', [AffiliateController::class, 'postUserAffiliate']);
-    Route::delete('users/{user}/affiliates/{affiliate}', [AffiliateController::class, 'deleteUserAffiliate']);
+    Route::get('users/{user}/affiliates', [AffiliateController::class, 'getUserAffiliates'])->middleware('can:view,user');
+    Route::get('users/{user}/affiliates/my', [AffiliateController::class, 'getUserAffiliatesMy'])->middleware('can:view,user');
+    Route::post('users/{user}/affiliates', [AffiliateController::class, 'postUserAffiliate'])->middleware('can:view,user');
+    Route::delete('users/{user}/affiliates/{affiliate}', [AffiliateController::class, 'deleteUserAffiliate'])->middleware('can:view,user');
 
     //Observations
-    Route::get('users/{user}/observations', [ObservationController::class, 'getUserObservations'])->middleware('can:viewAny,App\Models\Observation');
-    Route::get('users/{user}/observations/last', [ObservationController::class, 'getUserLastObservation'])->middleware('can:viewLast,App\Models\Observation');
-    Route::get('users/{user}/observations/{observation}', [ObservationController::class, 'getUserObservation'])->middleware('can:view,observation');
-    Route::get('equipments/{equipment}/observations', [ObservationController::class, 'getEquipmentObservations'])->middleware('can:viewAnyObs,equipment');
-    Route::post('users/{user}/observations', [ObservationController::class, 'postUserObservation'])->middleware('can:create,App\Models\Observation');
-    Route::delete('users/{user}/observations/{observation}', [ObservationController::class, 'deleteUserObservation'])->middleware('can:delete,observation');
+    Route::get('users/{user}/observations', [ObservationController::class, 'getUserObservations'])->middleware('can:viewAny,App\Models\Observation,user');
+    Route::get('users/{user}/observations/last', [ObservationController::class, 'getUserLastObservation'])->middleware('can:viewLast,App\Models\Observation,user');
+    Route::get('users/{user}/observations/{observation}', [ObservationController::class, 'getUserObservation'])->middleware('can:view,observation,user');
+    Route::post('users/{user}/observations', [ObservationController::class, 'postUserObservation'])->middleware('can:create,App\Models\Observation,user');
+    Route::delete('users/{user}/observations/{observation}', [ObservationController::class, 'deleteUserObservation'])->middleware('can:delete,observation,user');
 
 
     //Consumptions
-    Route::get('users/{user}/consumptions', [ConsumptionController::class, 'getUserConsumptions'])->middleware('can:viewAny,App\Models\Consumption');
-    Route::get('users/{user}/consumptions/data', [ConsumptionController::class, 'getUserConsumptionsData'])->middleware('can:viewAny,App\Models\Consumption');
-    Route::get('users/{user}/consumptions/{consumption}', [ConsumptionController::class, 'getUserConsumption'])->middleware('can:view,consumption');
-    Route::post('users/{user}/consumptions', [ConsumptionController::class, 'postUserConsumption'])->middleware('can:create,App\Models\Consumption');
-    Route::delete('users/{user}/consumptions/{consumption}', [ConsumptionController::class, 'deleteUserConsumption'])->middleware('can:delete,consumption');
+    Route::get('users/{user}/consumptions', [ConsumptionController::class, 'getUserConsumptions'])->middleware('can:viewAny,App\Models\Consumption,user');
+    Route::get('users/{user}/consumptions/data', [ConsumptionController::class, 'getUserConsumptionsData'])->middleware('can:viewAny,App\Models\Consumption,user');
+    Route::get('users/{user}/consumptions/{consumption}', [ConsumptionController::class, 'getUserConsumption'])->middleware('can:view,consumption,user');
+    Route::post('users/{user}/consumptions', [ConsumptionController::class, 'postUserConsumption'])->middleware('can:create,App\Models\Consumption,user');
+    Route::delete('users/{user}/consumptions/{consumption}', [ConsumptionController::class, 'deleteUserConsumption'])->middleware('can:delete,consumption,user');
 
     //Equipment
-    Route::get('users/{user}/equipments', [EquipmentController::class, 'getUserEquipments'])->middleware('can:viewAny,App\Models\Equipment');
-    Route::get('users/{user}/equipments/{equipment}', [EquipmentController::class, 'getUserEquipment'])->middleware('can:view,equipment');
-    Route::post('users/{user}/equipments', [EquipmentController::class, 'postUserEquipment'])->middleware('can:create,App\Models\Equipment');
-    Route::put('users/{user}/equipments/{equipment}', [EquipmentController::class, 'putUserEquipment'])->middleware('can:update,equipment');
-    Route::delete('users/{user}/equipments/{equipment}', [EquipmentController::class, 'deleteUserEquipment'])->middleware('can:delete,equipment');
-    Route::patch('users/{user}/equipments/{equipment}', [EquipmentController::class, 'patchNotifications'])->middleware('can:delete,equipment');
+    Route::get('users/{user}/equipments', [EquipmentController::class, 'getUserEquipments'])->middleware('can:viewAny,App\Models\Equipment,user');
+    Route::get('users/{user}/equipments/{equipment}', [EquipmentController::class, 'getUserEquipment'])->middleware('can:view,equipment,user');
+    Route::post('users/{user}/equipments', [EquipmentController::class, 'postUserEquipment'])->middleware('can:create,App\Models\Equipment,user');
+    Route::put('users/{user}/equipments/{equipment}', [EquipmentController::class, 'putUserEquipment'])->middleware('can:update,equipment,user');
+    Route::delete('users/{user}/equipments/{equipment}', [EquipmentController::class, 'deleteUserEquipment'])->middleware('can:delete,equipment,user');
+    Route::patch('users/{user}/equipments/{equipment}', [EquipmentController::class, 'patchNotifications'])->middleware('can:delete,equipment,user');
 
 
     //EquipmentType
@@ -84,18 +83,18 @@ Route::middleware(['auth:api'])->group(function () {
     Route::delete('equipment-types/{type}', [EquipmentTypeController::class, 'deleteEquipmentType'])->middleware('can:delete,type');
 
     //Division
-    Route::get('users/{user}/divisions', [DivisionController::class, 'getUserDivisions'])->middleware('can:viewAny,App\Models\Division');
-    Route::get('users/{user}/divisions/{division}', [DivisionController::class, 'getUserDivision'])->middleware('can:view,division');
-    Route::post('users/{user}/divisions', [DivisionController::class, 'postUserDivision'])->middleware('can:create,App\Models\Division');
-    Route::put('users/{user}/divisions/{division}', [DivisionController::class, 'putUserDivision'])->middleware('can:update,division');
-    Route::delete('users/{user}/divisions/{division}', [DivisionController::class, 'deleteUserDivision'])->middleware('can:delete,division');
+    Route::get('users/{user}/divisions', [DivisionController::class, 'getUserDivisions'])->middleware('can:viewAny,App\Models\Division,user');
+    Route::get('users/{user}/divisions/{division}', [DivisionController::class, 'getUserDivision'])->middleware('can:view,division,user');
+    Route::post('users/{user}/divisions', [DivisionController::class, 'postUserDivision'])->middleware('can:create,App\Models\Division,user');
+    Route::put('users/{user}/divisions/{division}', [DivisionController::class, 'putUserDivision'])->middleware('can:update,division,user');
+    Route::delete('users/{user}/divisions/{division}', [DivisionController::class, 'deleteUserDivision'])->middleware('can:delete,division,user');
 
     //Alert
-    Route::get('users/{user}/alerts', [AlertController::class, 'getUserAlerts'])->middleware('can:viewAny,App\Models\Alert');
-    Route::get('users/{user}/alerts/{alert}', [AlertController::class, 'getUserAlert'])->middleware('can:view,alert');
-    Route::post('users/{user}/alerts', [AlertController::class, 'postUserAlert'])->middleware('can:create,App\Models\Alert');
-    Route::put('users/{user}/alerts/{alert}', [AlertController::class, 'putUserAlert'])->middleware('can:update,alert');
-    Route::delete('users/{user}/alerts/{alert}', [AlertController::class, 'deleteUserAlert'])->middleware('can:delete,alert');
+    Route::get('users/{user}/alerts', [AlertController::class, 'getUserAlerts'])->middleware('can:viewAny,App\Models\Alert,user');
+    Route::get('users/{user}/alerts/{alert}', [AlertController::class, 'getUserAlert'])->middleware('can:view,alert,user');
+    Route::post('users/{user}/alerts', [AlertController::class, 'postUserAlert'])->middleware('can:create,App\Models\Alert,user');
+    Route::put('users/{user}/alerts/{alert}', [AlertController::class, 'putUserAlert'])->middleware('can:update,alert,user');
+    Route::delete('users/{user}/alerts/{alert}', [AlertController::class, 'deleteUserAlert'])->middleware('can:delete,alert,user');
 
     //TrainingExample
     Route::get('users/{user}/training-examples', [TrainingExampleController::class, 'getUserTrainingExamples'])->middleware('can:viewAny,App\Models\TrainingExample,user');

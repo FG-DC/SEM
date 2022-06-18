@@ -17,9 +17,9 @@ class ConsumptionPolicy
      * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user, User $model)
     {
-        return $user->type === 'P' || Auth::user()->id === $user->id;
+        return $user->type === 'P' || $model->id === $user->id;
     }
 
     /**
@@ -29,9 +29,9 @@ class ConsumptionPolicy
      * @param  \App\Models\Consumption  $consumption
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, Consumption $consumption)
+    public function view(User $user, Consumption $consumption, User $model)
     {
-        return $user->type === 'P' || ($user->id === $consumption->user_id && Auth::user()->id === $user->id);
+        return $user->type === 'P' || ($user->id === $consumption->user_id && $model->id === $user->id);
     }
 
     /**
@@ -52,9 +52,9 @@ class ConsumptionPolicy
      * @param  \App\Models\Consumption  $consumption
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Consumption $consumption)
+    public function update(User $user, Consumption $consumption, User $model)
     {
-        return $user->id === $consumption->user_id && Auth::user()->id === $user->id;
+        return $user->id === $consumption->user_id && $model->id === $user->id;
     }
 
     /**
@@ -64,8 +64,8 @@ class ConsumptionPolicy
      * @param  \App\Models\Consumption  $consumption
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Consumption $consumption)
+    public function delete(User $user, Consumption $consumption, User $model)
     {
-        return $user->id === $consumption->user_id && Auth::user()->id === $user->id;
+        return $user->id === $consumption->user_id && $model->id === $user->id;
     }
 }

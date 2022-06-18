@@ -17,9 +17,9 @@ class AlertPolicy
      * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user, User $model)
     {
-        return Auth::user()->id === $user->id;
+        return $model->id === $user->id;
     }
 
     /**
@@ -29,9 +29,9 @@ class AlertPolicy
      * @param  \App\Models\Alert  $alert
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, Alert $alert)
+    public function view(User $user, Alert $alert, User $model)
     {
-        return Auth::user()->id === $user->id && $user->id === $alert->user_id;
+        return $model->id === $user->id && $user->id === $alert->user_id;
     }
 
     /**
@@ -40,7 +40,7 @@ class AlertPolicy
      * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user)
+    public function create(User $user, User $model)
     {
         return $user->type === 'P';
     }
@@ -52,7 +52,7 @@ class AlertPolicy
      * @param  \App\Models\Alert  $alert
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Alert $alert)
+    public function update(User $user, Alert $alert, User $model)
     {
         return false;
     }
@@ -64,8 +64,8 @@ class AlertPolicy
      * @param  \App\Models\Alert  $alert
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Alert $alert)
+    public function delete(User $user, Alert $alert, User $model)
     {
-        return Auth::user()->id === $user->id && $user->id === $alert->user_id;
+        return $model->id === $user->id && $user->id === $alert->user_id;
     }
 }

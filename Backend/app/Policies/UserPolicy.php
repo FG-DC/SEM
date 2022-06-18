@@ -30,7 +30,7 @@ class UserPolicy
      */
     public function view(User $user, User $model)
     {
-        return $user->id === $model->id && Auth::user()->id === $user->id;
+        return $user->id === $model->id;
     }
 
     /**
@@ -42,7 +42,7 @@ class UserPolicy
      */
     public function update(User $user, User $model)
     {
-        return $user->id === $model->id && Auth::user()->id === $user->id;
+        return $user->id === $model->id;
     }
 
     public function updateLocked(User $user, User $model)
@@ -64,6 +64,6 @@ class UserPolicy
      */
     public function delete(User $user, User $model)
     {
-        return $user->type === 'A' || ($user->id === $model->id && Auth::user()->id === $user->id);
+        return $user->type === 'A' || $user->id === $model->id;
     }
 }
