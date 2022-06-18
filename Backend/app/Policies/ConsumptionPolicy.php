@@ -2,8 +2,9 @@
 
 namespace App\Policies;
 
-use App\Models\Consumption;
 use App\Models\User;
+use App\Models\Consumption;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ConsumptionPolicy
@@ -18,7 +19,7 @@ class ConsumptionPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->type === 'P' || $user->type === 'C';
+        return $user->type === 'P' || Auth::user()->id === $user->id;
     }
 
     /**
@@ -30,7 +31,7 @@ class ConsumptionPolicy
      */
     public function view(User $user, Consumption $consumption)
     {
-        return $user->type === 'P' || $user->id === $consumption->user_id;
+        return $user->type === 'P' || ($user->id === $consumption->user_id && Auth::user()->id === $user->id);
     }
 
     /**
@@ -53,7 +54,7 @@ class ConsumptionPolicy
      */
     public function update(User $user, Consumption $consumption)
     {
-        return $user->id === $consumption->user_id;
+        return $user->id === $consumption->user_id && Auth::user()->id === $user->id;
     }
 
     /**
@@ -65,30 +66,6 @@ class ConsumptionPolicy
      */
     public function delete(User $user, Consumption $consumption)
     {
-        return $user->id === $consumption->user_id;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Consumption  $consumption
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function restore(User $user, Consumption $consumption)
-    {
-        return $user->id === $consumption->user_id;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Consumption  $consumption
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function forceDelete(User $user, Consumption $consumption)
-    {
-        return false;
+        return $user->id === $consumption->user_id && Auth::user()->id === $user->id;
     }
 }

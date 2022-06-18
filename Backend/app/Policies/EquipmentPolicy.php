@@ -2,8 +2,9 @@
 
 namespace App\Policies;
 
-use App\Models\Equipment;
 use App\Models\User;
+use App\Models\Equipment;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class EquipmentPolicy
@@ -18,7 +19,7 @@ class EquipmentPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->type === 'C';
+        return $user->type === 'P' || Auth::user()->id === $user->id;
     }
 
     /**
@@ -30,7 +31,7 @@ class EquipmentPolicy
      */
     public function view(User $user, Equipment $equipment)
     {
-        return $user->id === $equipment->user_id;
+        return $user->type === 'P' || ($user->id === $equipment->user_id && Auth::user()->id === $user->id);
     }
 
     /**
@@ -41,7 +42,7 @@ class EquipmentPolicy
      */
     public function create(User $user)
     {
-        return $user->type === 'C' || $user->type === 'A';
+        return $user->type === 'C';
     }
 
     /**
@@ -53,7 +54,7 @@ class EquipmentPolicy
      */
     public function update(User $user, Equipment $equipment)
     {
-        return $user->id === $equipment->user_id;
+        return $user->id === $equipment->user_id && Auth::user()->id === $user->id;
     }
 
     /**
@@ -65,30 +66,6 @@ class EquipmentPolicy
      */
     public function delete(User $user, Equipment $equipment)
     {
-        return $user->id === $equipment->user_id;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Equipment  $equipment
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function restore(User $user, Equipment $equipment)
-    {
-        return $user->id === $equipment->user_id;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Equipment  $equipment
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function forceDelete(User $user, Equipment $equipment)
-    {
-        return false;
+        return $user->id === $equipment->user_id && Auth::user()->id === $user->id;
     }
 }

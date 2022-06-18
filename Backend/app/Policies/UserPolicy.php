@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserPolicy
@@ -29,18 +30,7 @@ class UserPolicy
      */
     public function view(User $user, User $model)
     {
-        return $user->id === $model->id;
-    }
-
-    /**
-     * Determine whether the user can create models.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function create(?User $user)
-    {
-        return true;
+        return $user->id === $model->id && Auth::user()->id === $user->id;
     }
 
     /**
@@ -52,7 +42,12 @@ class UserPolicy
      */
     public function update(User $user, User $model)
     {
-        return $user->id === $model->id;
+        return $user->id === $model->id && Auth::user()->id === $user->id;
+    }
+
+    public function updateLocked(User $user, User $model)
+    {
+        return Auth::user()->type === 'A';
     }
 
     /**
@@ -64,30 +59,6 @@ class UserPolicy
      */
     public function delete(User $user, User $model)
     {
-        return $user->type === 'A' || $user->id === $model->id;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\User  $model
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function restore(User $user, User $model)
-    {
-        return $user->type === 'A';
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\User  $model
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function forceDelete(User $user, User $model)
-    {
-        return false;
+        return $user->type === 'A' || ($user->id === $model->id && Auth::user()->id === $user->id);
     }
 }

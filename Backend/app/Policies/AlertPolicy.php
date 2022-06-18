@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\Alert;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Support\Facades\Auth;
 
 class AlertPolicy
 {
@@ -18,7 +19,7 @@ class AlertPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->type == 'C' || $user->type === 'A';
+        return Auth::user()->id === $user->id;
     }
 
     /**
@@ -30,7 +31,7 @@ class AlertPolicy
      */
     public function view(User $user, Alert $alert)
     {
-        return $user->id === $alert->user_id;
+        return Auth::user()->id === $user->id && $user->id === $alert->user_id;
     }
 
     /**
@@ -41,7 +42,7 @@ class AlertPolicy
      */
     public function create(User $user)
     {
-        return $user->type === 'P' || $user->type === 'A';
+        return $user->type === 'P';
     }
 
     /**
@@ -65,30 +66,6 @@ class AlertPolicy
      */
     public function delete(User $user, Alert $alert)
     {
-        return $user->id === $alert->user_id;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Alert  $alert
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function restore(User $user, Alert $alert)
-    {
-        return $user->id === $alert->user_id;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Alert  $alert
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function forceDelete(User $user, Alert $alert)
-    {
-        return false;
+        return Auth::user()->id === $user->id && $user->id === $alert->user_id;
     }
 }
