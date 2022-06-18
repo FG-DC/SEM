@@ -97,17 +97,15 @@ class StatisticController extends Controller
         $timeEnd = mktime(23, 59, 59, $month, $day, $year);
 
         $stats = new \stdClass();
-        $stats->clients = User::where('type', 'C')->count();
-        $stats->producers = User::where('type', 'P')->count();
-        $stats->admins = User::where('type', 'A')->count();
+
 
         $stats->observations = Observation::whereRaw('created_at >= FROM_UNIXTIME(' . $timeStart . ')')
             ->whereRaw('created_at <= FROM_UNIXTIME(' . $timeEnd . ')')
             ->count();
 
-        $stats->consumptions = floatval(number_format(floatval(Consumption::whereRaw('timestamp >= FROM_UNIXTIME(' . $timeStart . ')')
-            ->whereRaw('timestamp <= FROM_UNIXTIME(' . $timeEnd . ')')
-            ->avg('value')), 2));
+        $stats->consumptions = Consumption::whereRaw('timestamp >= FROM_UNIXTIME(' . $timeStart . ')')
+            ->whereRaw('timestamp <= FROM_UNIXTIME(' . $timeEnd . ')')->count();
+
 
         $stats->alerts = Alert::whereRaw('created_at >= FROM_UNIXTIME(' . $timeStart . ')')
             ->whereRaw('created_at <= FROM_UNIXTIME(' . $timeEnd . ')')
@@ -115,4 +113,20 @@ class StatisticController extends Controller
 
         return $stats;
     }
+
+    public function getAdminUsersStatistics(Request $request){
+        if (Auth::user()->type !== 'A') {
+            return response(['message' => "This action is unauthorized."], 403);
+        }
+
+
+        $stats = new \stdClass();
+        $stats->clients = User::where('type', 'C')->count();
+        $stats->producers = User::where('type', 'P')->count();
+        $stats->admins = User::where('type', 'A')->count();
+
+        return $stats;
+    }
+
+
 }
