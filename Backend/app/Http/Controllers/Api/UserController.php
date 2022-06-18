@@ -51,6 +51,9 @@ class UserController extends Controller
         if ($type == null) {
             $type = 'C';
         }
+        if ($type != 'C' && (auth('api')->check() == 0 || auth('api')->user()->type != 'A')) {
+            return response(['message' => 'This action is unauthorized.'], 403);
+        }
 
         $user = new User();
         $user->fill($request->validated());
