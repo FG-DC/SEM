@@ -60,7 +60,7 @@ void setup() {
   mqttClient.onMessage(onMqttMessage);
 
   pinMode(PIN_SCT, INPUT);
-  SCT013.current(PIN_SCT, 15); //calibration value
+  SCT013.current(PIN_SCT, 30); //calibration value
 
   File file = SPIFFS.open("/data.txt", FILE_READ);
   String message = "";
@@ -222,6 +222,8 @@ void startWiFiManager() {
   wifiManager.autoConnect("SEM");
 
   if (shouldSaveConfig) {
+    strcpy(username, custom_username.getValue());
+    strcpy(password, custom_password.getValue());
     writeAuthToFlashMemory(custom_username.getValue(), custom_password.getValue());
   }
 }
