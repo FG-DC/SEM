@@ -19,7 +19,14 @@ class AlertPolicy
      */
     public function viewAny(User $user, User $model)
     {
-        return $model->id === $user->id;
+        $isAffiliate = false;
+        foreach ($model->affiliates as $affiliate) {
+            if ($user->id === $affiliate->id) {
+                $isAffiliate = true;
+                break;
+            }
+        }
+        return $model->id === $user->id || $isAffiliate;
     }
 
     /**
@@ -31,7 +38,14 @@ class AlertPolicy
      */
     public function view(User $user, Alert $alert, User $model)
     {
-        return $model->id === $user->id && $user->id === $alert->user_id;
+        $isAffiliate = false;
+        foreach ($model->affiliates as $affiliate) {
+            if ($user->id === $affiliate->id) {
+                $isAffiliate = true;
+                break;
+            }
+        }
+        return ($model->id === $user->id && $user->id === $alert->user_id) || $isAffiliate;
     }
 
     /**
@@ -42,7 +56,7 @@ class AlertPolicy
      */
     public function create(User $user, User $model)
     {
-        return $user->type === 'P';
+        return $user->type === 'P' || $user->type === 'A';
     }
 
     /**

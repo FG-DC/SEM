@@ -58,7 +58,7 @@ class User extends Authenticatable
 
     public function alerts()
     {
-        return $this->hasMany(Division::class, 'user_id', 'id');
+        return $this->hasMany(Alert::class, 'user_id', 'id');
     }
 
     public function observations()

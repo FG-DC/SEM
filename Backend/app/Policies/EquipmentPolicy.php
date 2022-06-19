@@ -19,7 +19,14 @@ class EquipmentPolicy
      */
     public function viewAny(User $user, User $model)
     {
-        return $user->type === 'P' || $model->id === $user->id;
+        $isAffiliate = false;
+        foreach ($model->affiliates as $affiliate) {
+            if ($user->id === $affiliate->id) {
+                $isAffiliate = true;
+                break;
+            }
+        }
+        return $user->type === 'P' || $model->id === $user->id || $isAffiliate;
     }
 
     /**
@@ -31,7 +38,14 @@ class EquipmentPolicy
      */
     public function view(User $user, Equipment $equipment, User $model)
     {
-        return $user->type === 'P' || ($user->id === $equipment->user_id && $model->id === $user->id);
+        $isAffiliate = false;
+        foreach ($model->affiliates as $affiliate) {
+            if ($user->id === $affiliate->id) {
+                $isAffiliate = true;
+                break;
+            }
+        }
+        return $user->type === 'P' || ($user->id === $equipment->user_id && $model->id === $user->id) || $isAffiliate;
     }
 
     /**

@@ -17,7 +17,8 @@ class AlertResource extends JsonResource
         return [
             "id" => $this->id,
             "user_id" => $this->user_id,
-            "alert" => $this->alert
+            "alert" => $this->alert,
+            "timestamp" => $this->created_at
         ];
     }
 }

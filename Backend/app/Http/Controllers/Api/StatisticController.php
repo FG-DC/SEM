@@ -98,7 +98,6 @@ class StatisticController extends Controller
 
         $stats = new \stdClass();
 
-
         $stats->observations = Observation::whereRaw('created_at >= FROM_UNIXTIME(' . $timeStart . ')')
             ->whereRaw('created_at <= FROM_UNIXTIME(' . $timeEnd . ')')
             ->count();
@@ -114,11 +113,11 @@ class StatisticController extends Controller
         return $stats;
     }
 
-    public function getAdminUsersStatistics(Request $request){
+    public function getAdminUsersStatistics(Request $request)
+    {
         if (Auth::user()->type !== 'A') {
             return response(['message' => "This action is unauthorized."], 403);
         }
-
 
         $stats = new \stdClass();
         $stats->clients = User::where('type', 'C')->count();
@@ -127,6 +126,4 @@ class StatisticController extends Controller
 
         return $stats;
     }
-
-
 }

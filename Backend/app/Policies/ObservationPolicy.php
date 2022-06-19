@@ -20,7 +20,14 @@ class ObservationPolicy
      */
     public function viewAny(User $user, User $model)
     {
-        return $model->id === $user->id;
+        $isAffiliate = false;
+        foreach ($model->affiliates as $affiliate) {
+            if ($user->id === $affiliate->id) {
+                $isAffiliate = true;
+                break;
+            }
+        }
+        return $model->id === $user->id || $isAffiliate;
     }
 
     /**
@@ -32,7 +39,14 @@ class ObservationPolicy
      */
     public function view(User $user, Observation $observation, User $model)
     {
-        return $user->id === $observation->user_id && $model->id === $user->id;
+        $isAffiliate = false;
+        foreach ($model->affiliates as $affiliate) {
+            if ($user->id === $affiliate->id) {
+                $isAffiliate = true;
+                break;
+            }
+        }
+        return ($user->id === $observation->user_id && $model->id === $user->id) || $isAffiliate;
     }
 
     /**
@@ -44,7 +58,14 @@ class ObservationPolicy
      */
     public function viewLast(User $user, User $model)
     {
-        return $model->id === $user->id;
+        $isAffiliate = false;
+        foreach ($model->affiliates as $affiliate) {
+            if ($user->id === $affiliate->id) {
+                $isAffiliate = true;
+                break;
+            }
+        }
+        return $model->id === $user->id || $isAffiliate;
     }
 
     /**

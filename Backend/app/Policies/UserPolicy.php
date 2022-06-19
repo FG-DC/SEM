@@ -30,7 +30,14 @@ class UserPolicy
      */
     public function view(User $user, User $model)
     {
-        return $user->id === $model->id;
+        $isAffiliate = false;
+        foreach ($model->affiliates as $affiliate) {
+            if ($user->id === $affiliate->id) {
+                $isAffiliate = true;
+                break;
+            }
+        }
+        return $user->id === $model->id || $isAffiliate;
     }
 
     /**

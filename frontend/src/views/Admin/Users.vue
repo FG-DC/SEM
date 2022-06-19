@@ -49,15 +49,16 @@
       >
         <template v-slot:item.actions="{ item }">
           <b-button
-            :disabled="item.id == userId"
-            @click="changeLock(item)"
-            :variant="!item.locked ? 'success' : 'dark'"
+            v-if="item.id != userId"
             style="margin: 2px"
+            :variant="!item.locked ? 'success' : 'dark'"
+            @click="changeLock(item)"
           >
             <font-awesome-icon v-if="!item.locked" icon="fa-unlock" />
             <font-awesome-icon v-else icon="fa-lock" />
           </b-button>
           <b-button
+            v-if="item.id != userId"
             variant="primary"
             style="margin: 2px"
             @click="showModal('modalEdit', item)"
@@ -66,7 +67,7 @@
           </b-button>
 
           <b-button
-            :disabled="item.id == userId"
+            v-if="item.id != userId"
             variant="danger"
             style="margin: 2px"
             @click="showModal('modalRemove', item)"
@@ -141,20 +142,22 @@
     <b-modal
       id="modalEdit"
       ref="modalEdit"
-      title="Edit Administrator"
+      :title="user.name"
       ok-only
       centered
+      hide-footer
     >
-      <div class="d-flex justify-content-center">
-        <b-button variant="primary" @click="passwReset"
-          >Reset Password</b-button
-        >
+      <div class="d-flex justify-content-between">
+        <h6>Password</h6>
+        <b-button variant="primary" @click="passwReset">
+          <font-awesome-icon icon="fa-solid fa-arrows-rotate" size="lg"/>
+        </b-button>
       </div>
     </b-modal>
     <b-modal
       id="modalRemove"
       ref="modalRemove"
-      :title="'Do you want to delete user ' + user.name + '?'"
+      :title="'You sure you want to delete ' + user.name + '?'"
       centered
       @ok="deleteUser"
     >
@@ -164,27 +167,7 @@
 
 <script>
 import axios from "axios";
-export default { 
-  computed: {
-    userId() {
-      console.log(this.$store.getters.user_id)
-      return this.$store.getters.usersUpdate;
-    },
-    usersUpdate() {
-      console.log(this.$store.getters.usersUpdate)
-      return this.$store.getters.usersUpdate;
-    },
-
-  },
-  watch: {
-    usersUpdate() {
-      console.log("what")
-      this.getUsers();
-    },
-  },
-  created() {
-    this.getUsers();
-  },
+export default {
   data() {
     return {
       types: [
@@ -245,6 +228,15 @@ export default {
       allUsers: [],
     };
   },
+  computed: {
+    userId() {
+      return this.$store.getters.user_id;
+    },
+    usersUpdate() {
+      return this.$store.state.usersUpdate;
+    },
+
+  },
   watch: {
     type() {
       if (this.type == "All") {
@@ -254,6 +246,9 @@ export default {
       this.users = this.allUsers.filter((item) => {
         return item.type == this.type;
       });
+    },
+    usersUpdate() {
+      this.getUsers();
     },
   },
   methods: {
@@ -280,7 +275,6 @@ export default {
       }
       return false;
     },
-
     showModal(modal, item) {
       this.user = {
         name: "",
@@ -336,7 +330,7 @@ export default {
         });
     },
     passwReset() {
-      this.hideModal("modalRemove");
+      this.hideModal("modalEdit");
       axios
         .patch(`/users/${this.user.id}/password/reset`)
         .then(() => {
@@ -372,6 +366,9 @@ export default {
           );
         });
     },
+  },
+  created() {
+    this.getUsers();
   },
 };
 </script>

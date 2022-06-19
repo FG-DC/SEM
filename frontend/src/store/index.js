@@ -18,7 +18,7 @@ export default new Vuex.Store({
     profileUpdate: false,
     navbarUpdate: false,
     trainingExamples: false,
-    usersUpdate:false
+    usersUpdate: false
   },
   getters: {
     username: (state) => state.username,
@@ -41,7 +41,7 @@ export default new Vuex.Store({
       state.access_token = localStorage.getItem("access_token");
       state.userType = localStorage.getItem("userType");
       state.get_started = localStorage.getItem("get_started");
-      this.$socket.emit("logged_in", state.user_id,state.userType );
+      this.$socket.emit("logged_in", state.user_id, state.userType);
 
 
     },
@@ -100,7 +100,7 @@ export default new Vuex.Store({
         })
         .then(async (response) => {
           axios.defaults.headers.common.Authorization =
-          "Bearer " + response.data.access_token;
+            "Bearer " + response.data.access_token;
           localStorage.setItem("access_token", response.data.access_token);
           localStorage.setItem("status", true);
           await context.dispatch("getAuthUser");

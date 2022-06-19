@@ -15,7 +15,11 @@
           label="Choose an equipment"
           return-object
           solo
-        />
+        >
+          <template slot="item" slot-scope="data">
+            {{isRequired(data.item.id)}}{{ data.item.division_name }} / {{ data.item.name }}
+          </template>
+        </v-select>
       </div>
 
       <!-- BUTTON START -->
@@ -60,20 +64,6 @@
       :config="graphConfig"
       :isBoolean="false"
     />
-
-    <v-data-table
-      v-else
-      class="mt-5"
-      :headers="headers"
-      :items="stats"
-      :items-per-page="10"
-    >
-      <template v-slot:item.count="{ item }">
-        <v-chip dark :color="item.count == 'Yes' ? '#f44336' : '#4caf50'">
-          {{ item.count }}
-        </v-chip>
-      </template>
-    </v-data-table>
 
     <b-modal
       ref="modalAnalyse"
@@ -211,10 +201,6 @@ export default {
 
       isCalibrating: false,
       timeout: 0,
-      headers: [
-        { text: "Equipment", value: "equipment_name" },
-        { text: "Need to Analyze?", value: "count", sortable: false },
-      ],
     };
   },
   computed: {
@@ -398,6 +384,14 @@ export default {
     showModal(modal) {
       this.$refs[modal].show();
     },
+    isRequired(equipment) {
+      for (let i = 0; i < this.stats.length; i++) {
+        if (this.stats[i].id == equipment && (this.stats[i].count == "Yes" || this.stats[i].count === 0)) {
+          return "(Need read) ";
+        }
+      }
+      return "";
+    }
   },
 };
 </script>

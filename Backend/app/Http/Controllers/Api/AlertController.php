@@ -37,7 +37,7 @@ class AlertController extends Controller
         }
 
         if ($user->notifications) {
-            Mail::to($user->email)->send(new AlertNotification($user->name . ' alert', $alert));
+            Mail::to($user->email)->send(new AlertNotification($user->name . ' notification', $alert));
         }
 
         return new AlertResource($alert);

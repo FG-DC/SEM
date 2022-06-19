@@ -3,7 +3,7 @@ const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer, {
   allowEIO3: true,
   cors: {
-    origin: "http://192.168.1.98:8080",
+    origin: "http://localhost:8080",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -16,10 +16,10 @@ httpServer.listen(8585, function () {
 io.on("connection", function (socket) {
   console.log(`client ${socket.id} has connected`);
 
-  socket.on("logged_in", function (userId,userType) {
+  socket.on("logged_in", function (userId, userType) {
     userId = parseInt(userId);
     socket.join(userId);
-    if(userType == 'A'){
+    if (userType == 'A') {
       socket.join("administrators")
     }
   });

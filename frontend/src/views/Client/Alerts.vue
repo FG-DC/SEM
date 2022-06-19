@@ -10,16 +10,36 @@
     <v-card elevation="6" class="text-card p-4" style="border-radius: 10px">
       <div class="mb-3 d-flex justify-content-between mb-4">
         <b style="color: #191645">Alerts</b>
-        <v-chip
-          class="ma-2"
-          dark
-          large
-          :color="userNotifications == 'OFF' ? '#f44336' : '#4caf50'"
-          @click="changeUserNotification()"
-        >
-          <span class="p-2">Notifications {{ userNotifications }}</span>
-        </v-chip>
+        <div class="d-flex flex-row">
+          <v-chip
+            style="margin-right: 10px"
+            dark
+            large
+            :color="userNotifications == 'OFF' ? '#f44336' : '#4caf50'"
+            @click="changeUserNotification"
+          >
+            <font-awesome-icon v-if="userNotifications == 'ON'" icon="fa-solid fa-bell" size="xl" />
+            <font-awesome-icon v-else icon="fa-solid fa-bell-slash" size="xl" />
+          </v-chip>
+          <v-chip
+            dark
+            large
+            color="grey"
+            @click="openSettingsModal"
+          >
+            <font-awesome-icon icon="fa-solid fa-gear" size="xl" />
+          </v-chip>
+        </div>
       </div>
+      <v-data-table :headers="alertsHeaders" :items="alerts" :items-per-page="10" :options="{ sortBy: ['timestamp'], sortDesc: [true] }">
+        <template v-slot:item.timestamp="{ item }">
+          {{ formatDate(item.timestamp, true) }}
+        </template>
+      </v-data-table>
+    </v-card>
+
+    <!-- MODAL -->
+    <b-modal ref="alerts-modal" hide-footer centered size="xl" title="Settings">
       <v-data-table :headers="headers" :items="equipments" :items-per-page="10">
         <template class="d-flex" v-slot:item.state="{ item }">
           {{
@@ -37,29 +57,30 @@
             <font-awesome-icon icon="fa-solid fa-pen" />
           </b-button> </template
       ></v-data-table>
-    </v-card>
+    </b-modal>
 
-    <b-modal ref="modalAlert" centered title="Edit email preferences">
-      <h6>Equipment: {{ equipment.name }}</h6>
-      <div class="d-flex justify-content-center">
+    <b-modal ref="modalAlert" centered title="Notifications preferences">
+      <div class="d-flex justify-content-between">
+        <h5>{{ equipment.name }}</h5>
         <v-chip
-          class="m-3"
           dark
           :color="equipment.notify_when_passed > 0 ? '#4caf50' : '#f44336'"
           @click="changeState(equipment.notify_when_passed)"
         >
-          {{ equipment.notify_when_passed > 0 ? "ON" : "OFF" }}
+          <font-awesome-icon v-if="equipment.notify_when_passed > 0" icon="fa-solid fa-bell" size="xl" />
+          <font-awesome-icon v-else icon="fa-solid fa-bell-slash" size="xl" />
         </v-chip>
       </div>
 
       <div v-if="equipment.notify_when_passed" class="mt-3">
-        <span>Notify after the equipment has been ON for:</span
-        ><v-text-field
+        <span>Notify after the equipment has been ON for</span>
+        <v-text-field
           type="number"
-          placeholder="x minutes"
+          min="0"
           v-model="notificationTime"
+          suffix="Minutes"
           solo
-        ></v-text-field>
+        />
       </div>
       <template #modal-footer class="d-flex">
         <b-button
@@ -90,6 +111,7 @@ export default {
     },
   },
   created() {
+    this.getAlerts();
     this.getEquipments();
     this.getNotifications();
   },
@@ -109,9 +131,25 @@ export default {
         { text: "Notify after", value: "state" },
         { text: "Alerts", value: "actions", sortable: false },
       ],
+
+      alerts: [],
+      alertsHeaders: [
+        { text: "Alert", value: "alert" },
+        { text: "Time", value: "timestamp" },
+      ]
     };
   },
   methods: {
+    getAlerts() {
+      axios
+        .get(`/users/${this.userId}/alerts`)
+        .then((response) => {
+          this.alerts = response.data.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
     getNotifications() {
       axios
         .get(`/users/${this.userId}/notifications`)
@@ -188,9 +226,32 @@ export default {
       this.toast.message = message;
       this.toast.state = true;
     },
+    openSettingsModal() {
+      this.$refs['alerts-modal'].show();
+    },
+    formatDate(dateStr, withFullDate) {
+      if (dateStr == null || dateStr == "") return "";
+
+      let date = new Date(
+        dateStr.toString().length == 10 ? dateStr * 1000 : dateStr
+      );
+      let formatedDate = "";
+
+      formatedDate = date.toLocaleDateString("pt", {
+        timeZone: "Europe/Lisbon",
+      });
+
+      if (!withFullDate) return formatedDate;
+
+      return (
+        formatedDate +
+        " " +
+        date.toLocaleTimeString("pt-PT", { timeZone: "Europe/Lisbon" })
+      );
+    },
   },
 };
 </script>
 
-<style>
+<style scoped>
 </style>

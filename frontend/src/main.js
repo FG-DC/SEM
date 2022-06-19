@@ -42,6 +42,9 @@ import { faUsers } from '@fortawesome/free-solid-svg-icons'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { faLock } from '@fortawesome/free-solid-svg-icons'
 import { faUnlock } from '@fortawesome/free-solid-svg-icons'
+import { faBell } from '@fortawesome/free-solid-svg-icons'
+import { faBellSlash } from '@fortawesome/free-solid-svg-icons'
+import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons'
 
 const socketIO = new VueSocketIO({
   debug: true,
@@ -50,12 +53,12 @@ const socketIO = new VueSocketIO({
     store,
     actionPrefix: 'SOCKET_',
     mutationPrefix: 'SOCKET_'
-    }
-})   
+  }
+})
 
 import vuetify from './plugins/vuetify'
 
-library.add(faBan, faFloppyDisk, faPen, faTrash, faPlus, faStop, faPlay, faHouse, faMagnifyingGlassChart, faUserGroup, faGear, faBolt, faWindowMinimize, faCircleChevronDown, faPlugCircleBolt, faLocationDot, faCalendar, faPlug, faHouseChimneyWindow, faCirclePlus,faTriangleExclamation, faUserGear,faUsers, faUser, faMagnifyingGlass,faLock,faUnlock)
+library.add(faArrowsRotate, faBellSlash, faBell, faBan, faFloppyDisk, faPen, faTrash, faPlus, faStop, faPlay, faHouse, faMagnifyingGlassChart, faUserGroup, faGear, faBolt, faWindowMinimize, faCircleChevronDown, faPlugCircleBolt, faLocationDot, faCalendar, faPlug, faHouseChimneyWindow, faCirclePlus, faTriangleExclamation, faUserGear, faUsers, faUser, faMagnifyingGlass, faLock, faUnlock)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.use(socketIO)
 Vue.use(BootstrapVue)
