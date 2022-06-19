@@ -10,15 +10,6 @@
         />
       </router-link>
 
-      <router-link :to="{ name: 'equipmentTypes' }" class="m-4 notification">
-        <font-awesome-icon
-          class="notSelected"
-          :class="{ selected: $route.name == 'dashboard' }"
-          icon="fa-solid fa-plug"
-          size="2x"
-        />
-      </router-link>
-
       <router-link :to="{ name: 'users' }" class="m-4 notification">
         <font-awesome-icon
           class="notSelected"
@@ -38,7 +29,7 @@
             />
           </template>
 
-          <b-dropdown-item :to="{ name: 'profile' }">Profile</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'adminProfile' }">Profile</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
 
           <b-dropdown-item @click="logout()">Log Out</b-dropdown-item>

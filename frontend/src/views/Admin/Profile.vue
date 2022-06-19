@@ -34,42 +34,11 @@
         solo
       />
 
-      <label for="price">Energy Price per kWh</label>
-      <v-text-field
-        :rules="fieldRequired"
-        id="price"
-        v-model.number="user.energy_price"
-        :disabled="!isEditing"
-        type="number"
-        suffix="€"
-        solo
-      />
-
-      <label for="wakeup">Wake up time</label>
-      <b-form-timepicker
-        v-model="user.no_activity_start"
-        :disabled="!isEditing"
-        id="wakeup"
-        size="sm"
-        locale="pt"
-        class="mb-3"
-      ></b-form-timepicker>
-
-      <label for="bedtime">Bedtime</label>
-      <b-form-timepicker
-        v-model="user.no_activity_end"
-        :disabled="!isEditing"
-        id="bedtime"
-        size="sm"
-        locale="pt"
-        class="mb-5"
-      ></b-form-timepicker>
-
       <div class="d-flex justify-content-between">
         <b-button variant="danger" @click="showModal('modalChangePSW')">
           Change Password
         </b-button>
-
+        
         <div>
           <b-button v-if="!isEditing" variant="primary" @click="startEdit">
             <font-awesome-icon icon="fa-solid fa-pen" />
@@ -128,7 +97,7 @@
 
 <script>
 import axios from "axios";
-import EquipmentList from "../components/EquipmentList.vue";
+import EquipmentList from "../../components/EquipmentList.vue";
 
 export default {
   computed: {
@@ -172,9 +141,6 @@ export default {
         .then((response) => {
           this.user = response.data;
           this.user.birthdate = this.user.birthdate.split(" ")[0];
-          this.user.no_activity_start =
-            this.user.no_activity_start.split(" ")[1];
-          this.user.no_activity_end = this.user.no_activity_end.split(" ")[1];
         })
         .catch((error) => {
           return Promise.reject(error);
@@ -240,8 +206,7 @@ export default {
     validateEdit() {
       if (
         this.user.name == "" ||
-        this.user.birthdate == "" ||
-        this.user.energy_price == ""
+        this.user.birthdate == ""
       ) {
         return true;
       }

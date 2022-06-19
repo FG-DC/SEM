@@ -170,9 +170,9 @@
 
 
 <script>
-import mqtt from "../MyMqtt";
+import mqtt from "../../MyMqtt";
 import axios from "axios";
-import Chart from "../components/Chart.vue";
+import Chart from "../../components/Chart.vue";
 
 export default {
   components: { Chart },

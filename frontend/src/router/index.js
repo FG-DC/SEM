@@ -1,19 +1,18 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Dashboard from "../views/Dashboard.vue";
+import Dashboard from "../views/Client/Dashboard.vue";
 import LogIn from "../views/auth/Login.vue";
 import Register from "../views/auth/Register.vue";
-import Profile from "../views/Profile.vue";
-import GetStarted from "../views/GetStarted.vue";
-import IndividualRead from "../views/IndividualRead.vue";
-import Settings from "../views/Settings.vue";
-import Affiliates from "../views/Affiliates.vue";
-import Equipments from "../views/Equipments.vue";
-import Divisions from "../views/Divisions.vue";
-import Alerts from "../views/Alerts.vue";
-import AdminDashboard from "../views/DashboardAdmin.vue";
-import EquipmentTypes from "../views/EquipmentTypes.vue";
-import Users from "../views/Users.vue";
+import Profile from "../views/Client/Profile.vue";
+import IndividualRead from "../views/Client/IndividualRead.vue";
+import Settings from "../views/Client/Settings.vue";
+import Affiliates from "../views/Client/Affiliates.vue";
+import Equipments from "../views/Client/Equipments.vue";
+import Divisions from "../views/Client/Divisions.vue";
+import Alerts from "../views/Client/Alerts.vue";
+import AdminDashboard from "../views/Admin/DashboardAdmin.vue";
+import Users from "../views/Admin/Users.vue";
+import AdminProfile from "../views/Admin/Profile.vue";
 
 
 Vue.use(VueRouter);
@@ -38,11 +37,6 @@ const routes = [
     path: "/profile",
     name: "profile",
     component: Profile,
-  },
-  {
-    path: "/getStarted",
-    name: "getStarted",
-    component: GetStarted,
   },
   {
     path: "/read",
@@ -80,14 +74,14 @@ const routes = [
     component: AdminDashboard,
   },
   {
-    path: "/admin/equipmentTypes",
-    name: "equipmentTypes",
-    component: EquipmentTypes,
-  },
-  {
     path: "/admin/users",
     name: "users",
     component: Users,
+  },
+  {
+    path: "/admin/profile",
+    name: "adminProfile",
+    component: AdminProfile,
   },
   {
     path: "*",
@@ -109,6 +103,8 @@ router.beforeEach((to, from, next) => {
     next();
     return;
   }
+
+
 
   store.dispatch("fillStore").then(() => {
     var isAuthenticated = store.state.status;

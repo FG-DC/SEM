@@ -31,7 +31,8 @@ class UserResource extends JsonResource
             "get_started" => $this->get_started,
             "notifications" => $this->notifications,
             "no_activity_start" => $this->no_activity_start,
-            "no_activity_end" => $this->no_activity_end
+            "no_activity_end" => $this->no_activity_end,
+            "locked" => $this->locked
         ];
     }
 }

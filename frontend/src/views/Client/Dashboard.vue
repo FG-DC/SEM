@@ -158,7 +158,7 @@
 
 <script>
 import axios from "axios";
-import mqtt from "../MyMqtt";
+import mqtt from "../../MyMqtt";
 
 export default {
   data() {

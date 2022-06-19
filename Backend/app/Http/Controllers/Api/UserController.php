@@ -75,11 +75,13 @@ class UserController extends Controller
     public function putUser(UserPut $request, User $user)
     {
         $user->name = $request->name;
-        $user->energy_price = $request["energy_price"];
-        $user->no_activity_start = date("Y-m-d H:i:s", $request["no_activity_start"]);
-        $user->no_activity_end = date("Y-m-d H:i:s", $request["no_activity_end"]);
-        $user->notifications = $request["notifications"];
         $user->birthdate = DateTime::createFromFormat('!d/m/Y', $request->birthdate);
+        if($user->type == 'C'){
+            $user->energy_price = $request["energy_price"];
+            $user->no_activity_start = date("Y-m-d H:i:s", $request["no_activity_start"]);
+            $user->no_activity_end = date("Y-m-d H:i:s", $request["no_activity_end"]);
+            $user->notifications = $request["notifications"];
+        }
         try {
             $user->save();
         } catch (Exception $e) {

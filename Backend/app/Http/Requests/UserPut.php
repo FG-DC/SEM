@@ -26,9 +26,9 @@ class UserPut extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'birthdate' => ['required', 'regex:/^([0-2][0-9]|(3)[0-1])(\/)(((0)[0-9])|((1)[0-2]))(\/)\d{4}$/'],
-            'no_activity_start' => 'required|integer',
-            'no_activity_end' => 'required|integer',
-            'notifications' => 'required|integer'
+            'no_activity_start' => 'nullable',
+            'no_activity_end' => 'nullable',
+            'notifications' => 'nullable|integer'
         ];
     }
 

@@ -16,9 +16,12 @@ httpServer.listen(8585, function () {
 io.on("connection", function (socket) {
   console.log(`client ${socket.id} has connected`);
 
-  socket.on("logged_in", function (userId) {
+  socket.on("logged_in", function (userId,userType) {
     userId = parseInt(userId);
     socket.join(userId);
+    if(userType == 'A'){
+      socket.join("administrators")
+    }
   });
 
   socket.on("logged_out", function (userId) {
@@ -54,4 +57,10 @@ io.on("connection", function (socket) {
     io.to(userId).emit("trainingExamples");
     io.to(userId).emit("navbarUpdate");
   });
+
+  socket.on("usersUpdate", function () {
+    io.to("administrators").emit("usersUpdate");
+  });
+
+
 });

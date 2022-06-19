@@ -47,7 +47,16 @@
         :items-per-page="10"
         :search="search"
       >
-        <template class="d-flex" v-slot:item.actions="{ item }">
+        <template v-slot:item.actions="{ item }">
+          <b-button
+            :disabled="item.id == userId"
+            @click="changeLock(item)"
+            :variant="!item.locked ? 'success' : 'dark'"
+            style="margin: 2px"
+          >
+            <font-awesome-icon v-if="!item.locked" icon="fa-unlock" />
+            <font-awesome-icon v-else icon="fa-lock" />
+          </b-button>
           <b-button
             variant="primary"
             style="margin: 2px"
@@ -57,6 +66,7 @@
           </b-button>
 
           <b-button
+            :disabled="item.id == userId"
             variant="danger"
             style="margin: 2px"
             @click="showModal('modalRemove', item)"
@@ -136,7 +146,9 @@
       centered
     >
       <div class="d-flex justify-content-center">
-        <b-button variant="primary" @click="passwReset">Reset Password</b-button>
+        <b-button variant="primary" @click="passwReset"
+          >Reset Password</b-button
+        >
       </div>
     </b-modal>
     <b-modal
@@ -152,7 +164,24 @@
 
 <script>
 import axios from "axios";
-export default {
+export default { 
+  computed: {
+    userId() {
+      console.log(this.$store.getters.user_id)
+      return this.$store.getters.usersUpdate;
+    },
+    usersUpdate() {
+      console.log(this.$store.getters.usersUpdate)
+      return this.$store.getters.usersUpdate;
+    },
+
+  },
+  watch: {
+    usersUpdate() {
+      console.log("what")
+      this.getUsers();
+    },
+  },
   created() {
     this.getUsers();
   },
@@ -277,7 +306,7 @@ export default {
           type: this.typeCreate,
         })
         .then(() => {
-          //this.$socket.emit("equipmentUpdate", this.userId);
+          this.$socket.emit("usersUpdate", this.userId);
           this.showToastMessage(
             "Administrator was created successfully",
             "#4caf50"
@@ -293,7 +322,7 @@ export default {
       axios
         .delete(`/users/${this.user.id}`)
         .then(() => {
-          //this.$socket.emit("equipmentUpdate", this.userId);
+          this.$socket.emit("usersUpdate", this.userId);
           this.showToastMessage(
             `${this.user.name} was deleted successfully`,
             "#dd2929"
@@ -306,8 +335,8 @@ export default {
           );
         });
     },
-    passwReset(){
-       this.hideModal("modalRemove");
+    passwReset() {
+      this.hideModal("modalRemove");
       axios
         .patch(`/users/${this.user.id}/password/reset`)
         .then(() => {
@@ -327,6 +356,21 @@ export default {
       this.toast.color = color;
       this.toast.message = message;
       this.toast.state = true;
+    },
+    changeLock(item) {
+      axios
+        .patch(`/users/${item.id}/locked`)
+        .then(() => {
+          this.$socket.emit("usersUpdate", this.userId);
+
+          this.showToastMessage(`${item.name} lock was changed`, "#4caf50");
+        })
+        .catch(() => {
+          this.showToastMessage(
+            "There was an error trying to change user lock",
+            "#333333"
+          );
+        });
     },
   },
 };

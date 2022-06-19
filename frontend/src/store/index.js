@@ -18,6 +18,7 @@ export default new Vuex.Store({
     profileUpdate: false,
     navbarUpdate: false,
     trainingExamples: false,
+    usersUpdate:false
   },
   getters: {
     username: (state) => state.username,
@@ -29,6 +30,7 @@ export default new Vuex.Store({
     affiliateUpdate: (state) => state.affiliateUpdate,
     profileUpdate: (state) => state.profileUpdate,
     navbarUpdate: (state) => state.navbarUpdate,
+    usersUpdate: (state) => state.usersUpdate,
     trainingExamples: (state) => state.trainingExamples,
   },
   mutations: {
@@ -39,6 +41,9 @@ export default new Vuex.Store({
       state.access_token = localStorage.getItem("access_token");
       state.userType = localStorage.getItem("userType");
       state.get_started = localStorage.getItem("get_started");
+      this.$socket.emit("logged_in", state.user_id,state.userType );
+
+
     },
     mutationAuthReset(state) {
       (state.status = false),
@@ -71,6 +76,10 @@ export default new Vuex.Store({
     async SOCKET_navbarUpdate(state) {
       state.navbarUpdate = !state.navbarUpdate;
     },
+    async SOCKET_usersUpdate(state) {
+      state.usersUpdate = !state.usersUpdate;
+    },
+
   },
 
   actions: {
@@ -95,8 +104,6 @@ export default new Vuex.Store({
           localStorage.setItem("access_token", response.data.access_token);
           localStorage.setItem("status", true);
           await context.dispatch("getAuthUser");
-          this.$socket.emit("logged_in", response.data.id);
-
         })
         .catch(() => {
           context.commit("mutationAuthReset");
@@ -111,7 +118,6 @@ export default new Vuex.Store({
           localStorage.setItem("get_started", response.data.get_started);
           localStorage.setItem("userType", response.data.type);
           context.commit("mutationAuthOk");
-
         })
         .catch((error) => {
           context.commit("mutationAuthReset");

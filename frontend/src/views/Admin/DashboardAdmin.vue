@@ -1,29 +1,14 @@
 <template>
   <b-container class="text-center">
-    <v-card>
-      <div class="d-flex p-4">
-        <v-text-field type="date" v-model="infoDate"></v-text-field>
-        <b-button
-          class="action-button"
-          @click="getInfoFromDay()"
-          variant="primary"
-        >
-          <font-awesome-icon icon="fa-solid fa-magnifying-glass" size="lg" />
-        </b-button>
-      </div>
+    <v-card class="p-3">
+      <v-text-field type="date" v-model="infoDate"></v-text-field>
     </v-card>
-    <v-card class="mt-4">
-      <apexchart width="380" :options="userChartOptions" :series="userSeries"
-    /></v-card>
 
     <div class="d-flex flex-wrap mt-4">
-      <v-card
-        elevation="6"
-        class="flex-grow-1 card-selectable mx-auto"
-      >
+      <v-card elevation="6" class="flex-grow-1 card-selectable mx-auto">
         <div class="text-card text-center">
           <span>Observations</span>
-          <br />
+          <br>
           {{ infoStatistics.observations }}
         </div>
       </v-card>
@@ -41,7 +26,7 @@
       <v-card
         elevation="6"
         class="flex-grow-1 card-selectable"
-        style="border-radius: 10px; margin-left: 20px; padding-right: 2vw;"
+        style="border-radius: 10px; margin-left: 20px; padding-right: 2vw"
       >
         <div class="text-card text-center">
           <span>Consumptions</span>
@@ -50,16 +35,26 @@
         </div>
       </v-card>
     </div>
+    <v-card
+      elevation="6"
+      class="mt-4 card-selectable d-flex justify-content-center p-3"
+    >
+      <apexchart width="380" :options="userChartOptions" :series="userSeries"
+    /></v-card>
   </b-container>
 </template>
 
 <script>
 import axios from "axios";
-import Chart from "../components/Chart.vue";
+import Chart from "../../components/Chart.vue";
 
 export default {
   components: { Chart },
-
+  watch: {
+    infoDate() {
+      this.getInfoFromDay();
+    },
+  },
   data() {
     return {
       chartOptions: {},
@@ -68,7 +63,7 @@ export default {
       infoStatistics: {},
       userSeries: [],
       labelSeries: [],
-      infoDate: "",
+      infoDate: Date.now(),
     };
   },
   created() {
@@ -103,11 +98,16 @@ export default {
     },
     getInfoFromDay() {
       let timestamp;
-      if (this.infoDate == "") {
-        timestamp = Math.floor(Date.now() / 1000);
-      } else {
-        timestamp = Date.parse(this.infoDate) / 1000;
-      }
+      var today = new Date();
+      this.infoDate =
+        today.getFullYear() +
+        "-" +
+        String(today.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        today.getDate();
+
+      timestamp = Date.parse(this.infoDate) / 1000;
+
       this.filledValues = false;
       axios
         .get(`statistics?timestamp=${timestamp}`)
@@ -137,9 +137,8 @@ export default {
   z-index: 1;
 }
 
-.text-card{
-   font-size: 2.5vw;
+.text-card {
+  font-size: 2.5vw;
   color: #191645;
 }
-
 </style>
