@@ -316,7 +316,6 @@ export default {
         .delete(`/users/${this.user.id}`)
         .then(() => {
           this.$socket.emit("usersUpdate", this.userId);
-          console.log(this.user.id)
           this.$socket.emit("userDeleted", this.user.id);
 
           this.showToastMessage(
@@ -358,7 +357,6 @@ export default {
         .patch(`/users/${item.id}/locked`)
         .then(() => {
           this.$socket.emit("usersUpdate", this.userId);
-          console.log(item.id)
           this.$socket.emit("userBlock", item.id, !item.locked);
           this.showToastMessage(`${item.name} lock was changed`, "#4caf50");
         })

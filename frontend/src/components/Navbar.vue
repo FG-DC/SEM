@@ -111,37 +111,6 @@ export default {
           console.log(error);
         });
     },
-    obsAnaliyse() {
-      this.modalState = true;
-      axios
-        .get(`users/${this.userId}/observations/last`)
-        .then((response) => {
-          this.analyze = response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-    analyseEdit() {
-      this.edit = true;
-      axios
-        .get(`users/${this.userId}/equipments`)
-        .then((response) => {
-          this.equipments = response.data.data;
-          this.equipments.forEach((equipment) => {
-            this.analyze.observation.equipments.forEach(
-              (analyzeEquip, index) => {
-                if (equipment.id == analyzeEquip.id) {
-                  this.equipments.splice(index, 1);
-                }
-              }
-            );
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
     getStats() {
       axios
         .get(`/users/${this.userId}/stats`)

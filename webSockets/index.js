@@ -3,14 +3,14 @@ const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer, {
   allowEIO3: true,
   cors: {
-    origin: "http://192.168.1.98:8080",
+    origin: "http://127.0.0.1:80",
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
-httpServer.listen(8585, function () {
-  console.log("listening on *:8585");
+httpServer.listen(8080, function () {
+  console.log("listening on *:8080");
 });
 
 io.on("connection", function (socket) {
@@ -25,6 +25,7 @@ io.on("connection", function (socket) {
   });
 
   socket.on("logged_out", function (userId) {
+    userId = parseInt(userId);
     socket.leave(userId);
   });
 
@@ -63,12 +64,17 @@ io.on("connection", function (socket) {
   });
 
   socket.on("userBlock", function (userToBlock, block) {
-    if(block)
+    if(block){
+      userToBlock = parseInt(userToBlock);
       io.to(userToBlock).emit("userBlock");
+      socket.leave(userToBlock)
+    }
   });
 
   socket.on("userDeleted", function (userDeleted) {
+    userDeleted = parseInt(userDeleted);
     io.to(userDeleted).emit("userDeleted");
+    socket.leave(userDeleted)
   });
 
 
