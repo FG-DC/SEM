@@ -3,7 +3,7 @@ const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer, {
   allowEIO3: true,
   cors: {
-    origin: "http://localhost:8080",
+    origin: "http://192.168.1.98:8080",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -60,6 +60,15 @@ io.on("connection", function (socket) {
 
   socket.on("usersUpdate", function () {
     io.to("administrators").emit("usersUpdate");
+  });
+
+  socket.on("userBlock", function (userToBlock, block) {
+    if(block)
+      io.to(userToBlock).emit("userBlock");
+  });
+
+  socket.on("userDeleted", function (userDeleted) {
+    io.to(userDeleted).emit("userDeleted");
   });
 
 

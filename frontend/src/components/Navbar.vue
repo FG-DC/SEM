@@ -105,10 +105,7 @@ export default {
       axios
         .post(`logout`)
         .then(() => {
-          this.$store.dispatch("logout");
-          this.$router.push({
-            name: "login",
-          });
+          this.$store.dispatch("authLogout");
         })
         .catch((error) => {
           console.log(error);

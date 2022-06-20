@@ -76,12 +76,13 @@ export default {
             this.showToastMessage(error.response.data.username, "#333333");
           } else if ("password" in error.response.data) {
             this.showToastMessage(error.response.data.password, "#333333");
+          } else if ("block" in error.response.data.block) {
+            this.showToastMessage(error.response.data.block, "#333333");
           } else {
             this.showToastMessage(error.response.data.error, "#333333");
           }
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("username");
-          delete axios.defaults.headers.common.Authorization;
+          this.$store.dispatch("authLogout");
+          return Promise.reject(error);
         });
     },
     showToastMessage(message, color) {

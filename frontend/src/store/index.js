@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
+import router from "./../router";
 
 Vue.use(Vuex);
 
@@ -18,7 +19,7 @@ export default new Vuex.Store({
     profileUpdate: false,
     navbarUpdate: false,
     trainingExamples: false,
-    usersUpdate: false
+    usersUpdate: false,
   },
   getters: {
     username: (state) => state.username,
@@ -42,8 +43,6 @@ export default new Vuex.Store({
       state.userType = localStorage.getItem("userType");
       state.get_started = localStorage.getItem("get_started");
       this.$socket.emit("logged_in", state.user_id, state.userType);
-
-
     },
     mutationAuthReset(state) {
       (state.status = false),
@@ -79,7 +78,13 @@ export default new Vuex.Store({
     async SOCKET_usersUpdate(state) {
       state.usersUpdate = !state.usersUpdate;
     },
-
+    async SOCKET_userBlock() {
+        this.dispatch("authLogout");
+    },
+    async SOCKET_userDeleted() {
+      this.dispatch("authLogout");
+    },
+    
   },
 
   actions: {
@@ -87,10 +92,6 @@ export default new Vuex.Store({
       context.commit("mutationAuthOk");
       axios.defaults.headers.common.Authorization =
         "Bearer " + this.state.access_token;
-    },
-    logout(context, state) {
-      this.$socket.emit("logged_out", state);
-      context.commit("mutationAuthReset");
     },
     async authRequest(context, credentials) {
       await axios
@@ -125,19 +126,22 @@ export default new Vuex.Store({
         });
     },
 
-    authLogout(context) {
+    authLogout(context,state) {
       axios
-        .post("/logout")
-        .then((response) => {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("username");
-          localStorage.removeItem("userType");
+        .post("/logout",state)
+        .then(() => {
           context.commit("mutationAuthReset");
-          resolve(response);
+          this.$socket.emit("logged_out", state);
+          router.push({
+            name: "login",
+          });
         })
-        .catch((error) => {
+        .catch(() => {
           context.commit("mutationAuthReset");
-          reject(error);
+          this.$socket.emit("logged_out", state);
+          router.push({
+            name: "login",
+          });
         });
     },
   },

@@ -28,6 +28,15 @@ class AuthController extends Controller
             $url = env("URL") . '/oauth/token';
             $http = new \GuzzleHttp\Client;
             $response = $http->post($url, $bodyHttpRequest);
+            $user = User::where('email', '=', $request->username)->firstOrFail();
+            if($user->locked == 1){
+                return response(
+                    ['block' => 'User is blocked'], 401);
+            }
+            if($user->deleted_at!=null){
+                return response(
+                    ['exist' => 'User does not exist'], 401);
+            }
             $errorCode = $response->getStatusCode();
             if ($errorCode == '200') {
                 return json_decode((string) $response->getBody(), true);

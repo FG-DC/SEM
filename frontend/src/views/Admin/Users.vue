@@ -150,7 +150,7 @@
       <div class="d-flex justify-content-between">
         <h6>Password</h6>
         <b-button variant="primary" @click="passwReset">
-          <font-awesome-icon icon="fa-solid fa-arrows-rotate" size="lg"/>
+          <font-awesome-icon icon="fa-solid fa-arrows-rotate" size="lg" />
         </b-button>
       </div>
     </b-modal>
@@ -233,9 +233,8 @@ export default {
       return this.$store.getters.user_id;
     },
     usersUpdate() {
-      return this.$store.state.usersUpdate;
+      return this.$store.getters.usersUpdate;
     },
-
   },
   watch: {
     type() {
@@ -317,6 +316,9 @@ export default {
         .delete(`/users/${this.user.id}`)
         .then(() => {
           this.$socket.emit("usersUpdate", this.userId);
+          console.log(this.user.id)
+          this.$socket.emit("userDeleted", this.user.id);
+
           this.showToastMessage(
             `${this.user.name} was deleted successfully`,
             "#dd2929"
@@ -356,7 +358,8 @@ export default {
         .patch(`/users/${item.id}/locked`)
         .then(() => {
           this.$socket.emit("usersUpdate", this.userId);
-
+          console.log(item.id)
+          this.$socket.emit("userBlock", item.id, !item.locked);
           this.showToastMessage(`${item.name} lock was changed`, "#4caf50");
         })
         .catch(() => {
