@@ -6,7 +6,7 @@ import store from './store'
 import VueSocketIO from 'vue-socket.io'
 
 import axios from 'axios'
-axios.defaults.baseURL = 'http://backend.test/api'
+axios.defaults.baseURL = 'http://smartenergymonitoring.dei.estg.ipleiria.pt/api'
 
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
@@ -48,7 +48,7 @@ import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons'
 
 const socketIO = new VueSocketIO({
   debug: true,
-  connection: "http://127.0.0.1:8585",
+  connection: "http://smartenergymonitoring.dei.estg.ipleiria.pt:80",
   vuex: {
     store,
     actionPrefix: 'SOCKET_',

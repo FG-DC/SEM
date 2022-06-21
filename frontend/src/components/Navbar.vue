@@ -105,41 +105,7 @@ export default {
       axios
         .post(`logout`)
         .then(() => {
-          this.$store.dispatch("logout");
-          this.$router.push({
-            name: "login",
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-    obsAnaliyse() {
-      this.modalState = true;
-      axios
-        .get(`users/${this.userId}/observations/last`)
-        .then((response) => {
-          this.analyze = response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-    analyseEdit() {
-      this.edit = true;
-      axios
-        .get(`users/${this.userId}/equipments`)
-        .then((response) => {
-          this.equipments = response.data.data;
-          this.equipments.forEach((equipment) => {
-            this.analyze.observation.equipments.forEach(
-              (analyzeEquip, index) => {
-                if (equipment.id == analyzeEquip.id) {
-                  this.equipments.splice(index, 1);
-                }
-              }
-            );
-          });
+          this.$store.dispatch("authLogout");
         })
         .catch((error) => {
           console.log(error);
