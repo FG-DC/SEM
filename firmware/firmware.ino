@@ -60,7 +60,7 @@ void setup() {
   mqttClient.onMessage(onMqttMessage);
 
   pinMode(PIN_SCT, INPUT);
-  SCT013.current(PIN_SCT, 30); //calibration value
+  SCT013.current(PIN_SCT, 15); //calibration value
 
   File file = SPIFFS.open("/data.txt", FILE_READ);
   String message = "";
@@ -154,7 +154,7 @@ float getConsumption() {
 
   /*
   //METHOD 2
-  int sensorValue, sensorMax;
+  int sensorValue, sensorMax = 0;
   uint32_t start = millis();
   while((millis() - start) < 1000) {
     sensorValue = analogRead(PIN_SCT);
@@ -162,7 +162,7 @@ float getConsumption() {
       sensorMax = sensorValue;
     }
   }
-  float irms = ((sensorMax - 500) / 1024.0) * 3.3 * 0.7071 * 15.0;
+  float irms = ((sensorMax - 1968) / 4096.0) * 3.3 * 0.7071 * (1800/70);
   */
 
   float power = irms * HOME_VOLTAGE;  // Calcula o valor da Potencia Instantanea
