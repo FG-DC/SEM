@@ -8,28 +8,29 @@ INSERT INTO `equipment_types` (`id`, `name`, `activity`, `created_at`, `updated_
 (7, 'Freezer', 'No', '2022-04-18 18:51:24', '2022-04-18 18:51:24', NULL),
 (8, 'Heater', 'Yes', '2022-04-18 19:59:28', '2022-04-18 19:59:28', NULL);
 
-INSERT INTO `users` (`id`, `name`, `email`, `password`, `birthdate`, `get_started`, `type`, `created_at`, `updated_at`, `deleted_at`, `notifications`,`locked`) VALUES
-(1, 'Fabio Gaspar', 'fabio.c.gaspar@ipleiria.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2001-12-04 00:00:00', 0, 'C', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1,0),
-(2, 'Daniel Carreira', 'daniel@mail.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2001-08-11 00:00:00', 0, 'A', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1,0),
-(3, 'RapidMiner', 'rapidminer@ai.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2022-02-02 20:25:34', 0, 'P', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1,0),
-(4, 'Daniel Carreira', 'danielcarreira7@gmail.com', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2001-08-11 00:00:00', 0, 'C', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1,0);
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `birthdate`, `get_started`, `type`, `created_at`, `updated_at`, `deleted_at`, `notifications`) VALUES
+(1, 'User', 'user1@mail.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2001-12-04 00:00:00', 0, 'C', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1),
+(2, 'Daniel Carreira', 'admin@mail.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2001-08-11 00:00:00', 0, 'A', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1),
+(3, 'RapidMiner', 'producer@mail.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2022-02-02 20:25:34', 0, 'P', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1),
+(4, 'User', 'user2@mail.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2000-01-01 00:00:00', 0, 'C', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1),
+(5, 'User', 'user3@mail.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2000-01-01 00:00:00', 0, 'C', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1),
+(6, 'User', 'user4@mail.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2000-01-01 00:00:00', 0, 'C', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1),
+(7, 'User', 'user5@mail.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2000-01-01 00:00:00', 0, 'C', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1),
+(8, 'User', 'user6@mail.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2000-01-01 00:00:00', 0, 'C', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1),
+(9, 'User', 'user7@mail.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2000-01-01 00:00:00', 0, 'C', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1),
+(10, 'User', 'user8@mail.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2000-01-01 00:00:00', 0, 'C', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1),
+(11, 'User', 'user9@mail.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2000-01-01 00:00:00', 0, 'C', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1),
+(12, 'User', 'user10@mail.pt', '$2y$10$IIWDeXYbvfn7z/Ojw5CkreDgc7BDb41qLBxYNAdksoL3TtHizKmjy', '2000-01-01 00:00:00', 0, 'C', '2022-02-02 20:25:34', '2022-02-02 20:25:34', NULL, 1);
 
 INSERT INTO `divisions` (`id`, `user_id`, `name`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (1, 1, 'Kitchen', NULL, NULL, NULL),
 (2, 1, 'Living room', NULL, NULL, NULL),
 (3, 1, 'Garage', NULL, NULL, NULL),
-(4, 4, 'Kitchen', NULL, NULL, NULL),
-(5, 4, 'Living room', NULL, NULL, NULL),
-(6, 4, 'Garage', NULL, NULL, NULL);
+(4, 1, 'Bedroom', NULL, NULL, NULL);
 
 INSERT INTO `equipments` (`id`, `user_id`, `equipment_type_id`, `name`, `division_id`, `consumption`, `activity`, `created_at`, `updated_at`, `deleted_at`, `notify_when_passed`) VALUES
 (1, 1, 1, 'Toaster', 1, '1000.00', 'Yes', '2022-04-11 07:52:14', '2022-04-11 07:52:14', NULL, 5),
 (2, 1, 2, 'TV', 2, '70.00', 'Yes', '2022-04-11 07:53:04', '2022-04-11 07:53:04', NULL, NULL),
 (3, 1, 3, 'Microwave', 1, '1350.00', 'Yes', '2022-04-11 07:54:04', '2022-04-11 07:54:04', NULL, 2),
 (4, 1, 5, 'Exhaust Fan', 1, '380.00', 'Yes', '2022-04-11 07:59:27', '2022-04-11 07:59:27', NULL, 60),
-(5, 1, 8, 'Heater', 1, '2000.00', 'Yes', '2022-04-18 20:01:07', '2022-04-18 20:01:07', NULL, 2),
-(6, 4, 1, 'Toaster', 4, '1000.00', 'Yes', '2022-04-11 07:52:14', '2022-04-11 07:52:14', NULL, 5),
-(7, 4, 2, 'TV', 5, '70.00', 'Yes', '2022-04-11 07:53:04', '2022-04-11 07:53:04', NULL, NULL),
-(8, 4, 3, 'Microwave', 4, '1350.00', 'Yes', '2022-04-11 07:54:04', '2022-04-11 07:54:04', NULL, 2),
-(9, 4, 5, 'Exhaust Fan', 4, '380.00', 'Yes', '2022-04-11 07:59:27', '2022-04-11 07:59:27', NULL, 60),
-(10, 4, 8, 'Heater', 4, '2000.00', 'Yes', '2022-04-18 20:01:07', '2022-04-18 20:01:07', NULL, 2);
+(5, 1, 8, 'Heater', 1, '2000.00', 'Yes', '2022-04-18 20:01:07', '2022-04-18 20:01:07', NULL, 2);
