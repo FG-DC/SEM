@@ -204,7 +204,7 @@ def realtime():
 
     broker.subscribe(f'{api.id}/power')
 
-    train = pd.read_csv("./data/model1.csv")
+    train = pd.read_csv("./data/train_data.csv")
     data = {'timestamp': x_axis, 'power': y_axis}
 
     list_of_appliance = train.keys()[2:]
@@ -226,6 +226,7 @@ def realtime():
             # APPLY MODEL
             test = pd.DataFrame(data=data)
             predictions = fhmms.disaggregate(test)
+            predictions.to_csv('./data/results.csv', sep=';')
 
             time_axis.clear()
             time_axis.extend(predictions.index.array)
@@ -250,7 +251,7 @@ def realtime():
 
 
 # ENV
-API_ENDPOINT = 'http://backend.test/api'
+API_ENDPOINT = 'http://smartenergymonitoring.dei.estg.ipleiria.pt/api'
 BROKER_ENDPOINT = 'broker.hivemq.com'
 BROKER_PORT = 1883
 

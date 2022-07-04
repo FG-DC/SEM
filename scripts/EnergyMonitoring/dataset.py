@@ -133,31 +133,32 @@ def dataToDataframe(examples, equipments):
         arrayIdx = np.where(mapper == example['equipment_id'])
         row[arrayIdx[0] + 2] = example['consumption'] if example['equipment_status'] == 'ON' else 0
 
-    DATA_AUGMENTATION = 100
+    DATA_AUGMENTATION = 1
 
-    for next in range(1, len(data)):
-        current = next - 1
+    if DATA_AUGMENTATION > 0:
+        for next in range(1, len(data)):
+            current = next - 1
 
-        augmented = []
-        for idx in range(len(equipments) + 2):
-            arr = np.linspace(data[current][idx], data[next]
-                              [idx], num=DATA_AUGMENTATION + 2)[1:-1]
-            augmented.append(np.round(arr, 2))
-
-        for pos in range(DATA_AUGMENTATION):
-            # ADD NEW ROW
-            row = []
+            augmented = []
             for idx in range(len(equipments) + 2):
-                row.append(augmented[idx][pos])
+                arr = np.linspace(data[current][idx], data[next]
+                                  [idx], num=DATA_AUGMENTATION + 2)[1:-1]
+                augmented.append(np.round(arr, 2))
 
-            data.append(row)
+            for pos in range(DATA_AUGMENTATION):
+                # ADD NEW ROW
+                row = []
+                for idx in range(len(equipments) + 2):
+                    row.append(augmented[idx][pos])
+
+                data.append(row)
 
     return pd.DataFrame(data, columns=headers)
 
 
 # ENV
 API_ENDPOINT = 'http://smartenergymonitoring.dei.estg.ipleiria.pt/api'
-BROKER_ENDPOINT = 'smartenergymonitoring.dei.estg.ipleiria.pt'
+BROKER_ENDPOINT = 'broker.hivemq.com'
 BROKER_PORT = 1883
 
 # GLOBAL VARIABLES
