@@ -15,6 +15,8 @@ class ConsumptionController extends Controller
 {
     public function getUserConsumptions(User $user, Request $request)
     {
+        
+
         $hasLimit = $request->query('limit') != null;
         $limit = $request->query('limit');
         $hasObservation = $request->query('observation') != null;

@@ -19,6 +19,15 @@
         />
       </router-link>
 
+      <router-link :to="{ name: 'equipmentTypes' }" class="m-4 notification">
+        <font-awesome-icon
+          class="notSelected"
+          :class="{ selected: $route.name == 'equipmentTypes' }"
+          icon="fa-solid fa-bolt"
+          size="2x"
+        />
+      </router-link>
+
       <div class="m-3">
         <b-dropdown variant="link" right no-caret>
           <template #button-content>

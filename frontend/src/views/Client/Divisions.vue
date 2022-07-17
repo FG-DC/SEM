@@ -65,7 +65,7 @@
     <b-modal
       id="modalRemove"
       ref="modalRemove"
-      :title="'You want to delete the ' + division.name + '?'"
+      :title="'Do you want to delete ' + division.name + '?'"
       centered
       @ok="deleteDivision"
     >
@@ -75,13 +75,13 @@
     <b-modal
       id="modalEdit"
       ref="modalEdit"
-      :title="'Edit Division ' + division.name"
+      title="Edit Division"
       centered
       @ok="editDivision(editDivisionName)"
     >
       <v-text-field
         :rules="nameRules"
-        v-model="editDivisionName"
+        v-model="newDivisionName"
         label="New division Name"
         solo
       ></v-text-field>
@@ -134,7 +134,7 @@ export default {
   },
   methods: {
     showModal(modal, item) {
-      this.newDivisionName = "";
+      this.newDivisionName = item.name;
       this.division = item;
       this.$refs[modal].show();
     },
@@ -151,7 +151,7 @@ export default {
     editDivision() {
       return axios
         .put(`/users/${this.userId}/divisions/${this.division.id}`, {
-          name: this.editDivisionName,
+          name: this.newDivisionName,
         })
         .then(() => {
           this.$socket.emit("divisionUpdate", this.userId);

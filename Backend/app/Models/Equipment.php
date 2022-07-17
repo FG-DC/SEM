@@ -31,7 +31,7 @@ class Equipment extends Model
 
     public function type()
     {
-        return $this->belongsTo(EquipmentType::class, 'equipment_type_id', 'id');
+        return $this->belongsTo(EquipmentType::class, 'equipment_type_id', 'id')->withTrashed();
     }
 
     public function division()

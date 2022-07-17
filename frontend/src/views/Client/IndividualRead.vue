@@ -17,7 +17,8 @@
           solo
         >
           <template slot="item" slot-scope="data">
-            {{isRequired(data.item.id)}}{{ data.item.division_name }} / {{ data.item.name }}
+            {{ isRequired(data.item.id) }}{{ data.item.division_name }} /
+            {{ data.item.name }}
           </template>
         </v-select>
       </div>
@@ -70,7 +71,7 @@
       id="modalAnalyse"
       centered
       size="xl"
-      :title="'Analysing the ' + selected.name"
+      :title="'Analysing ' + selected.name"
     >
       <div class="text-justify lead">
         <v-stepper v-model="step" value="1">
@@ -96,8 +97,7 @@
               conclusions will yield false results.
               <p>
                 <b>
-                  The process should be carried out from start to finish (1
-                  minute)
+                  The process should be carried out from start to finish
                 </b>
               </p>
               In case of any doubt, do not hesitate to contact us.
@@ -106,6 +106,18 @@
 
           <v-stepper-content class="mt-3" step="2">
             <span>
+              <h3>Analyze time</h3>
+              <b-input-group prepend="1" append="59" class="mb-3">
+                <b-form-input
+                  type="range"
+                  min="1"
+                  max="59"
+                  v-model="crono.timer"
+                ></b-form-input>
+              </b-input-group>
+              {{ crono.timer + " minute(s)" }}
+              <br />
+              <br />
               <b>
                 Please be sure that the {{ selected.name }} is turned OFF before
                 starting the process.
@@ -151,8 +163,8 @@
         >Now that you have added your habitation divisions and equipments we
         just need one more step!<br />
         We will analyze the eletrical information about your equipments, so,
-        please select the equipment that you want to start analyzing, press
-        start and follow the steps!
+        please select the equipment that you want to start analyzing, press the
+        start button and follow the steps!
       </span>
     </b-modal>
   </b-container>
@@ -185,7 +197,7 @@ export default {
         yAxis: [],
       },
       crono: {
-        timer: 0,
+        timer: 1,
         interval: 0,
         time: "00:00",
       },
@@ -247,7 +259,7 @@ export default {
     mqtt.connect(this.onMessage);
     await this.getStats();
     if (this.get_started < 3) await this.$store.dispatch("getAuthUser");
-      if (this.get_started == 2) this.showModal("getStartedModal");
+    if (this.get_started == 2) this.showModal("getStartedModal");
 
     await axios
       .get(`/users/${this.userId}/equipments`)
@@ -294,8 +306,8 @@ export default {
       this.step++;
       this.isCalibrating = true;
       this.hideModal();
-      this.crono.timer = 60;
 
+      this.crono.timer = this.crono.timer * 60;
       this.timeout = setTimeout(() => {
         mqtt.subscribe(this.topics);
         this.analysis.start = parseInt(new Date().getTime() / 1000);
@@ -326,7 +338,9 @@ export default {
       clearInterval(this.crono.interval);
 
       mqtt.publish(`${this.userId}/reset`, "reset");
+      mqtt.publish('/training', this.userId);
 
+      this.crono.timer = 1;
       this.step = 1;
       this.crono.time = "00:00";
 
@@ -386,12 +400,15 @@ export default {
     },
     isRequired(equipment) {
       for (let i = 0; i < this.stats.length; i++) {
-        if (this.stats[i].id == equipment && (this.stats[i].count == "Yes" || this.stats[i].count === 0)) {
+        if (
+          this.stats[i].id == equipment &&
+          (this.stats[i].count == "Yes" || this.stats[i].count === 0)
+        ) {
           return "(Need read) ";
         }
       }
       return "";
-    }
+    },
   },
 };
 </script>

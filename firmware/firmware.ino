@@ -20,7 +20,6 @@ WiFiServer server(80);
 WiFiClient client = server.available();
 MqttClient mqttClient(client);
 WiFiManager wifiManager;
-
 EnergyMonitor SCT013;
 
 char username[40] = "";
@@ -60,7 +59,7 @@ void setup() {
   mqttClient.onMessage(onMqttMessage);
 
   pinMode(PIN_SCT, INPUT);
-  SCT013.current(PIN_SCT, 15); //calibration value
+  SCT013.current(PIN_SCT, 15); 
 
   File file = SPIFFS.open("/data.txt", FILE_READ);
   String message = "";
@@ -162,10 +161,9 @@ float getConsumption() {
       sensorMax = sensorValue;
     }
   }
-  float irms = ((sensorMax - 1968) / 4096.0) * 3.3 * 0.7071 * (1800/70);
   */
-
-  float power = irms * HOME_VOLTAGE;  // Calcula o valor da Potencia Instantanea
+  float irms = ((sensorMax - 1968) / 4096.0) * 3.3 * 0.7071 * (1800/70);
+    float power = irms * HOME_VOLTAGE;  // Calcula o valor da Potencia Instantanea
   return power;
 }
 

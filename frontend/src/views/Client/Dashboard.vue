@@ -140,9 +140,9 @@
 
     <b-modal ref="getStartedModal" title="Get Started" centered>
       <span class="getStartedModal"
-        >Hi there! <br />You are currently in the dashboard page where you will
-        can see the most varied informations! <br />To start using the system
-        corretly you will have to do its configuration. To do that please access
+        >Hi! <br />This is the dashboard page where it is possible
+        to see the most varied information! <br />To start using the system
+        correctly, configuration is needed. To do that, please access
         the
         <b v-if="get_started == 0 || get_started == 1"
           ><router-link :to="{ name: 'settings' }">Settings</router-link>
