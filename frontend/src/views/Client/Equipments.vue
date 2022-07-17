@@ -56,7 +56,7 @@
       <b-modal
         id="modalRemove"
         ref="modalRemove"
-        :title="'You want to delete the ' + equipment.name + '?'"
+        :title="'Do you want to delete ' + equipment.name + '?'"
         centered
         @ok="deleteEquipment"
       >
@@ -66,7 +66,7 @@
       <b-modal
         id="modalEdit"
         ref="modalEdit"
-        :title="'Edit Equipment ' + equipment.name"
+        title="Edit Equipment"
         centered
         @ok="editEquipment"
       >

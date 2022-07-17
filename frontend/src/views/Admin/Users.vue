@@ -82,7 +82,7 @@
       <template #modal-footer class="d-flex">
         <b-button
           variant="primary"
-          :disabled="validateCreate('create')"
+          :disabled="validateCreate()"
           @click="createUser"
         >
           Create
@@ -148,7 +148,7 @@
       hide-footer
     >
       <div class="d-flex justify-content-between">
-        <h6>Password</h6>
+        <h6>Password reset</h6>
         <b-button variant="primary" @click="passwReset">
           <font-awesome-icon icon="fa-solid fa-arrows-rotate" size="lg" />
         </b-button>
@@ -157,7 +157,7 @@
     <b-modal
       id="modalRemove"
       ref="modalRemove"
-      :title="'You sure you want to delete ' + user.name + '?'"
+      :title="'Are you sure you want to delete ' + user.name + '?'"
       centered
       @ok="deleteUser"
     >
@@ -263,7 +263,7 @@ export default {
         });
     },
     validateCreate(type) {
-      let item = type == "create" ? this.user : this.user;
+      let item = this.user;
       if (
         item.name == "" ||
         item.email == "" ||

@@ -20,6 +20,7 @@ export default new Vuex.Store({
     navbarUpdate: false,
     trainingExamples: false,
     usersUpdate: false,
+    equipmentTypeUpdate: false,
   },
   getters: {
     username: (state) => state.username,
@@ -33,6 +34,7 @@ export default new Vuex.Store({
     navbarUpdate: (state) => state.navbarUpdate,
     usersUpdate: (state) => state.usersUpdate,
     trainingExamples: (state) => state.trainingExamples,
+    equipmentTypeUpdate: (state) => state.equipmentTypeUpdate,
   },
   mutations: {
     mutationAuthOk(state) {
@@ -78,13 +80,16 @@ export default new Vuex.Store({
     async SOCKET_usersUpdate(state) {
       state.usersUpdate = !state.usersUpdate;
     },
+    async SOCKET_equipmentTypeUpdate(state) {
+      console.log("aqui");
+      state.equipmentTypeUpdate = !state.equipmentTypeUpdate;
+    },
     async SOCKET_userBlock() {
-        this.dispatch("authLogout");
+      this.dispatch("authLogout");
     },
     async SOCKET_userDeleted() {
       this.dispatch("authLogout");
     },
-    
   },
 
   actions: {
@@ -126,9 +131,9 @@ export default new Vuex.Store({
         });
     },
 
-    authLogout(context,state) {
+    authLogout(context, state) {
       axios
-        .post("/logout",state)
+        .post("/logout", state)
         .then(() => {
           context.commit("mutationAuthReset");
           this.$socket.emit("logged_out", state);

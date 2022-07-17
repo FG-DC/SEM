@@ -13,7 +13,7 @@ import Alerts from "../views/Client/Alerts.vue";
 import AdminDashboard from "../views/Admin/DashboardAdmin.vue";
 import Users from "../views/Admin/Users.vue";
 import AdminProfile from "../views/Admin/Profile.vue";
-
+import EquipmentTypes from "../views/Admin/EquipmentTypes.vue";
 
 Vue.use(VueRouter);
 
@@ -77,6 +77,11 @@ const routes = [
     path: "/admin/users",
     name: "users",
     component: Users,
+  },
+  {
+    path: "/admin/equipmentTypes",
+    name: "equipmentTypes",
+    component: EquipmentTypes,
   },
   {
     path: "/admin/profile",

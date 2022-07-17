@@ -63,6 +63,10 @@ io.on("connection", function (socket) {
     io.to("administrators").emit("usersUpdate");
   });
 
+  socket.on("equipmentTypeUpdate", function () {
+    io.to("administrators").emit("equipmentTypeUpdate");
+  });
+
   socket.on("userBlock", function (userToBlock, block) {
     if(block){
       userToBlock = parseInt(userToBlock);
@@ -76,6 +80,8 @@ io.on("connection", function (socket) {
     io.to(userDeleted).emit("userDeleted");
     socket.leave(userDeleted)
   });
+
+  
 
 
 });

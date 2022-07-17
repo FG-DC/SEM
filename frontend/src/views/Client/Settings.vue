@@ -75,16 +75,16 @@
     </v-card>
     <b-modal ref="getStartedModal" title="Get Started" ok-only centered>
       <span v-if="get_started == 0" class="getStartedModal"
-        >This is the Settings Page, here is where you'll start the configuration
-        of your system.<br />
+        >This is the Settings Page, here you can make the system
+        configuration.<br />
         Press on the
         <router-link :to="{ name: 'divisions' }">Divisions tab</router-link> to
         get started
       </span>
 
       <span v-if="get_started == 1" class="getStartedModal">
-        If you already added all the divisions in your habitation, now let's add
-        the equipments. Please access the
+        If all the divisions in the housing had been added, let's add the
+        equipments. Please access the
         <router-link :to="{ name: 'equipments' }">Equipments tab</router-link>
         to continue
       </span>
