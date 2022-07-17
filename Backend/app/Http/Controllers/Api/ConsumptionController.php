@@ -5,24 +5,28 @@ namespace App\Http\Controllers\Api;
 use Exception;
 use App\Models\User;
 use App\Models\Consumption;
+use App\Models\Observation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ConsumptionPost;
 use App\Http\Resources\ConsumptionResource;
-use App\Models\Observation;
 
 class ConsumptionController extends Controller
 {
     public function getUserConsumptions(User $user, Request $request)
     {
-        
+        $hasInterval = $request->query('interval') != null;
+        $interval = $request->query('interval');
 
         $hasLimit = $request->query('limit') != null;
         $limit = $request->query('limit');
+
         $hasObservation = $request->query('observation') != null;
         $observation = $request->query('observation');
 
-        $query = Consumption::where('user_id', $user->id);
+        $query = Consumption::where('user_id', $user->id)->orderBy('timestamp', 'desc');
+
         if ($hasObservation) {
             if ($observation == '0') {
                 $query = $query->whereNull('observation_id');
@@ -30,11 +34,31 @@ class ConsumptionController extends Controller
                 $query = $query->whereNotNull('observation_id');
             }
         }
+
+        if ($hasInterval) {
+            $query = $query->selectRaw("avg(value) value, min(timestamp) timestamp");
+
+            switch ($interval) {
+                case 'minute':
+                    $query = $query->groupByRaw("DATE_FORMAT(timestamp, '%d/%m/%Y %H:%i')");
+                    break;
+
+                case 'hour':
+                    $query = $query->groupByRaw("DATE_FORMAT(timestamp, '%d/%m/%Y %H')");
+                    break;
+
+                case 'day':
+                    $query = $query->groupByRaw("DATE_FORMAT(timestamp, '%d/%m/%Y')");
+                    break;
+            }
+        }
+
         $query = $query->orderBy('timestamp', 'desc');
+
         if ($hasLimit) {
             $query = $query->limit($limit);
         }
-        return ConsumptionResource::collection($query->get());
+        return $hasInterval ? $query->get() : ConsumptionResource::collection($query->get());
     }
 
     public function getUserConsumption(User $user, Consumption $observation)

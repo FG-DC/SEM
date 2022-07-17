@@ -172,7 +172,7 @@ client_queue = []
 
 try:
     # START
-    print('---- S.E.M Dataset Builder ----')
+    print('---- SEM Dataset Builder ----')
 
     api = Api(API_ENDPOINT)
 

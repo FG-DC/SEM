@@ -127,7 +127,7 @@ client_queue = []
 
 try:
     # START
-    print('---- S.E.M Predict ----')
+    print('---- SEM Energy Disaggregation ----')
 
     api = Api(API_ENDPOINT)
 
