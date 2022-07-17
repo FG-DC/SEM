@@ -60,7 +60,7 @@ class Api:
             return response.json()['data']
 
         raise Exception(
-            f'GET Request to \'{self.endpoint}/users/{self.id}/equipments\' failed. Status code: {response.status_code}')
+            f'GET Request to \'{self.endpoint}/users/{userID}/equipments\' failed. Status code: {response.status_code}')
 
     def post_user_observation(self, userID, consumptionID, equipments, consumptions):
         DATA = {
@@ -75,7 +75,7 @@ class Api:
             return response.json()['data']
 
         raise Exception(
-            f'POST Request to \'{self.endpoint}/users/{self.id}/observations\' failed. Status code: {response.status_code}')
+            f'POST Request to \'{self.endpoint}/users/{userID}/observations\' failed. Status code: {response.status_code}')
 
 
 class Broker:
@@ -189,10 +189,10 @@ try:
 
                 for equipment in predictions.columns.values:
                     obs_indexes.append(equipment)
-                    obs_values.append(predictions[equipment].values[-1])
+                    obs_values.append(predictions[equipment].values[0])
 
                 api.post_user_observation(
-                    client, consumptions[-1]['id'], obs_indexes, obs_values)
+                    client, consumptions[0]['id'], obs_indexes, obs_values)
                 broker.publish(f'{client}/observation')
 
                 print(

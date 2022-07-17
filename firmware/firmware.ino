@@ -219,7 +219,7 @@ void startWiFiManager() {
   WiFiManagerParameter custom_password("password", "Password", "", 40);
   wifiManager.addParameter(&custom_password);
 
-  wifiManager.autoConnect("SEM");
+  wifiManager.autoConnect("SEMD");
 
   if (shouldSaveConfig) {
     strcpy(username, custom_username.getValue());

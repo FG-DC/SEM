@@ -60,7 +60,7 @@ class Api:
             return response.json()['data']
 
         raise Exception(
-            f'GET Request to \'{self.endpoint}/users/{self.id}/training-examples\' failed. Status code: {response.status_code}')
+            f'GET Request to \'{self.endpoint}/users/{userID}/training-examples\' failed. Status code: {response.status_code}')
 
     def get_user_equipments(self, userID):
         response = requests.get(
@@ -70,7 +70,7 @@ class Api:
             return response.json()['data']
 
         raise Exception(
-            f'GET Request to \'{self.endpoint}/users/{self.id}/equipments\' failed. Status code: {response.status_code}')
+            f'GET Request to \'{self.endpoint}/users/{userID}/equipments\' failed. Status code: {response.status_code}')
 
 
 class Broker:
@@ -97,6 +97,13 @@ class Broker:
         client.connect(BROKER_ENDPOINT, BROKER_PORT)
         client.loop_start()
         self.client = client
+
+    def subscribe(self, topic):
+        def on_message(client, userdata, msg):
+            client_queue.append(msg.payload.decode())
+
+        self.client.subscribe(topic)
+        self.client.on_message = on_message
 
     def publish(self, topic, msg=''):
         self.client.publish(topic, msg)
@@ -161,9 +168,7 @@ API_ENDPOINT = 'http://smartenergymonitoring.dei.estg.ipleiria.pt/api'
 BROKER_ENDPOINT = 'broker.hivemq.com'
 BROKER_PORT = 1883
 
-# GLOBAL VARIABLES
-x_axis = []
-y_axis = []
+client_queue = []
 
 try:
     # START
@@ -180,26 +185,27 @@ try:
     # -> MQTT BROKER
     broker = Broker(BROKER_ENDPOINT, BROKER_PORT)
     broker.connect()
+    broker.subscribe('/training')
 
     # PROCCESS
+    while True:
+        while len(client_queue) > 0:
+            client = client_queue[0]
+            client_queue = client_queue[1:]
 
-    # -> CLIENTS = USERS[TYPE = 'C']
-    clients = api.get_clients()
+            print(
+                f'[{datetime.now().strftime("%d/%m/%Y %H:%M:%S")}] CLIENT {client} - LOADING')
 
-    for client in clients:
-        print(
-            f'[{datetime.now().strftime("%d/%m/%Y %H:%M:%S")}] CLIENT {client["id"]} - LOADING')
+            equipments = api.get_user_equipments(client)
+            examples = api.get_user_training_examples(client)
 
-        equipments = api.get_user_equipments(client['id'])
-        examples = api.get_user_training_examples(client['id'])
+            df = dataToDataframe(examples, equipments)
+            df['timestamp'] = df['timestamp'].astype('int')
+            df.to_csv(f'./datasets/{client}.csv', index=False)
 
-        df = dataToDataframe(examples, equipments)
-        df['timestamp'] = df['timestamp'].astype('int')
-        df.to_csv(f'./datasets/{client["id"]}.csv', index=False)
-
-        print(
-            f'[{datetime.now().strftime("%d/%m/%Y %H:%M:%S")}] CLIENT {client["id"]} - DONE')
-        print()
+            print(
+                f'[{datetime.now().strftime("%d/%m/%Y %H:%M:%S")}] CLIENT {client} - DONE')
+            print()
 
 except Exception as e:
     print(f'[Exception] {e}')
