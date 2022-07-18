@@ -14,7 +14,14 @@ class StatisticController extends Controller
 {
     public function getUserEnergyStatistics(Request $request, User $user)
     {
-        if (Auth::user()->id !== $user->id) {
+        $isAffiliate = false;
+        foreach ($user->affiliates as $affiliate) {
+            if (Auth::user()->id == $affiliate->id) {
+                $isAffiliate = true;
+                break;
+            }
+        }
+        if (Auth::user()->id !== $user->id && !$isAffiliate) {
             return response(['message' => "This action is unauthorized."], 403);
         }
 
