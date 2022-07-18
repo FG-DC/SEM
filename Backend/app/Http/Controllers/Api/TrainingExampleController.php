@@ -82,7 +82,7 @@ class TrainingExampleController extends Controller
             $trainingExample->equipment_id = $equipment->id;
             $trainingExample->equipment_consumption = $equipmentStatusON ? ($individual ? $consumption->value : $equipment->consumption) : 0;
             $trainingExample->equipment_division = $equipment->division->name;
-            $trainingExample->equipment_type = $equipment->type->name;
+            $trainingExample->equipment_type = $equipment->type ? $equipment->type->name : 'N/A';
             $trainingExample->equipment_activity = $equipment->activity;
             $trainingExample->equipment_status = $equipmentStatusON ? 'ON' : 'OFF';
 

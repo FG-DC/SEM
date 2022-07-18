@@ -89,16 +89,27 @@
         solo
       />
 
-      <v-select
-        v-if="cardClicked == 0"
-        data-app
-        v-model="typeSelected"
-        :items="typeFilter"
-        item-text="name"
-        return-object
-        filled
-        solo
-      />
+      <div v-if="cardClicked == 0" class="d-flex">
+        <v-select
+          class="flex-grow-1"
+          v-model="typeSelected"
+          :items="typeFilter"
+          item-text="name"
+          return-object
+          data-app
+          filled
+          solo
+        />
+
+        <!-- BUTTON START -->
+        <b-button
+          v-b-modal.modal-calibration
+          class="action-button"
+          variant="primary"
+        >
+          <font-awesome-icon icon="fa-solid fa-bolt" size="lg" />
+        </b-button>
+      </div>
 
       <!-- CHART -->
       <apexchart
@@ -108,6 +119,27 @@
         :options="chartOptions"
         :series="chartSeries"
       />
+    </b-modal>
+
+    <!-- MODAL -->
+    <b-modal ref="modal-calibration" id="modal-calibration" hide-footer centered title="Calibration">
+      <div class="d-flex">
+        <v-text-field class="flex-grow-1" v-model="calibration" type="number" solo />
+        <b-button
+            class="action-button-modal"
+            variant="success"
+            @click="calibrationSave"
+          >
+            <font-awesome-icon icon="fa-solid fa-save" size="lg" />
+        </b-button>
+        <b-button
+            class="action-button-modal"
+            variant="danger"
+            @click="calibrationRestore"
+          >
+            <font-awesome-icon icon="fa-solid fa-refresh" size="lg" />
+        </b-button>
+      </div>
     </b-modal>
 
     <!-- MODAL -->
@@ -218,6 +250,8 @@ export default {
         { name: 'Last hours', interval: 'hour' },
         { name: 'Last days', interval: 'day' },
       ],
+
+      calibration: null,
     };
   },
   computed: {
@@ -614,6 +648,16 @@ export default {
     showDashboardModal() {
       if (this.users.length > 1) this.$refs["user-modal"].show();
     },
+    calibrationSave() {
+      mqtt.publish(`${this.userId}/calibration`, this.calibration);
+      this.$refs["modal-calibration"].hide();
+      this.calibration = null;
+    },
+    calibrationRestore() {
+      mqtt.publish(`${this.userId}/calibration`, "default");
+      this.$refs["modal-calibration"].hide();
+      this.calibration = null;
+    }
   },
   watch: {
     divisionSelected(newVal, oldVal) {
@@ -686,5 +730,17 @@ h3 {
 
 .getStartedModal {
   font-size: 20px;
+}
+
+.action-button {
+  width: 57px;
+  height: 57px;
+  margin-left: 10px;
+}
+
+.action-button-modal {
+  width: 50px;
+  height: 50px;
+  margin-left: 10px;
 }
 </style>
