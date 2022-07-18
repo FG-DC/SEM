@@ -106,7 +106,7 @@
 
           <v-stepper-content class="mt-3" step="2">
             <span>
-              <h3>Analyze time</h3>
+              <h3>Period of analysis</h3>
               <b-input-group prepend="1" append="59" class="mb-3">
                 <b-form-input
                   type="range"
@@ -312,6 +312,11 @@ export default {
         mqtt.subscribe(this.topics);
         this.analysis.start = parseInt(new Date().getTime() / 1000);
         this.crono.interval = setInterval(this.countdown, 1000);
+
+        this.graphConfig = {
+          xAxis: [],
+          yAxis: [],
+        };
 
         this.isCalibrating = false;
       }, 5000);

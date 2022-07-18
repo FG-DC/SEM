@@ -89,6 +89,17 @@
         solo
       />
 
+      <v-select
+        v-if="cardClicked == 0"
+        data-app
+        v-model="typeSelected"
+        :items="typeFilter"
+        item-text="name"
+        return-object
+        filled
+        solo
+      />
+
       <!-- CHART -->
       <apexchart
         v-if="cardClicked != null"
@@ -199,9 +210,20 @@ export default {
 
       users: [],
       userSelected: {},
+
+      typeSelected: { name: 'Live', interval: null },
+      typeFilter: [
+        { name: 'Live', interval: null },
+        { name: 'Last minutes', interval: 'minute' },
+        { name: 'Last hours', interval: 'hour' },
+        { name: 'Last days', interval: 'day' },
+      ],
     };
   },
   computed: {
+    isLive() {
+      return this.typeSelected.interval == null;
+    },
     get_started() {
       return this.$store.getters.get_started;
     },
@@ -256,8 +278,7 @@ export default {
     this.getAffiliates();
 
     this.getKWhs();
-    this.getLastNConsumptions(12);
-    this.getLastNObservations(12);
+    this.getLastNObservations(60);
   },
   methods: {
     initEnv() {
@@ -293,11 +314,15 @@ export default {
             value: message,
             timestamp: new Date(),
           };
-          this.addToArray(this.consumptions, this.consumption);
 
-          if (this.cardClicked == 0) {
-            this.loadChart(this.consumptions);
+          if (this.isLive) {
+            this.addToArray(this.consumptions, this.consumption);
+
+            if (this.cardClicked == 0) {
+              this.loadChart(this.consumptions);
+            }
           }
+
           break;
 
         //TOPIC: #/OBSERVATION
@@ -401,11 +426,11 @@ export default {
       }
       array.push(obj);
     },
-    getLastNConsumptions(limit) {
+    getLastNConsumptions(limit, interval) {
       return axios
-        .get(`/users/${this.user.id}/consumptions?limit=${limit}`)
+        .get(`/users/${this.user.id}/consumptions?limit=${limit}&interval=${interval}`)
         .then((response) => {
-          let data = response.data.data;
+          let data = response.data;
 
           for (let i = data.length - 1; i >= 0; i--) {
             this.consumption = {
@@ -584,8 +609,7 @@ export default {
       this.user = selected;
       mqtt.subscribe([this.user.id + "/power", this.user.id + "/observation"]);
       this.getKWhs();
-      this.getLastNConsumptions(12);
-      this.getLastNObservations(12);
+      this.getLastNObservations(60);
     },
     showDashboardModal() {
       if (this.users.length > 1) this.$refs["user-modal"].show();
@@ -594,6 +618,16 @@ export default {
   watch: {
     divisionSelected(newVal, oldVal) {
       this.loadChart(this.getFilteredEquipments());
+    },
+    typeSelected(newVal, oldVal) {
+      this.consumptions = [];
+      
+      if (newVal.interval != null) {
+        this.getLastNConsumptions(60, newVal.interval)
+          .then(() => {
+            this.loadChart(this.consumptions);
+          })
+      }
     },
   },
 };

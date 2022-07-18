@@ -36,7 +36,7 @@ class ConsumptionController extends Controller
         }
 
         if ($hasInterval) {
-            $query = $query->selectRaw("avg(value) value, min(timestamp) timestamp");
+            $query = $query->selectRaw("round(avg(value),2) value, min(timestamp) timestamp");
 
             switch ($interval) {
                 case 'minute':

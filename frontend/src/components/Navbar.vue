@@ -16,7 +16,7 @@
         :title="
           'There is ' +
           equipsNoTrain.length +
-          ' equipments that has not been analyzed'
+          ' equipments that has not been analysed'
         "
       >
         <font-awesome-icon
@@ -116,9 +116,7 @@ export default {
         .get(`/users/${this.userId}/stats`)
         .then((response) => {
           this.stats = response.data;
-          this.equipsNoTrain = this.stats.training_examples.filter(function (
-            item
-          ) {
+          this.equipsNoTrain = this.stats.training_examples.filter(function (item) {
             return item.count == 0;
           });
         })

@@ -9,7 +9,7 @@ export default {
     endpoint: "/mqtt",
     clean: true, // Reserved session
     connectTimeout: 1000000, // Time out
-    reconnectPeriod: 1000000, // Reconnection interval
+    reconnectPeriod: 900000, // Reconnection interval
     clientId: "clientID-" + Math.round(Math.random() * 10000),
     username: "",
     password: "",
@@ -67,7 +67,7 @@ export default {
           //console.log("Error unsubscribing to \"" + topic + "\"");
           return;
         }
-        this.topics = this.topics.filter((item)=>{
+        this.topics = this.topics.filter((item) => {
           return item != topic
         })
       });
